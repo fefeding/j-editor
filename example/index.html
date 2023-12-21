@@ -11,6 +11,11 @@
 		#mycanvas_container{
 			overflow: hidden;
 			text-align: center;
+			background-color: #ccc;
+			position: relative;
+			width: 1024px;
+			height: 1024px;
+			margin: 10px auto;
 		}
 		
 	</style>
@@ -19,8 +24,12 @@
 		<div id="mycanvas_container"></div>
 	</body>
 	<script type="module">	
-		
+		import JEditor from "../dist/j-editor.esm.js";
 
-		
+		const container = document.getElementById('mycanvas_container');
+		const editor = new JEditor(container, {
+			width: 400,
+			height: 600
+		});
 	</script>
 </html>
