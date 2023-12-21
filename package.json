@@ -1,0 +1,32 @@
+{
+  "name": "j-editer",
+  "version": "1.0.0",
+  "description": "设计组件",
+  "main": "src/index.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "dev": "node test/dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jiamao/j-editer.git"
+  },
+  "keywords": [
+    "sig"
+  ],
+  "author": "fefeding",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jiamao/j-editer/issues"
+  },
+  "homepage": "https://github.com/jiamao/j-editer#readme",
+  "devDependencies": {
+    "express": "^4.18.2"
+  },
+  "dependencies": {
+    "pixi.js": "^7.3.2"
+  }
+}

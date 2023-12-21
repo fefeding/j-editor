@@ -1,0 +1,4 @@
+._config.yml
+.travis.yml
+docs
+node_modules
