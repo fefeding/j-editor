@@ -26468,6 +26468,7 @@ _HTMLText.defaultAutoResolution = !0;
 class editor {
 
     constructor(container, option={}) {
+        this.container = container;
         this.renderApp = new Application({ background: option.renderBackground||'#fff'});
         this.controlApp = new Application({ backgroundAlpha: 0, resizeTo: container });
         container.appendChild(this.controlApp.view);
@@ -26483,31 +26484,26 @@ class editor {
         if(option.width && option.height) {
             this.setSize(option.width, option.height);
         }
-        // create a new Sprite from an image path
-        const bunny = Sprite.from('https://pixijs.com/assets/bunny.png');
-
-        // center the sprite's anchor point
-        bunny.anchor.set(0.5);
-
-        // move the sprite to the center of the screen
-        bunny.x = this.renderApp.screen.width / 2;
-        bunny.y = this.renderApp.screen.height / 2;
-
-        this.renderApp.stage.addChild(bunny);
 
         // Listen for animate update
         this.renderApp.ticker.add((delta) =>
         {
             option.onTicker && option.onTicker(delta);
-            // just for fun, let's rotate mr rabbit a little
-            // delta is 1 if running at 100% performance
-            // creates frame-independent transformation
-            bunny.rotation += 0.1 * delta;
         });
     }
 
     setSize(width, height) {
         this.renderApp.renderer.resize(width, height);
+
+        let controlWidth = this.controlApp.renderer.width;
+        if(controlWidth < width) {
+            controlWidth = width * 2;
+        }
+        let controlHeight = this.controlApp.renderer.height;
+        if(controlHeight < height) {
+            controlHeight = height * 2;
+        }
+        this.controlApp.renderer.resize(controlWidth, controlHeight);
 
         this.left = this.controlApp.renderer.width / 2 - width /2;
         this.top = this.controlApp.renderer.height / 2 - height /2;
