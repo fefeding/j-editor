@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import jImage from './image.js';
 
 export default class editor {
 
@@ -9,7 +10,9 @@ export default class editor {
         container.appendChild(this.controlApp.view);
         container.appendChild(this.renderApp.view);
 
-        this.renderApp.view.style.position = 'absolute';       
+        this.renderApp.view.style.position = 'absolute';     
+        
+        this.children = [];
 
         this.init(option);
     }
@@ -25,6 +28,14 @@ export default class editor {
         {
             option.onTicker && option.onTicker(delta);
         });
+    }
+
+    get width() {
+        return this.renderApp.screen.width;
+    }
+
+    get height() {
+        return this.renderApp.screen.height;
     }
 
     setSize(width, height) {
@@ -44,9 +55,23 @@ export default class editor {
         this.top = this.controlApp.renderer.height / 2 - height /2;
 
         this.renderApp.view.style.left = `${this.left}px`;
-        this.renderApp.view.style.top = `${this.top}px`;
+        this.renderApp.view.style.top = `${this.top}px`;        
+    }
 
-        
+    // 添加元素到画布
+    addChild(el) {
+        this.children.push(el);
+        if(el.container) this.renderApp.stage.addChild(el.container);
+    }
+
+    // 创建图片元素
+    createImage(url, option={}) {
+        const img = new jImage({
+            ...option,
+            url,
+            editor: this,
+        });
+        return img;
     }
 }
 

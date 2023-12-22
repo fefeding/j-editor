@@ -26465,6 +26465,69 @@ _HTMLText.defaultMaxWidth = 2024, /** Default maxHeight, set at construction */
 _HTMLText.defaultMaxHeight = 2024, /** Default autoResolution for all HTMLText objects */
 _HTMLText.defaultAutoResolution = !0;
 
+class element {
+
+    constructor(option) {
+        this.container = new Container();
+
+        this.editor = option.editor;
+    }
+
+    // 位置
+    get x() {
+        return this.container.x;
+    }
+    set x(v) {
+        this.container.x = v;
+    }
+    get y() {
+        return this.container.y;
+    }
+    set y(v) {
+        this.container.y = v;
+    }
+
+    // 旋转角度
+    set rotation(v) {
+        this.container.rotation = v;
+    }
+    get rotation() {
+        return this.container.rotation;
+    }
+
+    // 新增子元素
+    addChild(child) {
+        return this.container.addChild(child);
+    }
+
+    toJSON() {
+        return JSON.stringify(this);
+    }
+}
+
+// 图片元素
+class image extends element {
+    constructor(option) {
+        super(option);
+        // 图片载体
+        this.sprite = new Sprite();
+        this.addChild(this.sprite);
+
+        if(option.url) {
+            this.url = option.url;
+        }
+    }
+
+    // 当前图片url
+    get url() {
+        return  this.__url;
+    }
+    set url(v) {
+        this.sprite.texture = Texture.from(v);  
+        this.__url = v;
+    }
+}
+
 class editor {
 
     constructor(container, option={}) {
@@ -26474,7 +26537,9 @@ class editor {
         container.appendChild(this.controlApp.view);
         container.appendChild(this.renderApp.view);
 
-        this.renderApp.view.style.position = 'absolute';       
+        this.renderApp.view.style.position = 'absolute';     
+        
+        this.children = [];
 
         this.init(option);
     }
@@ -26490,6 +26555,14 @@ class editor {
         {
             option.onTicker && option.onTicker(delta);
         });
+    }
+
+    get width() {
+        return this.renderApp.screen.width;
+    }
+
+    get height() {
+        return this.renderApp.screen.height;
     }
 
     setSize(width, height) {
@@ -26509,9 +26582,23 @@ class editor {
         this.top = this.controlApp.renderer.height / 2 - height /2;
 
         this.renderApp.view.style.left = `${this.left}px`;
-        this.renderApp.view.style.top = `${this.top}px`;
+        this.renderApp.view.style.top = `${this.top}px`;        
+    }
 
-        
+    // 添加元素到画布
+    addChild(el) {
+        this.children.push(el);
+        if(el.container) this.renderApp.stage.addChild(el.container);
+    }
+
+    // 创建图片元素
+    createImage(url, option={}) {
+        const img = new image({
+            ...option,
+            url,
+            editor: this,
+        });
+        return img;
     }
 }
 

@@ -4,6 +4,8 @@ export default class element {
 
     constructor(option) {
         this.container = new PIXI.Container();
+
+        this.editor = option.editor;
     }
 
     // 位置
@@ -20,16 +22,20 @@ export default class element {
         this.container.y = v;
     }
 
-    // 宽度
-    width = 0;
-    // 高度
-    height = 0;
-
     // 旋转角度
     set rotation(v) {
         this.container.rotation = v;
     }
     get rotation() {
         return this.container.rotation;
+    }
+
+    // 新增子元素
+    addChild(child) {
+        return this.container.addChild(child);
+    }
+
+    toJSON() {
+        return JSON.stringify(this);
     }
 }
