@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 import jImage from './image.js';
+import jBackground from './background.js';
 
 export default class editor {
 
@@ -14,6 +15,9 @@ export default class editor {
         
         this.children = [];
 
+        this.background = new jBackground({});
+        this.addChild(this.background);
+
         this.init(option);
     }
 
@@ -27,6 +31,7 @@ export default class editor {
         this.renderApp.ticker.add((delta) =>
         {
             option.onTicker && option.onTicker(delta);
+            
         });
     }
 
@@ -55,11 +60,15 @@ export default class editor {
         this.top = this.controlApp.renderer.height / 2 - height /2;
 
         this.renderApp.view.style.left = `${this.left}px`;
-        this.renderApp.view.style.top = `${this.top}px`;        
+        this.renderApp.view.style.top = `${this.top}px`;  
+        
+        // 背景大小一直拉满
+        this.background.resize(this.width, this.height);
     }
 
     // 添加元素到画布
     addChild(el) {
+        el.editor = this;
         this.children.push(el);
         if(el.container) this.renderApp.stage.addChild(el.container);
     }

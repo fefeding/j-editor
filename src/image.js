@@ -19,7 +19,14 @@ export default class image extends element {
         return  this.__url;
     }
     set url(v) {
-        this.sprite.texture = PIXI.Texture.from(v);  
+        this.load(v);
         this.__url = v;
+    }
+
+    load(url) {
+        return PIXI.Assets.load(url).then((texture) => {
+            this.sprite.texture = texture;
+            this.emit('load', texture);
+        });
     }
 }

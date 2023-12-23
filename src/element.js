@@ -1,8 +1,10 @@
+import EventEmiter from 'eventemitter3';
 import * as PIXI from 'pixi.js';
 
-export default class element {
+export default class element extends EventEmiter {
 
     constructor(option) {
+        super();
         this.container = new PIXI.Container();
 
         this.editor = option.editor;
