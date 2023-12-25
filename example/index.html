@@ -42,7 +42,7 @@
 
 		const container = document.getElementById('mycanvas_container');
 		container.style.height = window.innerHeight + 'px';
-		
+
 		const editor = new JEditor(container, {
 			width: 600,
 			height: 800
@@ -51,9 +51,15 @@
 		editor.background.url = 'https://jtcospublic.ciccten.com/public/image/bf.jpg';
 
 		const img = editor.createImage('https://pixijs.com/assets/bunny.png');
-		img.x = editor.width / 2;
-		img.y = editor.height / 2;
-
+		img.width = 100;
+		img.height = 100;
+		
+		img.on('load', () => {
+			//img.resize(100, 100);
+			
+			img.x = editor.width / 2 - img.width / 2;
+			img.y = editor.height / 2 - img.height / 2;
+		});
 		editor.addChild(img);
 	</script>
 </html>

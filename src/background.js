@@ -11,13 +11,5 @@ export default class background extends image {
         })
     }
 
-    // 重置大小
-    resize(w, h) {
-        const rw = w / this.sprite.texture.width;
-        if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
-        const rh = h / this.sprite.texture.height;
-        if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
-
-        console.log('background resize', rw, rh);
-    }
+    
 }

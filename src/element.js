@@ -6,8 +6,9 @@ export default class element extends EventEmiter {
     constructor(option) {
         super();
         this.container = new PIXI.Container();
-
+        
         this.editor = option.editor;
+        this.option = option || {};
     }
 
     // 位置

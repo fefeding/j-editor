@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import jImage from './image.js';
 import jBackground from './background.js';
+import * as Dragging from './dragging.js';
 
 export default class editor {
 
@@ -36,11 +37,12 @@ export default class editor {
         }
 
         // Listen for animate update
-        this.renderApp.ticker.add((delta) =>
-        {
+        this.renderApp.ticker.add((delta) =>  {
             option.onTicker && option.onTicker(delta);
             
         });
+        // 绑定拖放操作, 所有操作都放到control层
+        Dragging.bind(this.controlApp);
     }
 
     get width() {
@@ -78,7 +80,12 @@ export default class editor {
     addChild(el) {
         el.editor = this;
         this.children.push(el);
-        if(el.container) this.renderApp.stage.addChild(el.container);
+        if(el.container) {
+            el.app = this.renderApp;
+            this.renderApp.stage.addChild(el.container);
+
+            //Dragging.bindElement(el);// 拖放操作
+        }
     }
 
     // 创建图片元素

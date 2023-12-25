@@ -27,9 +27,9 @@ module.exports = {
         preferBuiltins: false
       }),
       commonjs(),
-      babel({
+      /*babel({
         presets: ['@babel/preset-env'],  
         exclude: 'node_modules/**' // 只编译我们的源代码
-      }),
+      }),*/
     ]
   };

@@ -1,143 +1,3 @@
-function ownKeys(e, r) {
-  var t = Object.keys(e);
-  if (Object.getOwnPropertySymbols) {
-    var o = Object.getOwnPropertySymbols(e);
-    r && (o = o.filter(function (r) {
-      return Object.getOwnPropertyDescriptor(e, r).enumerable;
-    })), t.push.apply(t, o);
-  }
-  return t;
-}
-function _objectSpread2(e) {
-  for (var r = 1; r < arguments.length; r++) {
-    var t = null != arguments[r] ? arguments[r] : {};
-    r % 2 ? ownKeys(Object(t), !0).forEach(function (r) {
-      _defineProperty(e, r, t[r]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) {
-      Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r));
-    });
-  }
-  return e;
-}
-function _toPrimitive(t, r) {
-  if ("object" != typeof t || !t) return t;
-  var e = t[Symbol.toPrimitive];
-  if (void 0 !== e) {
-    var i = e.call(t, r || "default");
-    if ("object" != typeof i) return i;
-    throw new TypeError("@@toPrimitive must return a primitive value.");
-  }
-  return ("string" === r ? String : Number)(t);
-}
-function _toPropertyKey(t) {
-  var i = _toPrimitive(t, "string");
-  return "symbol" == typeof i ? i : String(i);
-}
-function _classCallCheck(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor);
-  }
-}
-function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  Object.defineProperty(Constructor, "prototype", {
-    writable: false
-  });
-  return Constructor;
-}
-function _defineProperty(obj, key, value) {
-  key = _toPropertyKey(key);
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-  return obj;
-}
-function _inherits(subClass, superClass) {
-  if (typeof superClass !== "function" && superClass !== null) {
-    throw new TypeError("Super expression must either be null or a function");
-  }
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      writable: true,
-      configurable: true
-    }
-  });
-  Object.defineProperty(subClass, "prototype", {
-    writable: false
-  });
-  if (superClass) _setPrototypeOf(subClass, superClass);
-}
-function _getPrototypeOf(o) {
-  _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) {
-    return o.__proto__ || Object.getPrototypeOf(o);
-  };
-  return _getPrototypeOf(o);
-}
-function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
-    o.__proto__ = p;
-    return o;
-  };
-  return _setPrototypeOf(o, p);
-}
-function _isNativeReflectConstruct() {
-  if (typeof Reflect === "undefined" || !Reflect.construct) return false;
-  if (Reflect.construct.sham) return false;
-  if (typeof Proxy === "function") return true;
-  try {
-    Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {}));
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-function _assertThisInitialized(self) {
-  if (self === void 0) {
-    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-  }
-  return self;
-}
-function _possibleConstructorReturn(self, call) {
-  if (call && (typeof call === "object" || typeof call === "function")) {
-    return call;
-  } else if (call !== void 0) {
-    throw new TypeError("Derived constructors may only return object or undefined");
-  }
-  return _assertThisInitialized(self);
-}
-function _createSuper(Derived) {
-  var hasNativeReflectConstruct = _isNativeReflectConstruct();
-  return function _createSuperInternal() {
-    var Super = _getPrototypeOf(Derived),
-      result;
-    if (hasNativeReflectConstruct) {
-      var NewTarget = _getPrototypeOf(this).constructor;
-      result = Reflect.construct(Super, arguments, NewTarget);
-    } else {
-      result = Super.apply(this, arguments);
-    }
-    return _possibleConstructorReturn(this, result);
-  };
-}
-
 var ENV = /* @__PURE__ */ ((ENV2) => (ENV2[ENV2.WEBGL_LEGACY = 0] = "WEBGL_LEGACY", ENV2[ENV2.WEBGL = 1] = "WEBGL", ENV2[ENV2.WEBGL2 = 2] = "WEBGL2", ENV2))(ENV || {}), RENDERER_TYPE = /* @__PURE__ */ ((RENDERER_TYPE2) => (RENDERER_TYPE2[RENDERER_TYPE2.UNKNOWN = 0] = "UNKNOWN", RENDERER_TYPE2[RENDERER_TYPE2.WEBGL = 1] = "WEBGL", RENDERER_TYPE2[RENDERER_TYPE2.CANVAS = 2] = "CANVAS", RENDERER_TYPE2))(RENDERER_TYPE || {}), BUFFER_BITS = /* @__PURE__ */ ((BUFFER_BITS2) => (BUFFER_BITS2[BUFFER_BITS2.COLOR = 16384] = "COLOR", BUFFER_BITS2[BUFFER_BITS2.DEPTH = 256] = "DEPTH", BUFFER_BITS2[BUFFER_BITS2.STENCIL = 1024] = "STENCIL", BUFFER_BITS2))(BUFFER_BITS || {}), BLEND_MODES = /* @__PURE__ */ ((BLEND_MODES2) => (BLEND_MODES2[BLEND_MODES2.NORMAL = 0] = "NORMAL", BLEND_MODES2[BLEND_MODES2.ADD = 1] = "ADD", BLEND_MODES2[BLEND_MODES2.MULTIPLY = 2] = "MULTIPLY", BLEND_MODES2[BLEND_MODES2.SCREEN = 3] = "SCREEN", BLEND_MODES2[BLEND_MODES2.OVERLAY = 4] = "OVERLAY", BLEND_MODES2[BLEND_MODES2.DARKEN = 5] = "DARKEN", BLEND_MODES2[BLEND_MODES2.LIGHTEN = 6] = "LIGHTEN", BLEND_MODES2[BLEND_MODES2.COLOR_DODGE = 7] = "COLOR_DODGE", BLEND_MODES2[BLEND_MODES2.COLOR_BURN = 8] = "COLOR_BURN", BLEND_MODES2[BLEND_MODES2.HARD_LIGHT = 9] = "HARD_LIGHT", BLEND_MODES2[BLEND_MODES2.SOFT_LIGHT = 10] = "SOFT_LIGHT", BLEND_MODES2[BLEND_MODES2.DIFFERENCE = 11] = "DIFFERENCE", BLEND_MODES2[BLEND_MODES2.EXCLUSION = 12] = "EXCLUSION", BLEND_MODES2[BLEND_MODES2.HUE = 13] = "HUE", BLEND_MODES2[BLEND_MODES2.SATURATION = 14] = "SATURATION", BLEND_MODES2[BLEND_MODES2.COLOR = 15] = "COLOR", BLEND_MODES2[BLEND_MODES2.LUMINOSITY = 16] = "LUMINOSITY", BLEND_MODES2[BLEND_MODES2.NORMAL_NPM = 17] = "NORMAL_NPM", BLEND_MODES2[BLEND_MODES2.ADD_NPM = 18] = "ADD_NPM", BLEND_MODES2[BLEND_MODES2.SCREEN_NPM = 19] = "SCREEN_NPM", BLEND_MODES2[BLEND_MODES2.NONE = 20] = "NONE", BLEND_MODES2[BLEND_MODES2.SRC_OVER = 0] = "SRC_OVER", BLEND_MODES2[BLEND_MODES2.SRC_IN = 21] = "SRC_IN", BLEND_MODES2[BLEND_MODES2.SRC_OUT = 22] = "SRC_OUT", BLEND_MODES2[BLEND_MODES2.SRC_ATOP = 23] = "SRC_ATOP", BLEND_MODES2[BLEND_MODES2.DST_OVER = 24] = "DST_OVER", BLEND_MODES2[BLEND_MODES2.DST_IN = 25] = "DST_IN", BLEND_MODES2[BLEND_MODES2.DST_OUT = 26] = "DST_OUT", BLEND_MODES2[BLEND_MODES2.DST_ATOP = 27] = "DST_ATOP", BLEND_MODES2[BLEND_MODES2.ERASE = 26] = "ERASE", BLEND_MODES2[BLEND_MODES2.SUBTRACT = 28] = "SUBTRACT", BLEND_MODES2[BLEND_MODES2.XOR = 29] = "XOR", BLEND_MODES2))(BLEND_MODES || {}), DRAW_MODES = /* @__PURE__ */ ((DRAW_MODES2) => (DRAW_MODES2[DRAW_MODES2.POINTS = 0] = "POINTS", DRAW_MODES2[DRAW_MODES2.LINES = 1] = "LINES", DRAW_MODES2[DRAW_MODES2.LINE_LOOP = 2] = "LINE_LOOP", DRAW_MODES2[DRAW_MODES2.LINE_STRIP = 3] = "LINE_STRIP", DRAW_MODES2[DRAW_MODES2.TRIANGLES = 4] = "TRIANGLES", DRAW_MODES2[DRAW_MODES2.TRIANGLE_STRIP = 5] = "TRIANGLE_STRIP", DRAW_MODES2[DRAW_MODES2.TRIANGLE_FAN = 6] = "TRIANGLE_FAN", DRAW_MODES2))(DRAW_MODES || {}), FORMATS = /* @__PURE__ */ ((FORMATS2) => (FORMATS2[FORMATS2.RGBA = 6408] = "RGBA", FORMATS2[FORMATS2.RGB = 6407] = "RGB", FORMATS2[FORMATS2.RG = 33319] = "RG", FORMATS2[FORMATS2.RED = 6403] = "RED", FORMATS2[FORMATS2.RGBA_INTEGER = 36249] = "RGBA_INTEGER", FORMATS2[FORMATS2.RGB_INTEGER = 36248] = "RGB_INTEGER", FORMATS2[FORMATS2.RG_INTEGER = 33320] = "RG_INTEGER", FORMATS2[FORMATS2.RED_INTEGER = 36244] = "RED_INTEGER", FORMATS2[FORMATS2.ALPHA = 6406] = "ALPHA", FORMATS2[FORMATS2.LUMINANCE = 6409] = "LUMINANCE", FORMATS2[FORMATS2.LUMINANCE_ALPHA = 6410] = "LUMINANCE_ALPHA", FORMATS2[FORMATS2.DEPTH_COMPONENT = 6402] = "DEPTH_COMPONENT", FORMATS2[FORMATS2.DEPTH_STENCIL = 34041] = "DEPTH_STENCIL", FORMATS2))(FORMATS || {}), TARGETS = /* @__PURE__ */ ((TARGETS2) => (TARGETS2[TARGETS2.TEXTURE_2D = 3553] = "TEXTURE_2D", TARGETS2[TARGETS2.TEXTURE_CUBE_MAP = 34067] = "TEXTURE_CUBE_MAP", TARGETS2[TARGETS2.TEXTURE_2D_ARRAY = 35866] = "TEXTURE_2D_ARRAY", TARGETS2[TARGETS2.TEXTURE_CUBE_MAP_POSITIVE_X = 34069] = "TEXTURE_CUBE_MAP_POSITIVE_X", TARGETS2[TARGETS2.TEXTURE_CUBE_MAP_NEGATIVE_X = 34070] = "TEXTURE_CUBE_MAP_NEGATIVE_X", TARGETS2[TARGETS2.TEXTURE_CUBE_MAP_POSITIVE_Y = 34071] = "TEXTURE_CUBE_MAP_POSITIVE_Y", TARGETS2[TARGETS2.TEXTURE_CUBE_MAP_NEGATIVE_Y = 34072] = "TEXTURE_CUBE_MAP_NEGATIVE_Y", TARGETS2[TARGETS2.TEXTURE_CUBE_MAP_POSITIVE_Z = 34073] = "TEXTURE_CUBE_MAP_POSITIVE_Z", TARGETS2[TARGETS2.TEXTURE_CUBE_MAP_NEGATIVE_Z = 34074] = "TEXTURE_CUBE_MAP_NEGATIVE_Z", TARGETS2))(TARGETS || {}), TYPES = /* @__PURE__ */ ((TYPES2) => (TYPES2[TYPES2.UNSIGNED_BYTE = 5121] = "UNSIGNED_BYTE", TYPES2[TYPES2.UNSIGNED_SHORT = 5123] = "UNSIGNED_SHORT", TYPES2[TYPES2.UNSIGNED_SHORT_5_6_5 = 33635] = "UNSIGNED_SHORT_5_6_5", TYPES2[TYPES2.UNSIGNED_SHORT_4_4_4_4 = 32819] = "UNSIGNED_SHORT_4_4_4_4", TYPES2[TYPES2.UNSIGNED_SHORT_5_5_5_1 = 32820] = "UNSIGNED_SHORT_5_5_5_1", TYPES2[TYPES2.UNSIGNED_INT = 5125] = "UNSIGNED_INT", TYPES2[TYPES2.UNSIGNED_INT_10F_11F_11F_REV = 35899] = "UNSIGNED_INT_10F_11F_11F_REV", TYPES2[TYPES2.UNSIGNED_INT_2_10_10_10_REV = 33640] = "UNSIGNED_INT_2_10_10_10_REV", TYPES2[TYPES2.UNSIGNED_INT_24_8 = 34042] = "UNSIGNED_INT_24_8", TYPES2[TYPES2.UNSIGNED_INT_5_9_9_9_REV = 35902] = "UNSIGNED_INT_5_9_9_9_REV", TYPES2[TYPES2.BYTE = 5120] = "BYTE", TYPES2[TYPES2.SHORT = 5122] = "SHORT", TYPES2[TYPES2.INT = 5124] = "INT", TYPES2[TYPES2.FLOAT = 5126] = "FLOAT", TYPES2[TYPES2.FLOAT_32_UNSIGNED_INT_24_8_REV = 36269] = "FLOAT_32_UNSIGNED_INT_24_8_REV", TYPES2[TYPES2.HALF_FLOAT = 36193] = "HALF_FLOAT", TYPES2))(TYPES || {}), SAMPLER_TYPES = /* @__PURE__ */ ((SAMPLER_TYPES2) => (SAMPLER_TYPES2[SAMPLER_TYPES2.FLOAT = 0] = "FLOAT", SAMPLER_TYPES2[SAMPLER_TYPES2.INT = 1] = "INT", SAMPLER_TYPES2[SAMPLER_TYPES2.UINT = 2] = "UINT", SAMPLER_TYPES2))(SAMPLER_TYPES || {}), SCALE_MODES = /* @__PURE__ */ ((SCALE_MODES2) => (SCALE_MODES2[SCALE_MODES2.NEAREST = 0] = "NEAREST", SCALE_MODES2[SCALE_MODES2.LINEAR = 1] = "LINEAR", SCALE_MODES2))(SCALE_MODES || {}), WRAP_MODES = /* @__PURE__ */ ((WRAP_MODES2) => (WRAP_MODES2[WRAP_MODES2.CLAMP = 33071] = "CLAMP", WRAP_MODES2[WRAP_MODES2.REPEAT = 10497] = "REPEAT", WRAP_MODES2[WRAP_MODES2.MIRRORED_REPEAT = 33648] = "MIRRORED_REPEAT", WRAP_MODES2))(WRAP_MODES || {}), MIPMAP_MODES = /* @__PURE__ */ ((MIPMAP_MODES2) => (MIPMAP_MODES2[MIPMAP_MODES2.OFF = 0] = "OFF", MIPMAP_MODES2[MIPMAP_MODES2.POW2 = 1] = "POW2", MIPMAP_MODES2[MIPMAP_MODES2.ON = 2] = "ON", MIPMAP_MODES2[MIPMAP_MODES2.ON_MANUAL = 3] = "ON_MANUAL", MIPMAP_MODES2))(MIPMAP_MODES || {}), ALPHA_MODES = /* @__PURE__ */ ((ALPHA_MODES2) => (ALPHA_MODES2[ALPHA_MODES2.NPM = 0] = "NPM", ALPHA_MODES2[ALPHA_MODES2.UNPACK = 1] = "UNPACK", ALPHA_MODES2[ALPHA_MODES2.PMA = 2] = "PMA", ALPHA_MODES2[ALPHA_MODES2.NO_PREMULTIPLIED_ALPHA = 0] = "NO_PREMULTIPLIED_ALPHA", ALPHA_MODES2[ALPHA_MODES2.PREMULTIPLY_ON_UPLOAD = 1] = "PREMULTIPLY_ON_UPLOAD", ALPHA_MODES2[ALPHA_MODES2.PREMULTIPLIED_ALPHA = 2] = "PREMULTIPLIED_ALPHA", ALPHA_MODES2))(ALPHA_MODES || {}), CLEAR_MODES = /* @__PURE__ */ ((CLEAR_MODES2) => (CLEAR_MODES2[CLEAR_MODES2.NO = 0] = "NO", CLEAR_MODES2[CLEAR_MODES2.YES = 1] = "YES", CLEAR_MODES2[CLEAR_MODES2.AUTO = 2] = "AUTO", CLEAR_MODES2[CLEAR_MODES2.BLEND = 0] = "BLEND", CLEAR_MODES2[CLEAR_MODES2.CLEAR = 1] = "CLEAR", CLEAR_MODES2[CLEAR_MODES2.BLIT = 2] = "BLIT", CLEAR_MODES2))(CLEAR_MODES || {}), GC_MODES = /* @__PURE__ */ ((GC_MODES2) => (GC_MODES2[GC_MODES2.AUTO = 0] = "AUTO", GC_MODES2[GC_MODES2.MANUAL = 1] = "MANUAL", GC_MODES2))(GC_MODES || {}), PRECISION = /* @__PURE__ */ ((PRECISION2) => (PRECISION2.LOW = "lowp", PRECISION2.MEDIUM = "mediump", PRECISION2.HIGH = "highp", PRECISION2))(PRECISION || {}), MASK_TYPES = /* @__PURE__ */ ((MASK_TYPES2) => (MASK_TYPES2[MASK_TYPES2.NONE = 0] = "NONE", MASK_TYPES2[MASK_TYPES2.SCISSOR = 1] = "SCISSOR", MASK_TYPES2[MASK_TYPES2.STENCIL = 2] = "STENCIL", MASK_TYPES2[MASK_TYPES2.SPRITE = 3] = "SPRITE", MASK_TYPES2[MASK_TYPES2.COLOR = 4] = "COLOR", MASK_TYPES2))(MASK_TYPES || {}), MSAA_QUALITY = /* @__PURE__ */ ((MSAA_QUALITY2) => (MSAA_QUALITY2[MSAA_QUALITY2.NONE = 0] = "NONE", MSAA_QUALITY2[MSAA_QUALITY2.LOW = 2] = "LOW", MSAA_QUALITY2[MSAA_QUALITY2.MEDIUM = 4] = "MEDIUM", MSAA_QUALITY2[MSAA_QUALITY2.HIGH = 8] = "HIGH", MSAA_QUALITY2))(MSAA_QUALITY || {}), BUFFER_TYPE = /* @__PURE__ */ ((BUFFER_TYPE2) => (BUFFER_TYPE2[BUFFER_TYPE2.ELEMENT_ARRAY_BUFFER = 34963] = "ELEMENT_ARRAY_BUFFER", BUFFER_TYPE2[BUFFER_TYPE2.ARRAY_BUFFER = 34962] = "ARRAY_BUFFER", BUFFER_TYPE2[BUFFER_TYPE2.UNIFORM_BUFFER = 35345] = "UNIFORM_BUFFER", BUFFER_TYPE2))(BUFFER_TYPE || {});
 
 const BrowserAdapter = {
@@ -2081,10 +1941,10 @@ var functionBind = Function.prototype.bind || implementation;
 
 var call = Function.prototype.call;
 var $hasOwn = Object.prototype.hasOwnProperty;
-var bind$1 = functionBind;
+var bind$2 = functionBind;
 
 /** @type {(o: {}, p: PropertyKey) => p is keyof o} */
-var hasown = bind$1.call(call, $hasOwn);
+var hasown = bind$2.call(call, $hasOwn);
 
 var undefined$1;
 
@@ -2299,13 +2159,13 @@ var LEGACY_ALIASES = {
 	'%WeakSetPrototype%': ['WeakSet', 'prototype']
 };
 
-var bind = functionBind;
+var bind$1 = functionBind;
 var hasOwn$1 = hasown;
-var $concat$1 = bind.call(Function.call, Array.prototype.concat);
-var $spliceApply = bind.call(Function.apply, Array.prototype.splice);
-var $replace$1 = bind.call(Function.call, String.prototype.replace);
-var $strSlice = bind.call(Function.call, String.prototype.slice);
-var $exec = bind.call(Function.call, RegExp.prototype.exec);
+var $concat$1 = bind$1.call(Function.call, Array.prototype.concat);
+var $spliceApply = bind$1.call(Function.apply, Array.prototype.splice);
+var $replace$1 = bind$1.call(Function.call, String.prototype.replace);
+var $strSlice = bind$1.call(Function.call, String.prototype.slice);
+var $exec = bind$1.call(Function.call, RegExp.prototype.exec);
 
 /* adapted from https://github.com/lodash/lodash/blob/4.17.15/dist/lodash.js#L6735-L6744 */
 var rePropName = /[^%.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|%$))/g;
@@ -26605,224 +26465,222 @@ _HTMLText.defaultMaxWidth = 2024, /** Default maxHeight, set at construction */
 _HTMLText.defaultMaxHeight = 2024, /** Default autoResolution for all HTMLText objects */
 _HTMLText.defaultAutoResolution = !0;
 
-var element = /*#__PURE__*/function (_EventEmiter) {
-  _inherits(element, _EventEmiter);
-  var _super = _createSuper(element);
-  function element(option) {
-    var _this;
-    _classCallCheck(this, element);
-    _this = _super.call(this);
-    _this.container = new Container();
-    _this.editor = option.editor;
-    return _this;
-  }
+class element extends EventEmiter {
 
-  // 位置
-  _createClass(element, [{
-    key: "x",
-    get: function get() {
-      return this.container.x;
-    },
-    set: function set(v) {
-      this.container.x = v;
+    constructor(option) {
+        super();
+        this.container = new Container();
+        
+        this.editor = option.editor;
+        this.option = option || {};
     }
-  }, {
-    key: "y",
-    get: function get() {
-      return this.container.y;
-    },
-    set: function set(v) {
-      this.container.y = v;
+
+    // 位置
+    get x() {
+        return this.container.x;
+    }
+    set x(v) {
+        this.container.x = v;
+    }
+    get y() {
+        return this.container.y;
+    }
+    set y(v) {
+        this.container.y = v;
     }
 
     // 旋转角度
-  }, {
-    key: "rotation",
-    get: function get() {
-      return this.container.rotation;
+    set rotation(v) {
+        this.container.rotation = v;
+    }
+    get rotation() {
+        return this.container.rotation;
     }
 
     // 新增子元素
-    ,
-    set: function set(v) {
-      this.container.rotation = v;
+    addChild(child) {
+        return this.container.addChild(child);
     }
-  }, {
-    key: "addChild",
-    value: function addChild(child) {
-      return this.container.addChild(child);
+
+    toJSON() {
+        return JSON.stringify(this);
     }
-  }, {
-    key: "toJSON",
-    value: function toJSON() {
-      return JSON.stringify(this);
-    }
-  }]);
-  return element;
-}(EventEmiter);
+}
 
 // 图片元素
-var image = /*#__PURE__*/function (_element) {
-  _inherits(image, _element);
-  var _super = _createSuper(image);
-  function image(option) {
-    var _this;
-    _classCallCheck(this, image);
-    _this = _super.call(this, option);
-    // 图片载体
-    _this.sprite = new Sprite();
-    _this.addChild(_this.sprite);
-    if (option.url) {
-      _this.url = option.url;
-    }
-    return _this;
-  }
+class image extends element {
+    constructor(option) {
+        super(option);
+        // 图片载体
+        this.sprite = new Sprite();
+        this.addChild(this.sprite);
 
-  // 当前图片url
-  _createClass(image, [{
-    key: "url",
-    get: function get() {
-      return this.__url;
-    },
-    set: function set(v) {
-      this.load(v);
-      this.__url = v;
+        if(option.url) {
+            this.url = option.url;
+        }
     }
-  }, {
-    key: "load",
-    value: function load(url) {
-      var _this2 = this;
-      return Assets.load(url).then(function (texture) {
-        _this2.sprite.texture = texture;
-        _this2.emit('load', texture);
-      });
+
+    // 当前图片url
+    get url() {
+        return  this.__url;
     }
-  }]);
-  return image;
-}(element);
+    set url(v) {
+        this.load(v);
+        this.__url = v;
+    }
+
+    get width() {
+        return this.sprite.width;
+    }
+    set width(v) {
+        this.sprite.width = v;    }
+
+    get height() {
+        return this.sprite.height;
+    }
+    set height(v) {
+        this.sprite.height = v;
+    }
+
+    // 重置大小
+    resize(w, h) {
+        if(typeof w === 'number') {
+            //const rw = w / this.sprite.texture.width;
+            //if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
+            this.width = w;
+        }
+        if(typeof h === 'number') {
+            //const rh = h / this.sprite.texture.height;
+            //if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
+            this.height = h;
+        }
+    }
+
+    load(url) {
+        return Assets.load(url).then((texture) => {
+            this.sprite.texture = texture;
+            this.emit('load', texture);
+        });
+    }
+}
 
 // 画布背景
-var background = /*#__PURE__*/function (_image) {
-  _inherits(background, _image);
-  var _super = _createSuper(background);
-  function background(option) {
-    var _this;
-    _classCallCheck(this, background);
-    _this = _super.call(this, option);
-    _this.on('load', function () {
-      _this.resize(_this.editor.width, _this.editor.height);
+class background extends image {
+    constructor(option) {
+        super(option);
+
+        this.on('load', () => {
+            this.resize(this.editor.width, this.editor.height);
+        });
+    }
+
+    
+}
+
+function bind(app) {
+    
+    app.stage.eventMode = 'static';
+    app.stage.hitArea = app.screen;
+    app.stage.on('pointerup', () => {
     });
-    return _this;
-  }
-
-  // 重置大小
-  _createClass(background, [{
-    key: "resize",
-    value: function resize(w, h) {
-      var rw = w / this.sprite.texture.width;
-      if (rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
-      var rh = h / this.sprite.texture.height;
-      if (rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
-      console.log('background resize', rw, rh);
-    }
-  }]);
-  return background;
-}(image);
-
-var editor = /*#__PURE__*/function () {
-  function editor(container) {
-    var option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    _classCallCheck(this, editor);
-    this.container = document.createElement('div');
-    this.container.style.position = 'relative';
-    this.container.style.overflow = 'hidden';
-    this.container.style.margin = '0';
-    this.container.style.padding = '0';
-    container.appendChild(this.container);
-    this.renderApp = new Application({
-      background: option.renderBackground || '#fff'
+    app.stage.on('pointerupoutside', () => {
     });
-    this.controlApp = new Application({
-      backgroundAlpha: 0,
-      resizeTo: this.container
-    });
-    this.container.appendChild(this.controlApp.view);
-    this.container.appendChild(this.renderApp.view);
-    this.renderApp.view.style.position = 'absolute';
-    this.children = [];
-    this.background = new background({});
-    this.addChild(this.background);
-    this.init(option);
-  }
+}
 
-  // 初始化整个编辑器
-  _createClass(editor, [{
-    key: "init",
-    value: function init(option) {
-      if (option.width && option.height) {
-        this.setSize(option.width, option.height);
-      }
+class editor {
 
-      // Listen for animate update
-      this.renderApp.ticker.add(function (delta) {
-        option.onTicker && option.onTicker(delta);
-      });
+    constructor(container, option={}) {        
+        this.container = document.createElement(
+            'div'
+        );
+        this.container.style.position = 'relative';
+        this.container.style.overflow = 'hidden';
+        this.container.style.margin = '0';
+        this.container.style.padding = '0';
+        container.appendChild(this.container);
+
+        this.renderApp = new Application({ background: option.renderBackground||'#fff'});
+        this.controlApp = new Application({ backgroundAlpha: 0, resizeTo: this.container });
+        this.container.appendChild(this.controlApp.view);
+        this.container.appendChild(this.renderApp.view);
+
+        this.renderApp.view.style.position = 'absolute';     
+        
+        this.children = [];
+
+        this.background = new background({});
+        this.addChild(this.background);
+
+        this.init(option);
     }
-  }, {
-    key: "width",
-    get: function get() {
-      return this.renderApp.screen.width;
-    }
-  }, {
-    key: "height",
-    get: function get() {
-      return this.renderApp.screen.height;
-    }
-  }, {
-    key: "setSize",
-    value: function setSize(width, height) {
-      this.renderApp.renderer.resize(width, height);
-      var controlWidth = this.controlApp.renderer.width;
-      if (controlWidth < width) {
-        controlWidth = width * 2;
-      }
-      var controlHeight = this.controlApp.renderer.height;
-      if (controlHeight < height) {
-        controlHeight = height * 2;
-      }
-      this.controlApp.renderer.resize(controlWidth, controlHeight);
-      this.left = this.controlApp.renderer.width / 2 - width / 2;
-      this.top = 200; //this.controlApp.renderer.height / 2 - height /2;
 
-      this.renderApp.view.style.left = "".concat(this.left, "px");
-      this.renderApp.view.style.top = "".concat(this.top, "px");
+    // 初始化整个编辑器
+    init(option) {
+        if(option.width && option.height) {
+            this.setSize(option.width, option.height);
+        }
 
-      // 背景大小一直拉满
-      this.background.resize(this.width, this.height);
+        // Listen for animate update
+        this.renderApp.ticker.add((delta) =>  {
+            option.onTicker && option.onTicker(delta);
+            
+        });
+        // 绑定拖放操作, 所有操作都放到control层
+        bind(this.controlApp);
+    }
+
+    get width() {
+        return this.renderApp.screen.width;
+    }
+
+    get height() {
+        return this.renderApp.screen.height;
+    }
+
+    setSize(width, height) {
+        this.renderApp.renderer.resize(width, height);
+
+        let controlWidth = this.controlApp.renderer.width;
+        if(controlWidth < width) {
+            controlWidth = width * 2;
+        }
+        let controlHeight = this.controlApp.renderer.height;
+        if(controlHeight < height) {
+            controlHeight = height * 2;
+        }
+        this.controlApp.renderer.resize(controlWidth, controlHeight);
+
+        this.left = this.controlApp.renderer.width / 2 - width /2;
+        this.top = 200;//this.controlApp.renderer.height / 2 - height /2;
+
+        this.renderApp.view.style.left = `${this.left}px`;
+        this.renderApp.view.style.top = `${this.top}px`;  
+        
+        // 背景大小一直拉满
+        this.background.resize(this.width, this.height);
     }
 
     // 添加元素到画布
-  }, {
-    key: "addChild",
-    value: function addChild(el) {
-      el.editor = this;
-      this.children.push(el);
-      if (el.container) this.renderApp.stage.addChild(el.container);
+    addChild(el) {
+        el.editor = this;
+        this.children.push(el);
+        if(el.container) {
+            el.app = this.renderApp;
+            this.renderApp.stage.addChild(el.container);
+
+            //Dragging.bindElement(el);// 拖放操作
+        }
     }
 
     // 创建图片元素
-  }, {
-    key: "createImage",
-    value: function createImage(url) {
-      var option = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-      var img = new image(_objectSpread2(_objectSpread2({}, option), {}, {
-        url: url,
-        editor: this
-      }));
-      return img;
+    createImage(url, option={}) {
+        const img = new image({
+            ...option,
+            url,
+            editor: this,
+        });
+        return img;
     }
-  }]);
-  return editor;
-}();
+}
 
 export { editor as default, editor };
