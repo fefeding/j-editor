@@ -4,15 +4,15 @@ const dragStartPosition = {
     y: 0
 };
 
-function bind(app) {
+function bind(editor) {
     
-    app.stage.eventMode = 'static';
-    app.stage.hitArea = app.screen;
-    app.stage.on('pointerup', () => {
-        onDragEnd(app);
+    editor.controlApp.stage.eventMode = 'static';
+    editor.controlApp.stage.hitArea = editor.controlApp.screen;
+    editor.controlApp.stage.on('pointerup', () => {
+        onDragEnd(editor);
     });
-    app.stage.on('pointerupoutside', () => {
-        onDragEnd(app);
+    editor.controlApp.stage.on('pointerupoutside', () => {
+        onDragEnd(editor);
     });
 }
 
@@ -46,9 +46,9 @@ function onDragStart(event)   {
     this.app.stage.on('pointermove', onDragMove, this);
 }
 
-function onDragEnd(app)  {
+function onDragEnd(editor)  {
     if (dragTarget) {
-        app.stage.off('pointermove', onDragMove);
+        editor.controlApp.stage.off('pointermove', onDragMove);
         if(dragTarget.container && dragTarget.container.alpha > 0) dragTarget.container.alpha *= 2;
         dragTarget = null;
     }

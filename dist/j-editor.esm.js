@@ -26577,13 +26577,13 @@ class background extends image {
     
 }
 
-function bind(app) {
+function bind(editor) {
     
-    app.stage.eventMode = 'static';
-    app.stage.hitArea = app.screen;
-    app.stage.on('pointerup', () => {
+    editor.controlApp.stage.eventMode = 'static';
+    editor.controlApp.stage.hitArea = editor.controlApp.screen;
+    editor.controlApp.stage.on('pointerup', () => {
     });
-    app.stage.on('pointerupoutside', () => {
+    editor.controlApp.stage.on('pointerupoutside', () => {
     });
 }
 
@@ -26626,7 +26626,7 @@ class editor {
             
         });
         // 绑定拖放操作, 所有操作都放到control层
-        bind(this.controlApp);
+        bind(this);
     }
 
     get width() {

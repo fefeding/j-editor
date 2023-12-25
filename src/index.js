@@ -42,7 +42,7 @@ export default class editor {
             
         });
         // 绑定拖放操作, 所有操作都放到control层
-        Dragging.bind(this.controlApp);
+        Dragging.bind(this);
     }
 
     get width() {
