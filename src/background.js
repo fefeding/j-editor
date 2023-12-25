@@ -17,5 +17,7 @@ export default class background extends image {
         if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
         const rh = h / this.sprite.texture.height;
         if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
+
+        console.log('background resize', rw, rh);
     }
 }

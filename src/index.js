@@ -4,12 +4,20 @@ import jBackground from './background.js';
 
 export default class editor {
 
-    constructor(container, option={}) {
-        this.container = container;
+    constructor(container, option={}) {        
+        this.container = document.createElement(
+            'div'
+        );
+        this.container.style.position = 'relative';
+        this.container.style.overflow = 'hidden';
+        this.container.style.margin = '0';
+        this.container.style.padding = '0';
+        container.appendChild(this.container);
+
         this.renderApp = new PIXI.Application({ background: option.renderBackground||'#fff'});
-        this.controlApp = new PIXI.Application({ backgroundAlpha: 0, resizeTo: container });
-        container.appendChild(this.controlApp.view);
-        container.appendChild(this.renderApp.view);
+        this.controlApp = new PIXI.Application({ backgroundAlpha: 0, resizeTo: this.container });
+        this.container.appendChild(this.controlApp.view);
+        this.container.appendChild(this.renderApp.view);
 
         this.renderApp.view.style.position = 'absolute';     
         
@@ -57,7 +65,7 @@ export default class editor {
         this.controlApp.renderer.resize(controlWidth, controlHeight);
 
         this.left = this.controlApp.renderer.width / 2 - width /2;
-        this.top = this.controlApp.renderer.height / 2 - height /2;
+        this.top = 200;//this.controlApp.renderer.height / 2 - height /2;
 
         this.renderApp.view.style.left = `${this.left}px`;
         this.renderApp.view.style.top = `${this.top}px`;  

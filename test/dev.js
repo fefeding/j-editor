@@ -1,5 +1,9 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const builder = require('../build.js');
+const app = express();
+
+console.log(builder)
+builder.watch();// 监听文件修改
 
 app.use(express.static("./"));
 

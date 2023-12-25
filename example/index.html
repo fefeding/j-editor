@@ -3,15 +3,18 @@
 	<head>
 	<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
 	<meta name="viewport" content="width=device-width,initial-scale=1">
+	<link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+	<script src="lib/bootstrap/js/bootstrap.min.js" crossorigin="anonymous"></script>
 	<style>
 		html,body{
 			margin:0;
 			padding: 0;
 		}
 		#mycanvas_container{
-			overflow: hidden;
+			overflow: scroll;
 			text-align: center;
 			background-color: #ccc;
+			height: 100%;
 			position: relative;
 			margin: auto;
 		}
@@ -19,18 +22,33 @@
 	</style>
 	</head>
 	<body>
-		<div id="mycanvas_container"></div>
+		<div class="container text-left" style="max-width: 100%; max-height: 100%; overflow: hidden;">
+			<div class="row" style="width: 100%; overflow: hidden;">
+			  <div class="col-2">
+				Column
+			  </div>
+			  <div class="col-8">
+				<div id="mycanvas_container"></div>
+			  </div>
+			  <div class="col-2">
+				Column
+			  </div>
+			</div>
+		  </div>
+		
 	</body>
 	<script type="module">	
 		import JEditor from "../dist/j-editor.esm.js";
 
 		const container = document.getElementById('mycanvas_container');
+		container.style.height = window.innerHeight + 'px';
+		
 		const editor = new JEditor(container, {
-			width: 400,
-			height: 600
+			width: 600,
+			height: 800
 		});
 
-		editor.background.url = 'https://pixijs.com/assets/bunny.png';
+		editor.background.url = 'https://jtcospublic.ciccten.com/public/image/bf.jpg';
 
 		const img = editor.createImage('https://pixijs.com/assets/bunny.png');
 		img.x = editor.width / 2;

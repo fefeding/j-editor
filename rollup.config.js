@@ -17,6 +17,9 @@ module.exports = {
        */
       format: 'umd'
     },
+    watch: {
+      include: 'src/**' // 只编译我们的源代码
+    },
     plugins: [
       //sourcemaps(),
       resolve({
@@ -24,9 +27,9 @@ module.exports = {
         preferBuiltins: false
       }),
       commonjs(),
-      /*babel({
+      babel({
         presets: ['@babel/preset-env'],  
         exclude: 'node_modules/**' // 只编译我们的源代码
-      }),*/
+      }),
     ]
   };

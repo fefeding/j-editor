@@ -12,25 +12,69 @@ const rollupOptions = require('./rollup.config.js');
 	system - SystemJS 加载器格式
 */
 async function build(format = 'cjs') {
-	const bundle = await rollup.rollup(rollupOptions);
-
+	
 	const outputOptions = Object.assign(rollupOptions.output, {
 		file: `./dist/j-editor.${format}.js`,
 		format
-	})
+	});
+
+	const bundle = await rollup.rollup({
+		...rollupOptions,
+		output: outputOptions
+	});
+
 	const { code, map } = await bundle.generate(rollupOptions.output);
 
 	await bundle.write(outputOptions);
 }
 
-//build('cjs');
+async function watch(format = 'esm') {
+	const outputOptions = Object.assign(rollupOptions.output, {
+		file: `./dist/j-editor.${format}.js`,
+		format
+	});
+	console.log(rollupOptions);
+	const watcher = await rollup.watch({
+		...rollupOptions,
+		output: outputOptions
+	});
 
-build('esm');
+	// 这将确保在每次运行后正确关闭打包
+	watcher.on('event', (event) => {
+		console.log('event', event);
+		if (event.result) {
+			event.result.close();
+		}
+	});
+	
+	// 此外，你可以挂钩以下内容。
+	// 同样，返回 Promise 以使 Rollup 在该阶段等待：
+	watcher.on('change', (id, { event }) => { 
+		console.log('change', id, event);
+		build(format);
+	 })
+	watcher.on('restart', () => { 
+		
+	})
+	watcher.on('close', () => { 
+		
+	 })
+}
 
-//build('iife');
 
-//build('amd');
+	//build('cjs');
 
-//build('umd');
+	build('esm');
 
-//build('system');
+	//build('iife');
+
+	//build('amd');
+
+	//build('umd');
+
+	//build('system');
+
+
+module.exports = {
+	watch
+}
