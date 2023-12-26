@@ -1,5 +1,5 @@
 let dragTarget = null;
-const dragStartPosition = {
+let dragStartPosition = {
     x: 0,
     y: 0
 };
@@ -24,13 +24,18 @@ function bindElement(el) {
 }
 
 function onDragMove(event) {
-    if (this.container) {
+    if (this.controlElement) {
         //this.container.parent.toLocal(event.global, null, this.container.position);
-        this.x += (event.global.x - dragStartPosition.x);
-        this.y += (event.global.y - dragStartPosition.y);
+        this.controlElement.x += (event.global.x - dragStartPosition.x);
+        this.controlElement.y += (event.global.y - dragStartPosition.y);
+
+        this.controlElement.draw();
     }
-    dragStartPosition.x = event.global.x;
-    dragStartPosition.y = event.global.y;
+    // 选中的是渲染层的坐标，转为控制层的
+    dragStartPosition = {
+        x: event.global.x,
+        y: event.global.y
+    };
 }
 
 function onDragStart(event)   {
@@ -38,18 +43,21 @@ function onDragStart(event)   {
     // the reason for this is because of multitouch
     // we want to track the movement of this particular touch
     // this.data = event.data;
-    if(this.container && this.container.alpha > 0) this.container.alpha *= 0.5;
+    //if(this.container && this.container.alpha > 0) this.container.alpha *= 0.5;
     dragTarget = this;
-    dragStartPosition.x = event.global.x;
-    dragStartPosition.y = event.global.y;
+    if(this.select) this.select();// 选中当前元素
+    
+    // 选中的是渲染层的坐标，转为控制层的
+    dragStartPosition = this.toControlPosition(event.global);
 
-    this.app.stage.on('pointermove', onDragMove, this);
+    this.editor.controlApp.stage.on('pointermove', onDragMove, this.editor);
 }
 
 function onDragEnd(editor)  {
     if (dragTarget) {
         editor.controlApp.stage.off('pointermove', onDragMove);
-        if(dragTarget.container && dragTarget.container.alpha > 0) dragTarget.container.alpha *= 2;
+        //if(dragTarget.container && dragTarget.container.alpha > 0) dragTarget.container.alpha *= 2;
+        if(dragTarget.unSelect) dragTarget.unSelect();// 取消选中当前元素
         dragTarget = null;
     }
 }

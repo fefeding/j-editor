@@ -1941,10 +1941,10 @@ var functionBind = Function.prototype.bind || implementation;
 
 var call = Function.prototype.call;
 var $hasOwn = Object.prototype.hasOwnProperty;
-var bind$2 = functionBind;
+var bind$1 = functionBind;
 
 /** @type {(o: {}, p: PropertyKey) => p is keyof o} */
-var hasown = bind$2.call(call, $hasOwn);
+var hasown = bind$1.call(call, $hasOwn);
 
 var undefined$1;
 
@@ -2159,13 +2159,13 @@ var LEGACY_ALIASES = {
 	'%WeakSetPrototype%': ['WeakSet', 'prototype']
 };
 
-var bind$1 = functionBind;
+var bind = functionBind;
 var hasOwn$1 = hasown;
-var $concat$1 = bind$1.call(Function.call, Array.prototype.concat);
-var $spliceApply = bind$1.call(Function.apply, Array.prototype.splice);
-var $replace$1 = bind$1.call(Function.call, String.prototype.replace);
-var $strSlice = bind$1.call(Function.call, String.prototype.slice);
-var $exec = bind$1.call(Function.call, RegExp.prototype.exec);
+var $concat$1 = bind.call(Function.call, Array.prototype.concat);
+var $spliceApply = bind.call(Function.apply, Array.prototype.splice);
+var $replace$1 = bind.call(Function.call, String.prototype.replace);
+var $strSlice = bind.call(Function.call, String.prototype.slice);
+var $exec = bind.call(Function.call, RegExp.prototype.exec);
 
 /* adapted from https://github.com/lodash/lodash/blob/4.17.15/dist/lodash.js#L6735-L6744 */
 var rePropName = /[^%.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|%$))/g;
@@ -26473,6 +26473,7 @@ class element extends EventEmiter {
         
         this.editor = option.editor;
         this.option = option || {};
+        this.style = this.option.style || {};
     }
 
     // 位置
@@ -26497,9 +26498,46 @@ class element extends EventEmiter {
         return this.container.rotation;
     }
 
+    get visible() {
+        return this.container.visible;
+    }
+    set visible(v) {
+        return this.container.visible = v;
+    }
+    // 是否可以编辑
+    editable = true;
+
+    // 被选中
+    select() {
+        this.selected = true;
+        this.editor.selectElement(this);
+    }
+    // 被取消选中
+    unSelect() {
+        this.selected = false;
+        this.editor.selectElement(this, false);
+    }
+
     // 新增子元素
     addChild(child) {
         return this.container.addChild(child);
+    }
+
+    
+
+    // 把渲染层坐标转为控制层
+    toControlPosition(p) {
+        return {
+            x: p.x + this.editor.left,
+            y: p.y + this.editor.top
+        };
+    }
+    // 把控制层坐标转为渲染层
+    toRenderPosition(p) {
+        return {
+            x: p.x - this.editor.left,
+            y: p.y - this.editor.top
+        };
     }
 
     toJSON() {
@@ -26569,6 +26607,8 @@ class background extends image {
     constructor(option) {
         super(option);
 
+        this.editable = false;// 不可编辑
+        
         this.on('load', () => {
             this.resize(this.editor.width, this.editor.height);
         });
@@ -26577,14 +26617,123 @@ class background extends image {
     
 }
 
-function bind(editor) {
+class resize extends element {
+
+    constructor(option) {
+        super(option);
+
+        this.init();
+    }
+
+    // 拖放位置
+    dragStartPosition = {
+        x: 0,
+        y: 0
+    };
+
+    init() {
+        // 绑定拖放操作, 所有操作都放到control层  
+        this.editor.controlApp.stage.eventMode = 'static';
+        this.editor.controlApp.stage.hitArea = this.editor.controlApp.screen;
+        this.editor.controlApp.stage.on('pointerup', this.onDragEnd, this);
+        this.editor.controlApp.stage.on('pointerupoutside', this.onDragEnd, this);
+
+        this.graphics = new Graphics();
+        this.addChild(this.graphics);
+    }
+
+    x = 0;
+    y = 0;
+    width = 0;
+    height = 0;
+
+    // 绘制
+    draw() {
+        this.graphics.clear();
+        this.graphics.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
+        this.graphics.beginFill(0xFFFFFF, 0.01);
+        
+        //console.log('draw rect', this.x, this.y, this.width, this.height);
+        this.graphics.drawRect(this.x, this.y, this.width, this.height);
+        this.graphics.endFill();
+
+        // 控制目标元素位置大大小
+        if(this.target) {
+            const pos = this.toRenderPosition({
+                x: this.x,
+                y: this.y
+            });
+            this.target.x = pos.x;
+            this.target.y = pos.y;
+        }
+    }
+
+    // 绑到当前选中的元素
+    bind(el) {
+        this.target = el;
+        this.visible = true;
+
+        // 操作元素在控制层，需要转换坐标
+        const pos = this.toControlPosition({
+            x: this.target.x,
+            y: this.target.y
+        });
+        this.x = pos.x;
+        this.y = pos.y;
+        this.width = this.target.width;
+        this.height = this.target.height;
+
+        this.draw();
+    }
+
+    // 绑定操作事件
+    bindEvent(el) {   
+        el.container.eventMode = 'static';
+        el.container.cursor = 'pointer';
+        const self = this;
+        el.container.on('pointerdown', function(event) {
+            self.onDragStart(event, this);
+        }, el);
+    }
+
+    onDragMove(event) {
+        if(!this.isMoving) return;
+
+        //this.container.parent.toLocal(event.global, null, this.container.position);
+        this.x += (event.global.x - this.dragStartPosition.x);
+        this.y += (event.global.y - this.dragStartPosition.y);
+
+        this.draw();
+        
+        // 选中的是渲染层的坐标，转为控制层的
+        this.dragStartPosition = {
+            x: event.global.x,
+            y: event.global.y
+        };
+    }
     
-    editor.controlApp.stage.eventMode = 'static';
-    editor.controlApp.stage.hitArea = editor.controlApp.screen;
-    editor.controlApp.stage.on('pointerup', () => {
-    });
-    editor.controlApp.stage.on('pointerupoutside', () => {
-    });
+    onDragStart(event, target)   {
+        if(this.target && this.target !== target) this.target.unSelect();
+        
+        if(target.select) target.select();// 选中当前元素
+        
+        // 选中的是渲染层的坐标，转为控制层的
+        this.dragStartPosition = this.toControlPosition(event.global);
+    
+        this.editor.controlApp.stage.off('pointermove', this.onDragMove);
+        this.editor.controlApp.stage.on('pointermove', this.onDragMove, this);
+
+        this.isMoving = true;
+    }
+    
+    onDragEnd()  {
+        if (this.target) {
+            this.editor.controlApp.stage.off('pointermove', this.onDragMove);
+            //if(dragTarget.container && dragTarget.container.alpha > 0) dragTarget.container.alpha *= 2;
+            //if(this.target.unSelect) this.target.unSelect();// 取消选中当前元素
+            this.isMoving = false;
+        }
+    }
 }
 
 class editor {
@@ -26595,16 +26744,16 @@ class editor {
         );
         this.container.style.position = 'relative';
         this.container.style.overflow = 'hidden';
-        this.container.style.margin = '0';
+        this.container.style.margin = '0 auto';
         this.container.style.padding = '0';
+        this.rootContainer = container;
         container.appendChild(this.container);
 
         this.renderApp = new Application({ background: option.renderBackground||'#fff'});
-        this.controlApp = new Application({ backgroundAlpha: 0, resizeTo: this.container });
-        this.container.appendChild(this.controlApp.view);
-        this.container.appendChild(this.renderApp.view);
+        this.controlApp = new Application({ backgroundAlpha: 0 });
 
-        this.renderApp.view.style.position = 'absolute';     
+        this.container.appendChild(this.controlApp.view);    
+        this.container.appendChild(this.renderApp.view);       
         
         this.children = [];
 
@@ -26625,8 +26774,18 @@ class editor {
             option.onTicker && option.onTicker(delta);
             
         });
-        // 绑定拖放操作, 所有操作都放到control层
-        bind(this);
+
+        this.controlApp.view.style.position = this.renderApp.view.style.position = 'absolute'; 
+        this.controlApp.view.style.left = '0';
+        this.controlApp.view.style.top = '0';   
+        this.controlApp.view.style.zIndex = 0; 
+        this.renderApp.view.style.zIndex = 1;
+
+        this.controlElement = new resize({
+            editor: this
+        });
+        this.controlElement.app = this.controlApp;
+        this.controlApp.stage.addChild(this.controlElement.container);
     }
 
     get width() {
@@ -26640,24 +26799,22 @@ class editor {
     setSize(width, height) {
         this.renderApp.renderer.resize(width, height);
 
-        let controlWidth = this.controlApp.renderer.width;
-        if(controlWidth < width) {
-            controlWidth = width * 2;
-        }
-        let controlHeight = this.controlApp.renderer.height;
-        if(controlHeight < height) {
-            controlHeight = height * 2;
-        }
+        const controlWidth = width * 3;
+        const controlHeight = height * 3;
         this.controlApp.renderer.resize(controlWidth, controlHeight);
+        this.container.style.width = `${controlWidth}px`;
+        this.container.style.height = `${controlHeight}px`;
 
-        this.left = this.controlApp.renderer.width / 2 - width /2;
-        this.top = 200;//this.controlApp.renderer.height / 2 - height /2;
+        this.left = controlWidth / 2 - width /2;
+        this.top = controlHeight / 2 - height /2;
 
         this.renderApp.view.style.left = `${this.left}px`;
         this.renderApp.view.style.top = `${this.top}px`;  
         
         // 背景大小一直拉满
         this.background.resize(this.width, this.height);
+        // 滚动到居中
+        this.rootContainer.scrollTo(controlWidth/2-this.rootContainer.clientWidth/2, controlHeight/2-this.rootContainer.clientHeight/2);
     }
 
     // 添加元素到画布
@@ -26668,7 +26825,9 @@ class editor {
             el.app = this.renderApp;
             this.renderApp.stage.addChild(el.container);
 
-            //Dragging.bindElement(el);// 拖放操作
+            if(el.editable) {
+                this.controlElement.bindEvent(el);
+            }
         }
     }
 
@@ -26680,6 +26839,22 @@ class editor {
             editor: this,
         });
         return img;
+    }
+
+    // 选中某个元素
+    selectElement(el, selected = true) {
+        if(selected) {
+            this.controlElement.bind(el);
+            
+            this.controlApp.view.style.zIndex = 1; 
+            this.renderApp.view.style.zIndex = 0;
+        }
+        else {
+            this.controlElement.visible = false;
+            
+            this.controlApp.view.style.zIndex = 0; 
+            this.renderApp.view.style.zIndex = 1;
+        }
     }
 }
 

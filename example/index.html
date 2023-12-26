@@ -11,7 +11,7 @@
 			padding: 0;
 		}
 		#mycanvas_container{
-			overflow: scroll;
+			overflow: auto;
 			text-align: center;
 			background-color: #ccc;
 			height: 100%;
@@ -53,12 +53,17 @@
 		const img = editor.createImage('https://pixijs.com/assets/bunny.png');
 		img.width = 100;
 		img.height = 100;
-		
+
 		img.on('load', () => {
 			//img.resize(100, 100);
 			
 			img.x = editor.width / 2 - img.width / 2;
 			img.y = editor.height / 2 - img.height / 2;
+
+			const img2 = editor.createImage('https://pixijs.com/assets/bunny.png');
+			img2.width = 200;
+			img2.height = 200;
+			editor.addChild(img2);
 		});
 		editor.addChild(img);
 	</script>

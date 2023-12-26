@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js';
 import jImage from './image.js';
 import jBackground from './background.js';
-import * as Dragging from './dragging.js';
+import jResize from './resize.js';
 
 export default class editor {
 
@@ -11,16 +11,16 @@ export default class editor {
         );
         this.container.style.position = 'relative';
         this.container.style.overflow = 'hidden';
-        this.container.style.margin = '0';
+        this.container.style.margin = '0 auto';
         this.container.style.padding = '0';
+        this.rootContainer = container;
         container.appendChild(this.container);
 
         this.renderApp = new PIXI.Application({ background: option.renderBackground||'#fff'});
-        this.controlApp = new PIXI.Application({ backgroundAlpha: 0, resizeTo: this.container });
-        this.container.appendChild(this.controlApp.view);
-        this.container.appendChild(this.renderApp.view);
+        this.controlApp = new PIXI.Application({ backgroundAlpha: 0 });
 
-        this.renderApp.view.style.position = 'absolute';     
+        this.container.appendChild(this.controlApp.view);    
+        this.container.appendChild(this.renderApp.view);       
         
         this.children = [];
 
@@ -41,8 +41,18 @@ export default class editor {
             option.onTicker && option.onTicker(delta);
             
         });
-        // 绑定拖放操作, 所有操作都放到control层
-        Dragging.bind(this);
+
+        this.controlApp.view.style.position = this.renderApp.view.style.position = 'absolute'; 
+        this.controlApp.view.style.left = '0';
+        this.controlApp.view.style.top = '0';   
+        this.controlApp.view.style.zIndex = 0; 
+        this.renderApp.view.style.zIndex = 1;
+
+        this.controlElement = new jResize({
+            editor: this
+        });
+        this.controlElement.app = this.controlApp;
+        this.controlApp.stage.addChild(this.controlElement.container);
     }
 
     get width() {
@@ -56,24 +66,22 @@ export default class editor {
     setSize(width, height) {
         this.renderApp.renderer.resize(width, height);
 
-        let controlWidth = this.controlApp.renderer.width;
-        if(controlWidth < width) {
-            controlWidth = width * 2;
-        }
-        let controlHeight = this.controlApp.renderer.height;
-        if(controlHeight < height) {
-            controlHeight = height * 2;
-        }
+        const controlWidth = width * 3;
+        const controlHeight = height * 3;
         this.controlApp.renderer.resize(controlWidth, controlHeight);
+        this.container.style.width = `${controlWidth}px`;
+        this.container.style.height = `${controlHeight}px`;
 
-        this.left = this.controlApp.renderer.width / 2 - width /2;
-        this.top = 200;//this.controlApp.renderer.height / 2 - height /2;
+        this.left = controlWidth / 2 - width /2;
+        this.top = controlHeight / 2 - height /2;
 
         this.renderApp.view.style.left = `${this.left}px`;
         this.renderApp.view.style.top = `${this.top}px`;  
         
         // 背景大小一直拉满
         this.background.resize(this.width, this.height);
+        // 滚动到居中
+        this.rootContainer.scrollTo(controlWidth/2-this.rootContainer.clientWidth/2, controlHeight/2-this.rootContainer.clientHeight/2)
     }
 
     // 添加元素到画布
@@ -84,7 +92,9 @@ export default class editor {
             el.app = this.renderApp;
             this.renderApp.stage.addChild(el.container);
 
-            //Dragging.bindElement(el);// 拖放操作
+            if(el.editable) {
+                this.controlElement.bindEvent(el);
+            }
         }
     }
 
@@ -96,6 +106,22 @@ export default class editor {
             editor: this,
         });
         return img;
+    }
+
+    // 选中某个元素
+    selectElement(el, selected = true) {
+        if(selected) {
+            this.controlElement.bind(el);
+            
+            this.controlApp.view.style.zIndex = 1; 
+            this.renderApp.view.style.zIndex = 0;
+        }
+        else {
+            this.controlElement.visible = false;
+            
+            this.controlApp.view.style.zIndex = 0; 
+            this.renderApp.view.style.zIndex = 1;
+        }
     }
 }
 
