@@ -5,7 +5,10 @@ import jResize from './resize.js';
 
 export default class editor {
 
-    constructor(container, option={}) {        
+    constructor(container, option={}) {  
+        this.option = option || {};
+        this.style = this.option.style || {};
+
         this.container = document.createElement(
             'div'
         );
@@ -16,15 +19,16 @@ export default class editor {
         this.rootContainer = container;
         container.appendChild(this.container);
 
-        this.renderApp = new PIXI.Application({ background: option.renderBackground||'#fff'});
-        this.controlApp = new PIXI.Application({ backgroundAlpha: 0 });
+        this.app = new PIXI.Application({ backgroundAlpha: 0 });
 
-        this.container.appendChild(this.controlApp.view);    
-        this.container.appendChild(this.renderApp.view);       
+        this.container.appendChild(this.app.view);      
         
         this.children = [];
 
-        this.background = new jBackground({});
+        this.background = new jBackground({
+            editor: this,
+            style: this.style
+        });
         this.addChild(this.background);
 
         this.init(option);
@@ -37,47 +41,48 @@ export default class editor {
         }
 
         // Listen for animate update
-        this.renderApp.ticker.add((delta) =>  {
+        this.app.ticker.add((delta) =>  {
             option.onTicker && option.onTicker(delta);
             
         });
 
-        this.controlApp.view.style.position = this.renderApp.view.style.position = 'absolute'; 
-        this.controlApp.view.style.left = '0';
-        this.controlApp.view.style.top = '0';   
-        this.controlApp.view.style.zIndex = 0; 
-        this.renderApp.view.style.zIndex = 1;
+        this.app.view.style.position = 'absolute'; 
+        this.app.view.style.left = '0';
+        this.app.view.style.top = '0';   
 
         this.controlElement = new jResize({
             editor: this
         });
-        this.controlElement.app = this.controlApp;
-        this.controlApp.stage.addChild(this.controlElement.container);
+        this.addChild(this.controlElement);
     }
 
     get width() {
-        return this.renderApp.screen.width;
+        return this._width;
+    }
+    set width(v) {
+        this.setSize(v, this.height);
     }
 
     get height() {
-        return this.renderApp.screen.height;
+        return this._height;
+    }
+    set height(v) {
+        this.setSize(this.width, v);
     }
 
     setSize(width, height) {
-        this.renderApp.renderer.resize(width, height);
+        this._width = width;
+        this._height = height;
 
         const controlWidth = width * 3;
         const controlHeight = height * 3;
-        this.controlApp.renderer.resize(controlWidth, controlHeight);
+        this.app.renderer.resize(controlWidth, controlHeight);
         this.container.style.width = `${controlWidth}px`;
         this.container.style.height = `${controlHeight}px`;
 
         this.left = controlWidth / 2 - width /2;
         this.top = controlHeight / 2 - height /2;
 
-        this.renderApp.view.style.left = `${this.left}px`;
-        this.renderApp.view.style.top = `${this.top}px`;  
-        
         // 背景大小一直拉满
         this.background.resize(this.width, this.height);
         // 滚动到居中
@@ -87,15 +92,17 @@ export default class editor {
     // 添加元素到画布
     addChild(el) {
         el.editor = this;
-        this.children.push(el);
         if(el.container) {
-            el.app = this.renderApp;
-            this.renderApp.stage.addChild(el.container);
-
+            this.app.stage.addChild(el.container);
+            
             if(el.editable) {
                 this.controlElement.bindEvent(el);
             }
         }
+    }
+
+    sort() {
+        this.app.stage.sortChildren()
     }
 
     // 创建图片元素
@@ -106,22 +113,6 @@ export default class editor {
             editor: this,
         });
         return img;
-    }
-
-    // 选中某个元素
-    selectElement(el, selected = true) {
-        if(selected) {
-            this.controlElement.bind(el);
-            
-            this.controlApp.view.style.zIndex = 1; 
-            this.renderApp.view.style.zIndex = 0;
-        }
-        else {
-            this.controlElement.visible = false;
-            
-            this.controlApp.view.style.zIndex = 0; 
-            this.renderApp.view.style.zIndex = 1;
-        }
     }
 }
 

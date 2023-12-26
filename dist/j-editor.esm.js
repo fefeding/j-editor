@@ -26470,7 +26470,7 @@ class element extends EventEmiter {
     constructor(option) {
         super();
         this.container = new Container();
-        
+        this.container.zIndex = option.zIndex || 1;
         this.editor = option.editor;
         this.option = option || {};
         this.style = this.option.style || {};
@@ -26478,16 +26478,16 @@ class element extends EventEmiter {
 
     // 位置
     get x() {
-        return this.container.x;
+        return this.container.x - this.editor.left;
     }
     set x(v) {
-        this.container.x = v;
+        this.container.x = v + this.editor.left;
     }
     get y() {
-        return this.container.y;
+        return this.container.y - this.editor.top;
     }
     set y(v) {
-        this.container.y = v;
+        this.container.y = v + this.editor.top;
     }
 
     // 旋转角度
@@ -26508,14 +26508,11 @@ class element extends EventEmiter {
     editable = true;
 
     // 被选中
-    select() {
-        this.selected = true;
-        this.editor.selectElement(this);
+    get selected() {
+        return this._selected;
     }
-    // 被取消选中
-    unSelect() {
-        this.selected = false;
-        this.editor.selectElement(this, false);
+    set selected(v) {
+        return this._selected = v;
     }
 
     // 新增子元素
@@ -26598,6 +26595,8 @@ class image extends element {
         return Assets.load(url).then((texture) => {
             this.sprite.texture = texture;
             this.emit('load', texture);
+
+            this.editor.sort();
         });
     }
 }
@@ -26608,20 +26607,76 @@ class background extends image {
         super(option);
 
         this.editable = false;// 不可编辑
-        
+        this.init();
+
         this.on('load', () => {
             this.resize(this.editor.width, this.editor.height);
         });
     }
 
-    
+    init() {
+        if(!this.bgGraphics) {
+            this.bgGraphics = new Graphics();
+            this.bgGraphics.interactive = false;
+            this.addChild(this.bgGraphics);
+        }
+
+        this.forceGraphics = new Graphics();
+        this.forceGraphics.interactive = false;
+        this.editor.app.stage.addChild(this.forceGraphics);
+    }
+
+    resize(w, h) {
+        this.x = 0;
+        this.y = 0 ;
+
+        super.resize(w, h);
+
+        this.draw(w, h);
+    }
+
+    draw(w, h) {
+        // 如果没有指定图片，则画白色背景
+        if(!this.url) {            
+            this.bgGraphics.clear();
+            this.bgGraphics.beginFill(this.style.backgroundColor || 0xFFFFFF, 1);
+            this.bgGraphics.drawRect(this.x, this.y, w||this.width, h||this.height);
+            this.bgGraphics.endFill();
+        }
+        else if(this.bgGraphics) {
+            this.bgGraphics.visible = false;
+        }
+
+        // 挡住非渲染区域
+        const path = [
+            0, 0, 
+            this.editor.app.screen.width, 0, 
+            this.editor.app.screen.width, this.editor.app.screen.height, 
+            this.editor.left + this.editor.width, this.editor.app.screen.height, 
+            this.editor.left + this.editor.width, this.editor.top,
+            this.editor.left, this.editor.top,
+            this.editor.left, this.editor.top + this.editor.height,
+            this.editor.left + this.editor.width, this.editor.top + this.editor.height,
+            this.editor.left + this.editor.width, this.editor.app.screen.height,
+            0, this.editor.app.screen.height
+        ];
+        this.forceGraphics.zIndex = 99999;
+
+        this.editor.sort();
+
+        this.forceGraphics.lineStyle(0);
+        this.forceGraphics.beginFill(this.style.paddingBackgroundColor || '#ccc', 1);
+        this.forceGraphics.drawPolygon(path);
+        this.forceGraphics.endFill();
+    }
 }
 
 class resize extends element {
 
     constructor(option) {
+        option.zIndex = 100000;
         super(option);
-
+        this.editable = false;// 这个不可编辑
         this.init();
     }
 
@@ -26633,12 +26688,13 @@ class resize extends element {
 
     init() {
         // 绑定拖放操作, 所有操作都放到control层  
-        this.editor.controlApp.stage.eventMode = 'static';
-        this.editor.controlApp.stage.hitArea = this.editor.controlApp.screen;
-        this.editor.controlApp.stage.on('pointerup', this.onDragEnd, this);
-        this.editor.controlApp.stage.on('pointerupoutside', this.onDragEnd, this);
+        this.editor.app.stage.eventMode = 'static';
+        this.editor.app.stage.hitArea = this.editor.app.screen;
+        this.editor.app.stage.on('pointerup', this.onDragEnd, this);
+        this.editor.app.stage.on('pointerupoutside', this.onDragEnd, this);
 
         this.graphics = new Graphics();
+        this.graphics.interactive = false;
         this.addChild(this.graphics);
     }
 
@@ -26651,7 +26707,7 @@ class resize extends element {
     draw() {
         this.graphics.clear();
         this.graphics.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
-        this.graphics.beginFill(0xFFFFFF, 0.01);
+        //this.graphics.beginFill('transparent', 0.01);
         
         //console.log('draw rect', this.x, this.y, this.width, this.height);
         this.graphics.drawRect(this.x, this.y, this.width, this.height);
@@ -26713,24 +26769,23 @@ class resize extends element {
     }
     
     onDragStart(event, target)   {
-        if(this.target && this.target !== target) this.target.unSelect();
-        
-        if(target.select) target.select();// 选中当前元素
+        if(this.target && this.target !== target) this.target.selected = false;
+
+        this.bind(target);
+        target.selected = true;// 选中当前元素
         
         // 选中的是渲染层的坐标，转为控制层的
-        this.dragStartPosition = this.toControlPosition(event.global);
+        this.dragStartPosition = event.global;
     
-        this.editor.controlApp.stage.off('pointermove', this.onDragMove);
-        this.editor.controlApp.stage.on('pointermove', this.onDragMove, this);
+        this.editor.app.stage.off('pointermove', this.onDragMove);
+        this.editor.app.stage.on('pointermove', this.onDragMove, this);
 
         this.isMoving = true;
     }
     
     onDragEnd()  {
         if (this.target) {
-            this.editor.controlApp.stage.off('pointermove', this.onDragMove);
-            //if(dragTarget.container && dragTarget.container.alpha > 0) dragTarget.container.alpha *= 2;
-            //if(this.target.unSelect) this.target.unSelect();// 取消选中当前元素
+            this.editor.app.stage.off('pointermove', this.onDragMove);
             this.isMoving = false;
         }
     }
@@ -26738,7 +26793,10 @@ class resize extends element {
 
 class editor {
 
-    constructor(container, option={}) {        
+    constructor(container, option={}) {  
+        this.option = option || {};
+        this.style = this.option.style || {};
+
         this.container = document.createElement(
             'div'
         );
@@ -26749,15 +26807,16 @@ class editor {
         this.rootContainer = container;
         container.appendChild(this.container);
 
-        this.renderApp = new Application({ background: option.renderBackground||'#fff'});
-        this.controlApp = new Application({ backgroundAlpha: 0 });
+        this.app = new Application({ backgroundAlpha: 0 });
 
-        this.container.appendChild(this.controlApp.view);    
-        this.container.appendChild(this.renderApp.view);       
+        this.container.appendChild(this.app.view);      
         
         this.children = [];
 
-        this.background = new background({});
+        this.background = new background({
+            editor: this,
+            style: this.style
+        });
         this.addChild(this.background);
 
         this.init(option);
@@ -26770,47 +26829,48 @@ class editor {
         }
 
         // Listen for animate update
-        this.renderApp.ticker.add((delta) =>  {
+        this.app.ticker.add((delta) =>  {
             option.onTicker && option.onTicker(delta);
             
         });
 
-        this.controlApp.view.style.position = this.renderApp.view.style.position = 'absolute'; 
-        this.controlApp.view.style.left = '0';
-        this.controlApp.view.style.top = '0';   
-        this.controlApp.view.style.zIndex = 0; 
-        this.renderApp.view.style.zIndex = 1;
+        this.app.view.style.position = 'absolute'; 
+        this.app.view.style.left = '0';
+        this.app.view.style.top = '0';   
 
         this.controlElement = new resize({
             editor: this
         });
-        this.controlElement.app = this.controlApp;
-        this.controlApp.stage.addChild(this.controlElement.container);
+        this.addChild(this.controlElement);
     }
 
     get width() {
-        return this.renderApp.screen.width;
+        return this._width;
+    }
+    set width(v) {
+        this.setSize(v, this.height);
     }
 
     get height() {
-        return this.renderApp.screen.height;
+        return this._height;
+    }
+    set height(v) {
+        this.setSize(this.width, v);
     }
 
     setSize(width, height) {
-        this.renderApp.renderer.resize(width, height);
+        this._width = width;
+        this._height = height;
 
         const controlWidth = width * 3;
         const controlHeight = height * 3;
-        this.controlApp.renderer.resize(controlWidth, controlHeight);
+        this.app.renderer.resize(controlWidth, controlHeight);
         this.container.style.width = `${controlWidth}px`;
         this.container.style.height = `${controlHeight}px`;
 
         this.left = controlWidth / 2 - width /2;
         this.top = controlHeight / 2 - height /2;
 
-        this.renderApp.view.style.left = `${this.left}px`;
-        this.renderApp.view.style.top = `${this.top}px`;  
-        
         // 背景大小一直拉满
         this.background.resize(this.width, this.height);
         // 滚动到居中
@@ -26820,15 +26880,17 @@ class editor {
     // 添加元素到画布
     addChild(el) {
         el.editor = this;
-        this.children.push(el);
         if(el.container) {
-            el.app = this.renderApp;
-            this.renderApp.stage.addChild(el.container);
-
+            this.app.stage.addChild(el.container);
+            
             if(el.editable) {
                 this.controlElement.bindEvent(el);
             }
         }
+    }
+
+    sort() {
+        this.app.stage.sortChildren();
     }
 
     // 创建图片元素
@@ -26839,22 +26901,6 @@ class editor {
             editor: this,
         });
         return img;
-    }
-
-    // 选中某个元素
-    selectElement(el, selected = true) {
-        if(selected) {
-            this.controlElement.bind(el);
-            
-            this.controlApp.view.style.zIndex = 1; 
-            this.renderApp.view.style.zIndex = 0;
-        }
-        else {
-            this.controlElement.visible = false;
-            
-            this.controlApp.view.style.zIndex = 0; 
-            this.renderApp.view.style.zIndex = 1;
-        }
     }
 }
 

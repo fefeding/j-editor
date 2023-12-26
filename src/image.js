@@ -55,6 +55,8 @@ export default class image extends element {
         return PIXI.Assets.load(url).then((texture) => {
             this.sprite.texture = texture;
             this.emit('load', texture);
+
+            this.editor.sort();
         });
     }
 }

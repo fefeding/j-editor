@@ -6,7 +6,7 @@ export default class element extends EventEmiter {
     constructor(option) {
         super();
         this.container = new PIXI.Container();
-        
+        this.container.zIndex = option.zIndex || 1;
         this.editor = option.editor;
         this.option = option || {};
         this.style = this.option.style || {};
@@ -14,16 +14,16 @@ export default class element extends EventEmiter {
 
     // 位置
     get x() {
-        return this.container.x;
+        return this.container.x - this.editor.left;
     }
     set x(v) {
-        this.container.x = v;
+        this.container.x = v + this.editor.left;
     }
     get y() {
-        return this.container.y;
+        return this.container.y - this.editor.top;
     }
     set y(v) {
-        this.container.y = v;
+        this.container.y = v + this.editor.top;
     }
 
     // 旋转角度
@@ -44,14 +44,11 @@ export default class element extends EventEmiter {
     editable = true;
 
     // 被选中
-    select() {
-        this.selected = true;
-        this.editor.selectElement(this);
+    get selected() {
+        return this._selected;
     }
-    // 被取消选中
-    unSelect() {
-        this.selected = false;
-        this.editor.selectElement(this, false);
+    set selected(v) {
+        return this._selected = v;
     }
 
     // 新增子元素
