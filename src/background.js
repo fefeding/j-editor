@@ -18,12 +18,12 @@ export default class background extends image {
     init() {
         if(!this.bgGraphics) {
             this.bgGraphics = new PIXI.Graphics();
-            this.bgGraphics.interactive = false;
+            this.bgGraphics.eventMode = 'none';
             this.addChild(this.bgGraphics);
         }
 
         this.forceGraphics = new PIXI.Graphics();
-        this.forceGraphics.interactive = false;
+        this.forceGraphics.eventMode = 'none';
         this.editor.app.stage.addChild(this.forceGraphics);
     }
 
@@ -63,7 +63,7 @@ export default class background extends image {
         ];
         this.forceGraphics.zIndex = 99999;
 
-        this.editor.sort();
+        //this.editor.sort();
 
         this.forceGraphics.lineStyle(0);
         this.forceGraphics.beginFill(this.style.paddingBackgroundColor || '#ccc', 1);

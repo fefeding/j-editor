@@ -57,6 +57,7 @@ export default class image extends element {
             this.emit('load', texture);
 
             this.editor.sort();
+            //this.zIndex = this.zIndex || 0;
         });
     }
 }

@@ -38,8 +38,17 @@ export default class element extends EventEmiter {
         return this.container.visible;
     }
     set visible(v) {
-        return this.container.visible = v;
+        this.container.visible = v;
+        //this.editor.sort();
     }
+
+    get zIndex() {
+        return this.container.zIndex;
+    }
+    set zIndex(v) {
+        this.container.zIndex = v;
+    }
+    
     // 是否可以编辑
     editable = true;
 
@@ -48,6 +57,10 @@ export default class element extends EventEmiter {
         return this._selected;
     }
     set selected(v) {
+        if(v) this.editor.controlElement.bind(this);
+        else {
+            this.editor.controlElement.unbind(this);
+        }
         return this._selected = v;
     }
 

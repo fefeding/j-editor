@@ -26502,8 +26502,17 @@ class element extends EventEmiter {
         return this.container.visible;
     }
     set visible(v) {
-        return this.container.visible = v;
+        this.container.visible = v;
+        //this.editor.sort();
     }
+
+    get zIndex() {
+        return this.container.zIndex;
+    }
+    set zIndex(v) {
+        this.container.zIndex = v;
+    }
+    
     // 是否可以编辑
     editable = true;
 
@@ -26512,6 +26521,10 @@ class element extends EventEmiter {
         return this._selected;
     }
     set selected(v) {
+        if(v) this.editor.controlElement.bind(this);
+        else {
+            this.editor.controlElement.unbind(this);
+        }
         return this._selected = v;
     }
 
@@ -26597,6 +26610,7 @@ class image extends element {
             this.emit('load', texture);
 
             this.editor.sort();
+            //this.zIndex = this.zIndex || 0;
         });
     }
 }
@@ -26617,12 +26631,12 @@ class background extends image {
     init() {
         if(!this.bgGraphics) {
             this.bgGraphics = new Graphics();
-            this.bgGraphics.interactive = false;
+            this.bgGraphics.eventMode = 'none';
             this.addChild(this.bgGraphics);
         }
 
         this.forceGraphics = new Graphics();
-        this.forceGraphics.interactive = false;
+        this.forceGraphics.eventMode = 'none';
         this.editor.app.stage.addChild(this.forceGraphics);
     }
 
@@ -26662,7 +26676,7 @@ class background extends image {
         ];
         this.forceGraphics.zIndex = 99999;
 
-        this.editor.sort();
+        //this.editor.sort();
 
         this.forceGraphics.lineStyle(0);
         this.forceGraphics.beginFill(this.style.paddingBackgroundColor || '#ccc', 1);
@@ -26693,8 +26707,13 @@ class resize extends element {
         this.editor.app.stage.on('pointerup', this.onDragEnd, this);
         this.editor.app.stage.on('pointerupoutside', this.onDragEnd, this);
 
+        // 其它区域点击则取消选择
+        this.editor.app.stage.on('pointerdown', (event) => {
+            if(event.target === this.editor.app.stage && this.target) this.target.selected = false;
+        });
+
         this.graphics = new Graphics();
-        this.graphics.interactive = false;
+        this.graphics.eventMode = 'none';
         this.addChild(this.graphics);
     }
 
@@ -26713,15 +26732,7 @@ class resize extends element {
         this.graphics.drawRect(this.x, this.y, this.width, this.height);
         this.graphics.endFill();
 
-        // 控制目标元素位置大大小
-        if(this.target) {
-            const pos = this.toRenderPosition({
-                x: this.x,
-                y: this.y
-            });
-            this.target.x = pos.x;
-            this.target.y = pos.y;
-        }
+        
     }
 
     // 绑到当前选中的元素
@@ -26742,6 +26753,12 @@ class resize extends element {
         this.draw();
     }
 
+    unbind(el) {
+        this.target = null;
+        this.visible = false;
+        this.onDragEnd();
+    }
+
     // 绑定操作事件
     bindEvent(el) {   
         el.container.eventMode = 'static';
@@ -26760,6 +26777,16 @@ class resize extends element {
         this.y += (event.global.y - this.dragStartPosition.y);
 
         this.draw();
+
+        // 控制目标元素位置大大小
+        if(this.target) {
+            const pos = this.toRenderPosition({
+                x: this.x,
+                y: this.y
+            });
+            this.target.x = pos.x;
+            this.target.y = pos.y;
+        }
         
         // 选中的是渲染层的坐标，转为控制层的
         this.dragStartPosition = {
@@ -26769,10 +26796,10 @@ class resize extends element {
     }
     
     onDragStart(event, target)   {
-        if(this.target && this.target !== target) this.target.selected = false;
+        if(this.target && this.target !== target) this.target.selected = false;   
 
-        this.bind(target);
         target.selected = true;// 选中当前元素
+        //this.bind(target);
         
         // 选中的是渲染层的坐标，转为控制层的
         this.dragStartPosition = event.global;

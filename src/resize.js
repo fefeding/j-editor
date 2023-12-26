@@ -24,8 +24,13 @@ export default class resize extends element {
         this.editor.app.stage.on('pointerup', this.onDragEnd, this);
         this.editor.app.stage.on('pointerupoutside', this.onDragEnd, this);
 
+        // 其它区域点击则取消选择
+        this.editor.app.stage.on('pointerdown', (event) => {
+            if(event.target === this.editor.app.stage && this.target) this.target.selected = false;
+        });
+
         this.graphics = new PIXI.Graphics();
-        this.graphics.interactive = false;
+        this.graphics.eventMode = 'none';
         this.addChild(this.graphics);
     }
 
@@ -44,15 +49,7 @@ export default class resize extends element {
         this.graphics.drawRect(this.x, this.y, this.width, this.height);
         this.graphics.endFill();
 
-        // 控制目标元素位置大大小
-        if(this.target) {
-            const pos = this.toRenderPosition({
-                x: this.x,
-                y: this.y
-            });
-            this.target.x = pos.x;
-            this.target.y = pos.y;
-        }
+        
     }
 
     // 绑到当前选中的元素
@@ -73,6 +70,12 @@ export default class resize extends element {
         this.draw();
     }
 
+    unbind(el) {
+        this.target = null;
+        this.visible = false;
+        this.onDragEnd();
+    }
+
     // 绑定操作事件
     bindEvent(el) {   
         el.container.eventMode = 'static';
@@ -91,6 +94,16 @@ export default class resize extends element {
         this.y += (event.global.y - this.dragStartPosition.y);
 
         this.draw();
+
+        // 控制目标元素位置大大小
+        if(this.target) {
+            const pos = this.toRenderPosition({
+                x: this.x,
+                y: this.y
+            });
+            this.target.x = pos.x;
+            this.target.y = pos.y;
+        }
         
         // 选中的是渲染层的坐标，转为控制层的
         this.dragStartPosition = {
@@ -100,10 +113,10 @@ export default class resize extends element {
     }
     
     onDragStart(event, target)   {
-        if(this.target && this.target !== target) this.target.selected = false;
+        if(this.target && this.target !== target) this.target.selected = false;   
 
-        this.bind(target);
         target.selected = true;// 选中当前元素
+        //this.bind(target);
         
         // 选中的是渲染层的坐标，转为控制层的
         this.dragStartPosition = event.global;
