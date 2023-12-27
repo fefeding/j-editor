@@ -76,13 +76,13 @@ export default class resize extends element {
         const self = this;
         // 如果item进行了移动，则反应到控制的目标上
         g.move = function(offX, offY) {
-            switch(this.dir) {
-                case 'l': {
+            switch(this.cursor) {
+                case self.cursors['l']: {
                     self.x += offX;
                     self.width -= offX;
                     break;
                 }
-                case 'lt':{
+                case self.cursors['lt']:{
                     self.x += offX;
                     self.width -= offX;
 
@@ -90,31 +90,31 @@ export default class resize extends element {
                     self.height -= offY;
                     break;
                 }
-                case 't': {
+                case self.cursors['t']: {
                     self.y += offY;
                     self.height -= offY;
                     break;
                 }
-                case 'tr': {
+                case self.cursors['tr']: {
                     self.width += offX;
                     self.y += offY;
                     self.height -= offY;
                     break;
                 }
-                case 'r': {
+                case self.cursors['r']: {
                     self.width += offX;
                     break;
                 }
-                case 'rb': {
+                case self.cursors['rb']: {
                     self.width += offX;
                     self.height += offY;
                     break;
                 }
-                case 'b': {
+                case self.cursors['b']: {
                     self.height += offY;
                     break;
                 }
-                case 'lb': {
+                case self.cursors['lb']: {
                     self.x += offX;
                     self.width -= offX;
                     self.height += offY;
@@ -140,7 +140,7 @@ export default class resize extends element {
     // 绘制
     draw() {
         let matrix = null;
-        if(this.target.rotation) {
+        if(this.target && this.target.rotation) {
             matrix = new PIXI.Matrix();
             matrix.center = this.toControlPosition({
                 x: this.target.x,
@@ -215,6 +215,8 @@ export default class resize extends element {
 
         g.drawPolygon(g.points);
         g.endFill();
+
+
     }
 
     // 绑到当前选中的元素
