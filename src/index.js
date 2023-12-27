@@ -118,7 +118,7 @@ export default class editor extends EventEmiter {
 
     // 转为图片数据
     async toImage() {
-        const imgData = await this.app.renderer.extract.base64(this.app.stage, 'image/jpeg', 1, new PIXI.Rectangle(this.left, this.top, this.width, this.height));
+        const imgData = await this.app.renderer.extract.base64(this.app.stage, 'image/jpeg', 1);//, new PIXI.Rectangle(this.left, this.top, this.width, this.height)
         
         /*const canvas = document.createElement('canvas');
         canvas.width = this.width;

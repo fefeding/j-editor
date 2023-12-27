@@ -23,25 +23,27 @@ export default class background extends image {
         }
 
         this.forceGraphics = new PIXI.Graphics();
+        this.forceGraphics.zIndex = 99999;
         this.forceGraphics.eventMode = 'none';
         this.editor.app.stage.addChild(this.forceGraphics);
     }
 
     resize(w, h) {
-        this.x = 0;
-        this.y = 0;
 
         super.resize(w, h);
+
+        this.x = this.pivot.x;
+        this.y = this.pivot.y;
 
         this.draw(w, h)
     }
 
-    draw(w, h) {
+    draw(w, h) {   
         // 如果没有指定图片，则画白色背景
-        if(!this.url) {            
+        if(!this.url) {       
             this.bgGraphics.clear();
             this.bgGraphics.beginFill(this.style.backgroundColor || 0xFFFFFF, 1);
-            this.bgGraphics.drawRect(this.x, this.y, w||this.width, h||this.height);
+            this.bgGraphics.drawRect(this.left, this.top, w||this.width, h||this.height);
             this.bgGraphics.endFill();
         }
         else if(this.bgGraphics) {
@@ -61,10 +63,9 @@ export default class background extends image {
             this.editor.left + this.editor.width, this.editor.app.screen.height,
             0, this.editor.app.screen.height
         ];
-        this.forceGraphics.zIndex = 99999;
 
         //this.editor.sort();
-
+        this.forceGraphics.clear();
         this.forceGraphics.lineStyle(0);
         this.forceGraphics.beginFill(this.style.paddingBackgroundColor || '#ccc', 1);
         this.forceGraphics.drawPolygon(path);

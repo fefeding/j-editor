@@ -30,6 +30,11 @@ export default class resize extends element {
         y: 0
     };
 
+    x = 0;
+    y = 0;
+    width = 1;
+    height = 1;
+
     init() {
         
 
@@ -60,6 +65,7 @@ export default class resize extends element {
 
     createItem(id, cursor = 'pointer') {
         const g = new PIXI.Graphics();
+        
         g.eventMode = 'static';
         g.cursor = cursor;
         g.dir = id;
@@ -130,15 +136,19 @@ export default class resize extends element {
         });
     }
 
-    x = 0;
-    y = 0;
-    width = 0;
-    height = 0;
-
     // 绘制
     draw() {
+        let matrix = null;
+        if(this.target.rotation) {
+            matrix = new PIXI.Matrix();
+            matrix.center = this.toControlPosition({
+                x: this.target.x,
+                y: this.target.y
+            });
+            matrix.rotate(this.target.rotation);
+        }
 
-        this.drawRect(this.graphics, this.x, this.y, this.width, this.height);
+        this.drawRect(this.graphics, this.x, this.y, this.width, this.height, matrix);
 
         const t = this.y - this.itemSize / 2;
         const l = this.x - this.itemSize/2;
@@ -147,23 +157,39 @@ export default class resize extends element {
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
-        this.drawRect(this.items.l, l, mid, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.lt, l, t, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.t, cid, t, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.tr, r, t, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.r, r, mid, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.rb, r, b, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.b, cid, b, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.lb, l, b, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.l, l, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.lt, l, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.t, cid, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.tr, r, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.r, r, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.rb, r, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.b, cid, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.lb, l, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
     }
     // 绘制方块
-    drawRect(g, x, y, w, h, fill = null) {
+    drawRect(g, x, y, w, h, matrix = null, fill = null) {
         g.clear();
         g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
         if(fill) g.beginFill(fill);
-        
-        //console.log('draw rect', this.x, this.y, this.width, this.height);
-        g.drawRect(x, y, w, h);
+        g.points = [
+            x, y, 
+            x + w, y,
+            x + w, y + h,
+            x, y + h
+        ];
+
+        if(matrix) {
+            for(let i=0; i<g.points.length; i+=2) {
+                const p = matrix.apply({
+                    x: g.points[i] - matrix.center.x, 
+                    y: g.points[i+1] - matrix.center.y
+                });
+                g.points[i] = p.x + matrix.center.x;
+                g.points[i+1] = p.y + matrix.center.y;
+            }
+        }
+
+        g.drawPolygon(g.points);
         g.endFill();
     }
 
@@ -172,18 +198,17 @@ export default class resize extends element {
         this.target = el;
         this.visible = true;
 
-        // 操作元素在控制层，需要转换坐标
-        const pos = this.toControlPosition({
-            x: this.target.x,
-            y: this.target.y
-        });
-        this.x = pos.x;
-        this.y = pos.y;
         this.width = this.target.width;
         this.height = this.target.height;
 
-        //this.angle = this.target.angle;
-        //this.rotation = this.target.rotation;
+        // 操作元素在控制层，需要转换坐标
+        const pos = this.toControlPosition({
+            x: this.target.x - this.width/2,
+            y: this.target.y - this.height/2
+        });   
+
+        this.x = pos.x;
+        this.y = pos.y;
 
         this.draw();
     }
@@ -212,8 +237,8 @@ export default class resize extends element {
                 x: this.x,
                 y: this.y
             });
-            this.target.x = pos.x;
-            this.target.y = pos.y;
+            this.target.x = pos.x + this.width/2;
+            this.target.y = pos.y + this.height/2;
 
             this.target.width = this.width;
             this.target.height = this.height;

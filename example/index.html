@@ -65,7 +65,7 @@
 
 			img2.x = img.x + 100;
 			img2.y = img.y + 100;
-			//img2.angle = 45;
+			img2.angle = 180;
 			editor.addChild(img2);
 		});
 		editor.addChild(img);
@@ -74,7 +74,7 @@
 		async function createPreivew(delta) {
 			const data = await editor.toImage();
 			if(data !== preview.src) preview.src = data;
-			setTimeout(createPreivew, 1000);
+			setTimeout(createPreivew, 10000);
 		};
 		setTimeout(createPreivew, 1000);
 	</script>

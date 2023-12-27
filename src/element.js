@@ -6,6 +6,7 @@ export default class element extends EventEmiter {
     constructor(option) {
         super();
         this.container = new PIXI.Container();
+
         this.container.zIndex = option.zIndex || 1;
         this.editor = option.editor;
         this.option = option || {};
@@ -26,6 +27,22 @@ export default class element extends EventEmiter {
         this.container.y = v + this.editor.top;
     }
 
+    get width() {
+        return this.container.width;
+    }
+    set width(v) {
+        this.container.width = v;
+        this.pivot.x = v/2;
+    }
+
+    get height() {
+        return this.container.height;
+    }
+    set height(v) {
+        this.container.height = v;
+        this.pivot.y = v/2;
+    }
+
     // 旋转角度
     set rotation(v) {
         this.container.rotation = v;
@@ -39,13 +56,25 @@ export default class element extends EventEmiter {
     get angle() {
         return this.container.angle;
     }
-
+    
     get visible() {
         return this.container.visible;
     }
     set visible(v) {
         this.container.visible = v;
         //this.editor.sort();
+    }
+    get pivot() {
+        return this.container.pivot;
+    }
+    set pivot(v) {
+        this.container.pivot = v;
+    }
+    get position() {
+        return this.container.position;
+    }
+    set position(v) {
+        this.container.position = v;
     }
 
     get zIndex() {
@@ -68,6 +97,22 @@ export default class element extends EventEmiter {
             this.editor.controlElement.unbind(this);
         }
         return this._selected = v;
+    }
+
+    
+
+    // 重置大小
+    resize(w, h) {
+        if(typeof w === 'number') {
+            //const rw = w / this.sprite.texture.width;
+            //if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
+            this.width = w;
+        }
+        if(typeof h === 'number') {
+            //const rh = h / this.sprite.texture.height;
+            //if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
+            this.height = h;
+        }
     }
 
     // 新增子元素

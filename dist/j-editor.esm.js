@@ -26470,6 +26470,7 @@ class element extends EventEmiter {
     constructor(option) {
         super();
         this.container = new Container();
+
         this.container.zIndex = option.zIndex || 1;
         this.editor = option.editor;
         this.option = option || {};
@@ -26490,6 +26491,22 @@ class element extends EventEmiter {
         this.container.y = v + this.editor.top;
     }
 
+    get width() {
+        return this.container.width;
+    }
+    set width(v) {
+        this.container.width = v;
+        this.pivot.x = v/2;
+    }
+
+    get height() {
+        return this.container.height;
+    }
+    set height(v) {
+        this.container.height = v;
+        this.pivot.y = v/2;
+    }
+
     // 旋转角度
     set rotation(v) {
         this.container.rotation = v;
@@ -26503,13 +26520,25 @@ class element extends EventEmiter {
     get angle() {
         return this.container.angle;
     }
-
+    
     get visible() {
         return this.container.visible;
     }
     set visible(v) {
         this.container.visible = v;
         //this.editor.sort();
+    }
+    get pivot() {
+        return this.container.pivot;
+    }
+    set pivot(v) {
+        this.container.pivot = v;
+    }
+    get position() {
+        return this.container.position;
+    }
+    set position(v) {
+        this.container.position = v;
     }
 
     get zIndex() {
@@ -26532,6 +26561,22 @@ class element extends EventEmiter {
             this.editor.controlElement.unbind(this);
         }
         return this._selected = v;
+    }
+
+    
+
+    // 重置大小
+    resize(w, h) {
+        if(typeof w === 'number') {
+            //const rw = w / this.sprite.texture.width;
+            //if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
+            this.width = w;
+        }
+        if(typeof h === 'number') {
+            //const rh = h / this.sprite.texture.height;
+            //if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
+            this.height = h;
+        }
     }
 
     // 新增子元素
@@ -26572,7 +26617,8 @@ class image extends element {
     constructor(option) {
         super(option);
         // 图片载体
-        this.sprite = new Sprite();        
+        this.sprite = new Sprite();   
+
         this.addChild(this.sprite);
 
         if(option.url) {
@@ -26584,20 +26630,16 @@ class image extends element {
         return this.sprite.width;
     }
     set width(v) {
-        this.sprite.width = v;    }
+        this.sprite.width = v;
+        super.width = v;
+    }
 
     get height() {
         return this.sprite.height;
     }
     set height(v) {
         this.sprite.height = v;
-    }
-
-    get anchor() {
-        return this.sprite.anchor;
-    }
-    set anchor(v) {
-        this.sprite.anchor=v;
+        super.height = v;
     }
 
     // 当前图片url
@@ -26607,20 +26649,6 @@ class image extends element {
     set url(v) {
         this.load(v);
         this.__url = v;
-    }
-
-    // 重置大小
-    resize(w, h) {
-        if(typeof w === 'number') {
-            //const rw = w / this.sprite.texture.width;
-            //if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
-            this.width = w;
-        }
-        if(typeof h === 'number') {
-            //const rh = h / this.sprite.texture.height;
-            //if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
-            this.height = h;
-        }
     }
 
     load(url) {
@@ -26655,25 +26683,27 @@ class background extends image {
         }
 
         this.forceGraphics = new Graphics();
+        this.forceGraphics.zIndex = 99999;
         this.forceGraphics.eventMode = 'none';
         this.editor.app.stage.addChild(this.forceGraphics);
     }
 
     resize(w, h) {
-        this.x = 0;
-        this.y = 0;
 
         super.resize(w, h);
+
+        this.x = this.pivot.x;
+        this.y = this.pivot.y;
 
         this.draw(w, h);
     }
 
-    draw(w, h) {
+    draw(w, h) {   
         // 如果没有指定图片，则画白色背景
-        if(!this.url) {            
+        if(!this.url) {       
             this.bgGraphics.clear();
             this.bgGraphics.beginFill(this.style.backgroundColor || 0xFFFFFF, 1);
-            this.bgGraphics.drawRect(this.x, this.y, w||this.width, h||this.height);
+            this.bgGraphics.drawRect(this.left, this.top, w||this.width, h||this.height);
             this.bgGraphics.endFill();
         }
         else if(this.bgGraphics) {
@@ -26693,10 +26723,9 @@ class background extends image {
             this.editor.left + this.editor.width, this.editor.app.screen.height,
             0, this.editor.app.screen.height
         ];
-        this.forceGraphics.zIndex = 99999;
 
         //this.editor.sort();
-
+        this.forceGraphics.clear();
         this.forceGraphics.lineStyle(0);
         this.forceGraphics.beginFill(this.style.paddingBackgroundColor || '#ccc', 1);
         this.forceGraphics.drawPolygon(path);
@@ -26732,6 +26761,11 @@ class resize extends element {
         y: 0
     };
 
+    x = 0;
+    y = 0;
+    width = 1;
+    height = 1;
+
     init() {
         
 
@@ -26762,6 +26796,7 @@ class resize extends element {
 
     createItem(id, cursor = 'pointer') {
         const g = new Graphics();
+        
         g.eventMode = 'static';
         g.cursor = cursor;
         g.dir = id;
@@ -26832,15 +26867,19 @@ class resize extends element {
         });
     }
 
-    x = 0;
-    y = 0;
-    width = 0;
-    height = 0;
-
     // 绘制
     draw() {
+        let matrix = null;
+        if(this.target.rotation) {
+            matrix = new Matrix();
+            matrix.center = this.toControlPosition({
+                x: this.target.x,
+                y: this.target.y
+            });
+            matrix.rotate(this.target.rotation);
+        }
 
-        this.drawRect(this.graphics, this.x, this.y, this.width, this.height);
+        this.drawRect(this.graphics, this.x, this.y, this.width, this.height, matrix);
 
         const t = this.y - this.itemSize / 2;
         const l = this.x - this.itemSize/2;
@@ -26849,23 +26888,39 @@ class resize extends element {
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
-        this.drawRect(this.items.l, l, mid, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.lt, l, t, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.t, cid, t, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.tr, r, t, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.r, r, mid, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.rb, r, b, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.b, cid, b, this.itemSize, this.itemSize, this.style.itemFillColor);
-        this.drawRect(this.items.lb, l, b, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.l, l, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.lt, l, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.t, cid, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.tr, r, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.r, r, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.rb, r, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.b, cid, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items.lb, l, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
     }
     // 绘制方块
-    drawRect(g, x, y, w, h, fill = null) {
+    drawRect(g, x, y, w, h, matrix = null, fill = null) {
         g.clear();
         g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
         if(fill) g.beginFill(fill);
-        
-        //console.log('draw rect', this.x, this.y, this.width, this.height);
-        g.drawRect(x, y, w, h);
+        g.points = [
+            x, y, 
+            x + w, y,
+            x + w, y + h,
+            x, y + h
+        ];
+
+        if(matrix) {
+            for(let i=0; i<g.points.length; i+=2) {
+                const p = matrix.apply({
+                    x: g.points[i] - matrix.center.x, 
+                    y: g.points[i+1] - matrix.center.y
+                });
+                g.points[i] = p.x + matrix.center.x;
+                g.points[i+1] = p.y + matrix.center.y;
+            }
+        }
+
+        g.drawPolygon(g.points);
         g.endFill();
     }
 
@@ -26874,18 +26929,17 @@ class resize extends element {
         this.target = el;
         this.visible = true;
 
-        // 操作元素在控制层，需要转换坐标
-        const pos = this.toControlPosition({
-            x: this.target.x,
-            y: this.target.y
-        });
-        this.x = pos.x;
-        this.y = pos.y;
         this.width = this.target.width;
         this.height = this.target.height;
 
-        //this.angle = this.target.angle;
-        //this.rotation = this.target.rotation;
+        // 操作元素在控制层，需要转换坐标
+        const pos = this.toControlPosition({
+            x: this.target.x - this.width/2,
+            y: this.target.y - this.height/2
+        });   
+
+        this.x = pos.x;
+        this.y = pos.y;
 
         this.draw();
     }
@@ -26914,8 +26968,8 @@ class resize extends element {
                 x: this.x,
                 y: this.y
             });
-            this.target.x = pos.x;
-            this.target.y = pos.y;
+            this.target.x = pos.x + this.width/2;
+            this.target.y = pos.y + this.height/2;
 
             this.target.width = this.width;
             this.target.height = this.height;
@@ -27090,7 +27144,7 @@ class editor extends EventEmiter {
 
     // 转为图片数据
     async toImage() {
-        const imgData = await this.app.renderer.extract.base64(this.app.stage, 'image/jpeg', 1, new Rectangle(this.left, this.top, this.width, this.height));
+        const imgData = await this.app.renderer.extract.base64(this.app.stage, 'image/jpeg', 1);//, new PIXI.Rectangle(this.left, this.top, this.width, this.height)
         
         /*const canvas = document.createElement('canvas');
         canvas.width = this.width;

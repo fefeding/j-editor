@@ -6,7 +6,8 @@ export default class image extends element {
     constructor(option) {
         super(option);
         // 图片载体
-        this.sprite = new PIXI.Sprite();        
+        this.sprite = new PIXI.Sprite();   
+
         this.addChild(this.sprite);
 
         if(option.url) {
@@ -18,7 +19,8 @@ export default class image extends element {
         return this.sprite.width;
     }
     set width(v) {
-        this.sprite.width = v;;
+        this.sprite.width = v;
+        super.width = v;
     }
 
     get height() {
@@ -26,13 +28,7 @@ export default class image extends element {
     }
     set height(v) {
         this.sprite.height = v;
-    }
-
-    get anchor() {
-        return this.sprite.anchor;
-    }
-    set anchor(v) {
-        this.sprite.anchor=v;
+        super.height = v;
     }
 
     // 当前图片url
@@ -42,20 +38,6 @@ export default class image extends element {
     set url(v) {
         this.load(v);
         this.__url = v;
-    }
-
-    // 重置大小
-    resize(w, h) {
-        if(typeof w === 'number') {
-            //const rw = w / this.sprite.texture.width;
-            //if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
-            this.width = w;
-        }
-        if(typeof h === 'number') {
-            //const rh = h / this.sprite.texture.height;
-            //if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
-            this.height = h;
-        }
     }
 
     load(url) {
