@@ -26749,8 +26749,18 @@ class resize extends element {
         const g = new Graphics();
         g.eventMode = 'static';
         g.cursor = cursor;
+        g.dir = id;
         this.addChild(g);
-        return this.items[id] = g;
+        this.items[id] = g;
+
+        // 如果item进行了移动，则反应到控制的目标上
+        g.itemMove = function(offX, offY) {
+
+        };
+
+        g.on('pointerdown', (event) => {
+            this.onDragStart(event, this);
+        }, g);
     }
 
     x = 0;
@@ -26823,15 +26833,8 @@ class resize extends element {
         }, el);
     }
 
-    onDragMove(event) {
-        if(!this.isMoving) return;
-
-        //this.container.parent.toLocal(event.global, null, this.container.position);
-        this.x += (event.global.x - this.dragStartPosition.x);
-        this.y += (event.global.y - this.dragStartPosition.y);
-
-        this.draw();
-
+    // 同步位置和大小到控制的元素上
+    resetTarget() {
         // 控制目标元素位置大大小
         if(this.target) {
             const pos = this.toRenderPosition({
@@ -26841,19 +26844,37 @@ class resize extends element {
             this.target.x = pos.x;
             this.target.y = pos.y;
         }
+    }
+
+    onDragMove(event) {
+        if(!this.isMoving) return;
+
+        const offX = (event.global.x - this.dragStartPosition.x);
+        const offY = (event.global.y - this.dragStartPosition.y);
+
+        this.x += offX;
+        this.y += offY;
+        
+        // 控制目标元素位置大大小
+        this.resetTarget();
         
         // 选中的是渲染层的坐标，转为控制层的
         this.dragStartPosition = {
             x: event.global.x,
             y: event.global.y
         };
+        this.draw();
     }
     
     onDragStart(event, target)   {
-        if(this.target && this.target !== target) this.target.selected = false;   
+        // 操作元素，如果是其它的则表示不是移动目标
+        if(target instanceof element) {
+            if(this.target && this.target !== target) this.target.selected = false;   
 
-        target.selected = true;// 选中当前元素
-        //this.bind(target);
+            target.selected = true;// 选中当前元素
+        }
+        
+        this.target = target;
         
         // 选中的是渲染层的坐标，转为控制层的
         this.dragStartPosition = event.global;
