@@ -26469,11 +26469,12 @@ class element extends EventEmiter {
 
     constructor(option) {
         super();
-        this.container = new Container();
+        this.container = new Sprite();
         this.container.zIndex = option.zIndex || 1;
         this.editor = option.editor;
         this.option = option || {};
         this.style = this.option.style || {};
+        this.anchor.set(0.5);
     }
 
     // 位置
@@ -26490,12 +26491,38 @@ class element extends EventEmiter {
         this.container.y = v + this.editor.top;
     }
 
+    get width() {
+        return this.container.width;
+    }
+    set width(v) {
+        this.container.width = v;    }
+
+    get height() {
+        return this.container.height;
+    }
+    set height(v) {
+        this.container.height = v;
+    }
+
+    get anchor() {
+        return this.container.anchor;
+    }
+    set anchor(v) {
+        this.container.anchor=v;
+    }
+
     // 旋转角度
     set rotation(v) {
         this.container.rotation = v;
     }
     get rotation() {
         return this.container.rotation;
+    }
+    set angle(v) {
+        this.container.angle = v;
+    }
+    get angle() {
+        return this.container.angle;
     }
 
     get visible() {
@@ -26566,8 +26593,9 @@ class image extends element {
     constructor(option) {
         super(option);
         // 图片载体
-        this.sprite = new Sprite();
-        this.addChild(this.sprite);
+        //this.sprite = new PIXI.Sprite();
+        
+        //this.addChild(this.sprite);
 
         if(option.url) {
             this.url = option.url;
@@ -26583,36 +26611,23 @@ class image extends element {
         this.__url = v;
     }
 
-    get width() {
-        return this.sprite.width;
-    }
-    set width(v) {
-        this.sprite.width = v;    }
-
-    get height() {
-        return this.sprite.height;
-    }
-    set height(v) {
-        this.sprite.height = v;
-    }
-
     // 重置大小
     resize(w, h) {
         if(typeof w === 'number') {
-            //const rw = w / this.sprite.texture.width;
-            //if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
+            //const rw = w / this.container.texture.width;
+            //if(rw !== this.container.scale.x) this.container.scale.x = rw;
             this.width = w;
         }
         if(typeof h === 'number') {
-            //const rh = h / this.sprite.texture.height;
-            //if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
+            //const rh = h / this.container.texture.height;
+            //if(rh !== this.container.scale.y) this.container.scale.y = rh;
             this.height = h;
         }
     }
 
     load(url) {
         return Assets.load(url).then((texture) => {
-            this.sprite.texture = texture;
+            this.container.texture = texture;
             this.emit('load', texture);
 
             this.editor.sort();
@@ -26625,7 +26640,8 @@ class image extends element {
 class background extends image {
     constructor(option) {
         super(option);
-
+        this.anchor.set(0);
+        
         this.editable = false;// 不可编辑
         this.init();
 
@@ -26648,7 +26664,7 @@ class background extends image {
 
     resize(w, h) {
         this.x = 0;
-        this.y = 0 ;
+        this.y = 0;
 
         super.resize(w, h);
 
@@ -26698,6 +26714,18 @@ class resize extends element {
         super(option);
         this.editable = false;// 这个不可编辑
         this.style.itemFillColor = this.style.itemFillColor || '#fff';
+
+        // 绑定拖放操作, 所有操作都放到control层  
+        this.editor.app.stage.eventMode = 'static';
+        this.editor.app.stage.hitArea = this.editor.app.screen;
+        this.editor.app.stage.on('pointerup', this.onDragEnd, this);
+        this.editor.app.stage.on('pointerupoutside', this.onDragEnd, this);
+
+        // 其它区域点击则取消选择
+        this.editor.app.stage.on('pointerdown', (event) => {
+            if(event.target === this.editor.app.stage && this.target) this.target.selected = false;
+        });
+
         this.init();
     }
 
@@ -26709,16 +26737,7 @@ class resize extends element {
     };
 
     init() {
-        // 绑定拖放操作, 所有操作都放到control层  
-        this.editor.app.stage.eventMode = 'static';
-        this.editor.app.stage.hitArea = this.editor.app.screen;
-        this.editor.app.stage.on('pointerup', this.onDragEnd, this);
-        this.editor.app.stage.on('pointerupoutside', this.onDragEnd, this);
-
-        // 其它区域点击则取消选择
-        this.editor.app.stage.on('pointerdown', (event) => {
-            if(event.target === this.editor.app.stage && this.target) this.target.selected = false;
-        });
+        
 
         this.graphics = new Graphics();
         this.graphics.eventMode = 'none';
@@ -26741,7 +26760,7 @@ class resize extends element {
         this.createItem('tr', 'ne-resize');
         this.createItem('r', 'e-resize');
         this.createItem('rb', 'se-resize');
-        this.createItem('lb', 's-resize');
+        this.createItem('b', 's-resize');
         this.createItem('lb', 'sw-resize');
     }
 
@@ -26753,14 +26772,49 @@ class resize extends element {
         this.addChild(g);
         this.items[id] = g;
 
+        const self = this;
         // 如果item进行了移动，则反应到控制的目标上
-        g.itemMove = function(offX, offY) {
+        g.move = function(offX, offY) {
+            switch(this.dir) {
+                case 'l': {
+                    self.x += offX;
+                    self.width -= offX;
+                    break;
+                }
+                case 'lt':{
+                    self.x += offX;
+                    self.width -= offX;
 
+                    self.y += offY;
+                    self.height -= offY;
+                    break;
+                }
+                case 't': {
+                    self.y += offY;
+                    self.height -= offY;
+                    break;
+                }
+                case 'tr': {
+                    self.width += offX;
+                    self.y += offY;
+                    self.height -= offY;
+                    break;
+                }
+            }
+
+            if(self.width < self.itemSize) {
+                self.width = self.itemSize;
+                if(['l', 'lt', 'lb'].includes(this.dir)) self.x -= offX;
+            }
+            if(self.height < self.itemSize) {
+                self.height = self.itemSize;
+                if(['lt', 't', 'tr'].includes(this.dir)) self.y -= offY;
+            }
         };
 
         g.on('pointerdown', (event) => {
-            this.onDragStart(event, this);
-        }, g);
+            this.onDragStart(event, g);
+        });
     }
 
     x = 0;
@@ -26814,6 +26868,9 @@ class resize extends element {
         this.width = this.target.width;
         this.height = this.target.height;
 
+        //this.angle = this.target.angle;
+        //this.rotation = this.target.rotation;
+
         this.draw();
     }
 
@@ -26843,6 +26900,9 @@ class resize extends element {
             });
             this.target.x = pos.x;
             this.target.y = pos.y;
+
+            this.target.width = this.width;
+            this.target.height = this.height;
         }
     }
 
@@ -26852,8 +26912,13 @@ class resize extends element {
         const offX = (event.global.x - this.dragStartPosition.x);
         const offY = (event.global.y - this.dragStartPosition.y);
 
-        this.x += offX;
-        this.y += offY;
+        if(this.moveItem) {
+            this.moveItem.move(offX, offY);
+        }
+        else {
+            this.x += offX;
+            this.y += offY;
+        }
         
         // 控制目标元素位置大大小
         this.resetTarget();
@@ -26869,12 +26934,13 @@ class resize extends element {
     onDragStart(event, target)   {
         // 操作元素，如果是其它的则表示不是移动目标
         if(target instanceof element) {
-            if(this.target && this.target !== target) this.target.selected = false;   
-
+            if(this.target && this.target !== target) this.target.selected = false;
             target.selected = true;// 选中当前元素
+            this.moveItem = null;
         }
-        
-        this.target = target;
+        else {
+            this.moveItem = target;
+        }
         
         // 选中的是渲染层的坐标，转为控制层的
         this.dragStartPosition = event.global;
@@ -26885,7 +26951,8 @@ class resize extends element {
         this.isMoving = true;
     }
     
-    onDragEnd()  {
+    onDragEnd(event)  {
+        console.log('drag end', event);
         if (this.target) {
             this.editor.app.stage.off('pointermove', this.onDragMove);
             this.isMoving = false;

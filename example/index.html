@@ -56,12 +56,16 @@
 		img.on('load', () => {
 			//img.resize(100, 100);
 			
-			img.x = editor.width / 2 - img.width / 2;
-			img.y = editor.height / 2 - img.height / 2;
+			img.x = editor.width / 2;
+			img.y = editor.height / 2;
 
 			const img2 = editor.createImage('https://pixijs.com/assets/bunny.png');
 			img2.width = 200;
 			img2.height = 200;
+
+			img2.x = img.x;
+			img2.y = img.y;
+			img2.angle = 45;
 			editor.addChild(img2);
 		});
 		editor.addChild(img);

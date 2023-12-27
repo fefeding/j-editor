@@ -6,8 +6,9 @@ export default class image extends element {
     constructor(option) {
         super(option);
         // 图片载体
-        this.sprite = new PIXI.Sprite();
-        this.addChild(this.sprite);
+        //this.sprite = new PIXI.Sprite();
+        
+        //this.addChild(this.sprite);
 
         if(option.url) {
             this.url = option.url;
@@ -23,37 +24,23 @@ export default class image extends element {
         this.__url = v;
     }
 
-    get width() {
-        return this.sprite.width;
-    }
-    set width(v) {
-        this.sprite.width = v;;
-    }
-
-    get height() {
-        return this.sprite.height;
-    }
-    set height(v) {
-        this.sprite.height = v;
-    }
-
     // 重置大小
     resize(w, h) {
         if(typeof w === 'number') {
-            //const rw = w / this.sprite.texture.width;
-            //if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
+            //const rw = w / this.container.texture.width;
+            //if(rw !== this.container.scale.x) this.container.scale.x = rw;
             this.width = w;
         }
         if(typeof h === 'number') {
-            //const rh = h / this.sprite.texture.height;
-            //if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
+            //const rh = h / this.container.texture.height;
+            //if(rh !== this.container.scale.y) this.container.scale.y = rh;
             this.height = h;
         }
     }
 
     load(url) {
         return PIXI.Assets.load(url).then((texture) => {
-            this.sprite.texture = texture;
+            this.container.texture = texture;
             this.emit('load', texture);
 
             this.editor.sort();
