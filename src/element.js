@@ -48,7 +48,7 @@ export default class element extends EventEmiter {
     set zIndex(v) {
         this.container.zIndex = v;
     }
-    
+
     // 是否可以编辑
     editable = true;
 
@@ -66,6 +66,12 @@ export default class element extends EventEmiter {
 
     // 新增子元素
     addChild(child) {
+        if(Array.isArray(child)) {
+            for(const c of child) {
+                this.addChild(c);
+            }
+            return this;
+        }
         return this.container.addChild(child);
     }
 

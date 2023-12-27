@@ -47,7 +47,7 @@ export default class background extends image {
         else if(this.bgGraphics) {
             this.bgGraphics.visible = false;
         }
-
+        
         // 挡住非渲染区域
         const path = [
             0, 0, 

@@ -26512,7 +26512,7 @@ class element extends EventEmiter {
     set zIndex(v) {
         this.container.zIndex = v;
     }
-    
+
     // 是否可以编辑
     editable = true;
 
@@ -26530,6 +26530,12 @@ class element extends EventEmiter {
 
     // 新增子元素
     addChild(child) {
+        if(Array.isArray(child)) {
+            for(const c of child) {
+                this.addChild(c);
+            }
+            return this;
+        }
         return this.container.addChild(child);
     }
 
@@ -26660,7 +26666,7 @@ class background extends image {
         else if(this.bgGraphics) {
             this.bgGraphics.visible = false;
         }
-
+        
         // 挡住非渲染区域
         const path = [
             0, 0, 
@@ -26691,9 +26697,11 @@ class resize extends element {
         option.zIndex = 100000;
         super(option);
         this.editable = false;// 这个不可编辑
+        this.style.itemFillColor = this.style.itemFillColor || '#fff';
         this.init();
     }
 
+    itemSize = 6;
     // 拖放位置
     dragStartPosition = {
         x: 0,
@@ -26715,6 +26723,34 @@ class resize extends element {
         this.graphics = new Graphics();
         this.graphics.eventMode = 'none';
         this.addChild(this.graphics);
+
+        // 改变大小的方块
+        this.items = {
+            l: new Graphics(),
+            lt: new Graphics(),
+            t: new Graphics(),
+            tr: new Graphics(),
+            r: new Graphics(),
+            rb: new Graphics(),
+            b: new Graphics(),
+            lb: new Graphics(),
+        };
+        this.createItem('l', 'w-resize');
+        this.createItem('lt', 'nw-resize');
+        this.createItem('t', 'n-resize');
+        this.createItem('tr', 'ne-resize');
+        this.createItem('r', 'e-resize');
+        this.createItem('rb', 'se-resize');
+        this.createItem('lb', 's-resize');
+        this.createItem('lb', 'sw-resize');
+    }
+
+    createItem(id, cursor = 'pointer') {
+        const g = new Graphics();
+        g.eventMode = 'static';
+        g.cursor = cursor;
+        this.addChild(g);
+        return this.items[id] = g;
     }
 
     x = 0;
@@ -26724,15 +26760,33 @@ class resize extends element {
 
     // 绘制
     draw() {
-        this.graphics.clear();
-        this.graphics.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
-        //this.graphics.beginFill('transparent', 0.01);
+        this.drawRect(this.graphics, this.x, this.y, this.width, this.height);
+
+        const t = this.y - this.itemSize / 2;
+        const l = this.x - this.itemSize/2;
+        const mid = this.y + this.height/2 - this.itemSize/2;
+        const cid = this.x + this.width/2 - this.itemSize/2;
+        const r = this.x + this.width - this.itemSize/2;
+        const b = this.y + this.height - this.itemSize/2;
+
+        this.drawRect(this.items.l, l, mid, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.lt, l, t, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.t, cid, t, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.tr, r, t, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.r, r, mid, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.rb, r, b, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.b, cid, b, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.lb, l, b, this.itemSize, this.itemSize, this.style.itemFillColor);
+    }
+    // 绘制方块
+    drawRect(g, x, y, w, h, fill = null) {
+        g.clear();
+        g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
+        if(fill) g.beginFill(fill);
         
         //console.log('draw rect', this.x, this.y, this.width, this.height);
-        this.graphics.drawRect(this.x, this.y, this.width, this.height);
-        this.graphics.endFill();
-
-        
+        g.drawRect(x, y, w, h);
+        g.endFill();
     }
 
     // 绑到当前选中的元素
@@ -26818,9 +26872,10 @@ class resize extends element {
     }
 }
 
-class editor {
+class editor extends EventEmiter {
 
     constructor(container, option={}) {  
+        super(option);
         this.option = option || {};
         this.style = this.option.style || {};
 
@@ -26857,8 +26912,7 @@ class editor {
 
         // Listen for animate update
         this.app.ticker.add((delta) =>  {
-            option.onTicker && option.onTicker(delta);
-            
+            this.emit('ticker', delta);            
         });
 
         this.app.view.style.position = 'absolute'; 
@@ -26928,6 +26982,19 @@ class editor {
             editor: this,
         });
         return img;
+    }
+
+    // 转为图片数据
+    async toImage() {
+        const imgData = await this.app.renderer.extract.base64(this.app.stage, 'image/jpeg', 1, new Rectangle(this.left, this.top, this.width, this.height));
+        
+        /*const canvas = document.createElement('canvas');
+        canvas.width = this.width;
+        canvas.height = this.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(imgData, this.left, this.top, this.width, this.height);*/
+
+        return imgData;
     }
 }
 

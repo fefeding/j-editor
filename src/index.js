@@ -1,11 +1,13 @@
 import * as PIXI from 'pixi.js';
+import EventEmiter from 'eventemitter3';
 import jImage from './image.js';
 import jBackground from './background.js';
 import jResize from './resize.js';
 
-export default class editor {
+export default class editor extends EventEmiter {
 
     constructor(container, option={}) {  
+        super(option);
         this.option = option || {};
         this.style = this.option.style || {};
 
@@ -42,8 +44,7 @@ export default class editor {
 
         // Listen for animate update
         this.app.ticker.add((delta) =>  {
-            option.onTicker && option.onTicker(delta);
-            
+            this.emit('ticker', delta);            
         });
 
         this.app.view.style.position = 'absolute'; 
@@ -113,6 +114,19 @@ export default class editor {
             editor: this,
         });
         return img;
+    }
+
+    // 转为图片数据
+    async toImage() {
+        const imgData = await this.app.renderer.extract.base64(this.app.stage, 'image/jpeg', 1, new PIXI.Rectangle(this.left, this.top, this.width, this.height));
+        
+        /*const canvas = document.createElement('canvas');
+        canvas.width = this.width;
+        canvas.height = this.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(imgData, this.left, this.top, this.width, this.height);*/
+
+        return imgData;
     }
 }
 

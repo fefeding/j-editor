@@ -30,7 +30,7 @@
 				<div id="mycanvas_container"></div>
 			  </div>
 			  <div class="col-2">
-				Column
+				<img id="previewImg" width="200" />
 			  </div>
 			</div>
 		  </div>
@@ -65,5 +65,11 @@
 			editor.addChild(img2);
 		});
 		editor.addChild(img);
+
+		const preview = document.getElementById('previewImg');
+		editor.on('ticker', async (delta) => {
+			const data = await editor.toImage();
+			if(data !== preview.src) preview.src = data;
+		});
 	</script>
 </html>

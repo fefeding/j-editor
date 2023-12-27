@@ -8,9 +8,11 @@ export default class resize extends element {
         option.zIndex = 100000;
         super(option);
         this.editable = false;// 这个不可编辑
+        this.style.itemFillColor = this.style.itemFillColor || '#fff';
         this.init();
     }
 
+    itemSize = 6;
     // 拖放位置
     dragStartPosition = {
         x: 0,
@@ -32,6 +34,34 @@ export default class resize extends element {
         this.graphics = new PIXI.Graphics();
         this.graphics.eventMode = 'none';
         this.addChild(this.graphics);
+
+        // 改变大小的方块
+        this.items = {
+            l: new PIXI.Graphics(),
+            lt: new PIXI.Graphics(),
+            t: new PIXI.Graphics(),
+            tr: new PIXI.Graphics(),
+            r: new PIXI.Graphics(),
+            rb: new PIXI.Graphics(),
+            b: new PIXI.Graphics(),
+            lb: new PIXI.Graphics(),
+        };
+        this.createItem('l', 'w-resize');
+        this.createItem('lt', 'nw-resize');
+        this.createItem('t', 'n-resize');
+        this.createItem('tr', 'ne-resize');
+        this.createItem('r', 'e-resize');
+        this.createItem('rb', 'se-resize');
+        this.createItem('lb', 's-resize');
+        this.createItem('lb', 'sw-resize');
+    }
+
+    createItem(id, cursor = 'pointer') {
+        const g = new PIXI.Graphics();
+        g.eventMode = 'static';
+        g.cursor = cursor;
+        this.addChild(g);
+        return this.items[id] = g;
     }
 
     x = 0;
@@ -41,15 +71,33 @@ export default class resize extends element {
 
     // 绘制
     draw() {
-        this.graphics.clear();
-        this.graphics.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
-        //this.graphics.beginFill('transparent', 0.01);
+        this.drawRect(this.graphics, this.x, this.y, this.width, this.height);
+
+        const t = this.y - this.itemSize / 2;
+        const l = this.x - this.itemSize/2;
+        const mid = this.y + this.height/2 - this.itemSize/2;
+        const cid = this.x + this.width/2 - this.itemSize/2;
+        const r = this.x + this.width - this.itemSize/2;
+        const b = this.y + this.height - this.itemSize/2;
+
+        this.drawRect(this.items.l, l, mid, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.lt, l, t, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.t, cid, t, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.tr, r, t, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.r, r, mid, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.rb, r, b, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.b, cid, b, this.itemSize, this.itemSize, this.style.itemFillColor);
+        this.drawRect(this.items.lb, l, b, this.itemSize, this.itemSize, this.style.itemFillColor);
+    }
+    // 绘制方块
+    drawRect(g, x, y, w, h, fill = null) {
+        g.clear();
+        g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
+        if(fill) g.beginFill(fill);
         
         //console.log('draw rect', this.x, this.y, this.width, this.height);
-        this.graphics.drawRect(this.x, this.y, this.width, this.height);
-        this.graphics.endFill();
-
-        
+        g.drawRect(x, y, w, h);
+        g.endFill();
     }
 
     // 绑到当前选中的元素
