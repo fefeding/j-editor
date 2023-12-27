@@ -27120,17 +27120,27 @@ class resize extends element {
 
         // 改变大小的方块
         this.items = [];
-        this.createItem('l', 'w-resize');
-        this.createItem('lt', 'nw-resize');
-        this.createItem('t', 'n-resize');
-        this.createItem('tr', 'ne-resize');
-        this.createItem('r', 'e-resize');
-        this.createItem('rb', 'se-resize');
-        this.createItem('b', 's-resize');
-        this.createItem('lb', 'sw-resize');
+        this.cursors = {
+            'l': 'w-resize',
+            'lt': 'nw-resize',
+            't': 'n-resize',
+            'tr': 'ne-resize',
+            'r': 'e-resize',
+            'rb': 'se-resize',
+            'b': 's-resize',
+            'lb': 'sw-resize',
+        };
+        this.createItem('l');
+        this.createItem('lt');
+        this.createItem('t');
+        this.createItem('tr');
+        this.createItem('r');
+        this.createItem('rb');
+        this.createItem('b');
+        this.createItem('lb');
     }
 
-    createItem(id, cursor = 'pointer') {
+    createItem(id, cursor = this.cursors[id]) {
         const g = new Graphics();
         
         g.eventMode = 'static';
@@ -27238,6 +27248,19 @@ class resize extends element {
         g.clear();
         g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
         if(fill) g.beginFill(fill);
+
+        g.bounds = {
+            left: 0,
+            top: 0,
+            right: 0,
+            bottom: 0,
+            width: 1,
+            height: 1,
+            center: {
+                x: 0,
+                y: 0
+            }
+        };
         g.points = [
             x, y, 
             x + w, y,
@@ -27245,8 +27268,8 @@ class resize extends element {
             x, y + h
         ];
 
-        if(matrix) {
-            for(let i=0; i<g.points.length; i+=2) {
+        for(let i=0; i<g.points.length; i+=2) {
+            if(matrix) {
                 const p = matrix.apply({
                     x: g.points[i] - matrix.center.x, 
                     y: g.points[i+1] - matrix.center.y
@@ -27254,7 +27277,17 @@ class resize extends element {
                 g.points[i] = p.x + matrix.center.x;
                 g.points[i+1] = p.y + matrix.center.y;
             }
+            else {
+                g.bounds.left = Math.min(g.bounds.left, g.points[i]);
+                g.bounds.top = Math.min(g.bounds.top, g.points[i+1]);
+                g.bounds.right = Math.max(g.bounds.right, g.points[i]);
+                g.bounds.bottom = Math.max(g.bounds.bottom, g.points[i+1]);
+            }
         }
+        g.bounds.width = g.bounds.right - g.bounds.left;
+        g.bounds.height = g.bounds.bottom - g.bounds.top;
+        g.bounds.center.x = g.left + g.width/2;
+        g.bounds.center.y = g.top + g.height/2;
 
         g.drawPolygon(g.points);
         g.endFill();
