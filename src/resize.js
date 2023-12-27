@@ -43,16 +43,7 @@ export default class resize extends element {
         this.addChild(this.graphics);
 
         // 改变大小的方块
-        this.items = {
-            l: new PIXI.Graphics(),
-            lt: new PIXI.Graphics(),
-            t: new PIXI.Graphics(),
-            tr: new PIXI.Graphics(),
-            r: new PIXI.Graphics(),
-            rb: new PIXI.Graphics(),
-            b: new PIXI.Graphics(),
-            lb: new PIXI.Graphics(),
-        };
+        this.items = [];
         this.createItem('l', 'w-resize');
         this.createItem('lt', 'nw-resize');
         this.createItem('t', 'n-resize');
@@ -70,7 +61,7 @@ export default class resize extends element {
         g.cursor = cursor;
         g.dir = id;
         this.addChild(g);
-        this.items[id] = g;
+        this.items.push(g);
 
         const self = this;
         // 如果item进行了移动，则反应到控制的目标上
@@ -157,14 +148,14 @@ export default class resize extends element {
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
-        this.drawRect(this.items.l, l, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items.lt, l, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items.t, cid, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items.tr, r, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items.r, r, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items.rb, r, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items.b, cid, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items.lb, l, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[0], l, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[1], l, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[2], cid, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[3], r, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[4], r, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[5], r, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[6], cid, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[7], l, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
     }
     // 绘制方块
     drawRect(g, x, y, w, h, matrix = null, fill = null) {
