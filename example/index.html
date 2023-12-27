@@ -63,17 +63,19 @@
 			img2.width = 200;
 			img2.height = 200;
 
-			img2.x = img.x;
-			img2.y = img.y;
-			img2.angle = 45;
+			img2.x = img.x + 100;
+			img2.y = img.y + 100;
+			//img2.angle = 45;
 			editor.addChild(img2);
 		});
 		editor.addChild(img);
 
 		const preview = document.getElementById('previewImg');
-		editor.on('ticker', async (delta) => {
+		async function createPreivew(delta) {
 			const data = await editor.toImage();
 			if(data !== preview.src) preview.src = data;
-		});
+			setTimeout(createPreivew, 1000);
+		};
+		setTimeout(createPreivew, 1000);
 	</script>
 </html>

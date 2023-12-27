@@ -5,12 +5,11 @@ export default class element extends EventEmiter {
 
     constructor(option) {
         super();
-        this.container = new PIXI.Sprite();
+        this.container = new PIXI.Container();
         this.container.zIndex = option.zIndex || 1;
         this.editor = option.editor;
         this.option = option || {};
         this.style = this.option.style || {};
-        this.anchor.set(0.5);
     }
 
     // 位置
@@ -25,27 +24,6 @@ export default class element extends EventEmiter {
     }
     set y(v) {
         this.container.y = v + this.editor.top;
-    }
-
-    get width() {
-        return this.container.width;
-    }
-    set width(v) {
-        this.container.width = v;;
-    }
-
-    get height() {
-        return this.container.height;
-    }
-    set height(v) {
-        this.container.height = v;
-    }
-
-    get anchor() {
-        return this.container.anchor;
-    }
-    set anchor(v) {
-        this.container.anchor=v;
     }
 
     // 旋转角度

@@ -26469,12 +26469,11 @@ class element extends EventEmiter {
 
     constructor(option) {
         super();
-        this.container = new Sprite();
+        this.container = new Container();
         this.container.zIndex = option.zIndex || 1;
         this.editor = option.editor;
         this.option = option || {};
         this.style = this.option.style || {};
-        this.anchor.set(0.5);
     }
 
     // 位置
@@ -26489,26 +26488,6 @@ class element extends EventEmiter {
     }
     set y(v) {
         this.container.y = v + this.editor.top;
-    }
-
-    get width() {
-        return this.container.width;
-    }
-    set width(v) {
-        this.container.width = v;    }
-
-    get height() {
-        return this.container.height;
-    }
-    set height(v) {
-        this.container.height = v;
-    }
-
-    get anchor() {
-        return this.container.anchor;
-    }
-    set anchor(v) {
-        this.container.anchor=v;
     }
 
     // 旋转角度
@@ -26593,13 +26572,32 @@ class image extends element {
     constructor(option) {
         super(option);
         // 图片载体
-        //this.sprite = new PIXI.Sprite();
-        
-        //this.addChild(this.sprite);
+        this.sprite = new Sprite();        
+        this.addChild(this.sprite);
 
         if(option.url) {
             this.url = option.url;
         }
+    }
+
+    get width() {
+        return this.sprite.width;
+    }
+    set width(v) {
+        this.sprite.width = v;    }
+
+    get height() {
+        return this.sprite.height;
+    }
+    set height(v) {
+        this.sprite.height = v;
+    }
+
+    get anchor() {
+        return this.sprite.anchor;
+    }
+    set anchor(v) {
+        this.sprite.anchor=v;
     }
 
     // 当前图片url
@@ -26614,20 +26612,20 @@ class image extends element {
     // 重置大小
     resize(w, h) {
         if(typeof w === 'number') {
-            //const rw = w / this.container.texture.width;
-            //if(rw !== this.container.scale.x) this.container.scale.x = rw;
+            //const rw = w / this.sprite.texture.width;
+            //if(rw !== this.sprite.scale.x) this.sprite.scale.x = rw;
             this.width = w;
         }
         if(typeof h === 'number') {
-            //const rh = h / this.container.texture.height;
-            //if(rh !== this.container.scale.y) this.container.scale.y = rh;
+            //const rh = h / this.sprite.texture.height;
+            //if(rh !== this.sprite.scale.y) this.sprite.scale.y = rh;
             this.height = h;
         }
     }
 
     load(url) {
         return Assets.load(url).then((texture) => {
-            this.container.texture = texture;
+            this.sprite.texture = texture;
             this.emit('load', texture);
 
             this.editor.sort();
@@ -26640,8 +26638,7 @@ class image extends element {
 class background extends image {
     constructor(option) {
         super(option);
-        this.anchor.set(0);
-        
+
         this.editable = false;// 不可编辑
         this.init();
 
@@ -26725,7 +26722,6 @@ class resize extends element {
         this.editor.app.stage.on('pointerdown', (event) => {
             if(event.target === this.editor.app.stage && this.target) this.target.selected = false;
         });
-
         this.init();
     }
 
@@ -26800,6 +26796,25 @@ class resize extends element {
                     self.height -= offY;
                     break;
                 }
+                case 'r': {
+                    self.width += offX;
+                    break;
+                }
+                case 'rb': {
+                    self.width += offX;
+                    self.height += offY;
+                    break;
+                }
+                case 'b': {
+                    self.height += offY;
+                    break;
+                }
+                case 'lb': {
+                    self.x += offX;
+                    self.width -= offX;
+                    self.height += offY;
+                    break;
+                }
             }
 
             if(self.width < self.itemSize) {
@@ -26824,6 +26839,7 @@ class resize extends element {
 
     // 绘制
     draw() {
+
         this.drawRect(this.graphics, this.x, this.y, this.width, this.height);
 
         const t = this.y - this.itemSize / 2;

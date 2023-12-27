@@ -20,7 +20,6 @@ export default class resize extends element {
         this.editor.app.stage.on('pointerdown', (event) => {
             if(event.target === this.editor.app.stage && this.target) this.target.selected = false;
         });
-
         this.init();
     }
 
@@ -95,6 +94,25 @@ export default class resize extends element {
                     self.height -= offY;
                     break;
                 }
+                case 'r': {
+                    self.width += offX;
+                    break;
+                }
+                case 'rb': {
+                    self.width += offX;
+                    self.height += offY;
+                    break;
+                }
+                case 'b': {
+                    self.height += offY;
+                    break;
+                }
+                case 'lb': {
+                    self.x += offX;
+                    self.width -= offX;
+                    self.height += offY;
+                    break;
+                }
             }
 
             if(self.width < self.itemSize) {
@@ -119,6 +137,7 @@ export default class resize extends element {
 
     // 绘制
     draw() {
+
         this.drawRect(this.graphics, this.x, this.y, this.width, this.height);
 
         const t = this.y - this.itemSize / 2;

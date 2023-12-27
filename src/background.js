@@ -6,8 +6,7 @@ import image from './image.js';
 export default class background extends image {
     constructor(option) {
         super(option);
-        this.anchor.set(0);
-        
+
         this.editable = false;// 不可编辑
         this.init();
 
