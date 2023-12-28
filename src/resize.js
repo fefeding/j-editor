@@ -225,11 +225,12 @@ export default class resize extends element {
             g.bounds.angle = angle;
             const sp1 = Math.PI/6;
             const sp2 = sp1 * 2;
+            console.log(g.dir, angle, sp1, sp2);
             // 左正方向
             if(cx <= 0) {
                 if(['l','t','r','b'].includes(g.dir)) {
-                    if(angle > -sp1 && angle < sp1) g.cursor = this.cursors['l'];
-                    else if(angle > sp1 && angle < sp2) g.cursor = this.cursors['lt'];
+                    if(angle > -sp1 && angle <= sp1) g.cursor = this.cursors['l'];
+                    else if(angle > sp1 && angle <= sp2) g.cursor = this.cursors['lt'];
                     else if(angle <-sp1 && angle > -sp2) g.cursor = this.cursors['lb'];
                     else if(angle > sp2) g.cursor = this.cursors['b'];
                     else g.cursor = this.cursors['t'];
@@ -381,7 +382,6 @@ export default class resize extends element {
     }
     
     onDragEnd(event)  {
-        console.log('drag end', event);
         if (this.target) {
             this.editor.app.stage.off('pointermove', this.onDragMove);
             this.isMoving = false;
