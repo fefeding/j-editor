@@ -81,8 +81,8 @@ export default class resize extends element {
                 this.points[i] += offX;
                 this.points[i+1] += offY;
             }
-            self.drawPolygon(this, this.points, self.style.itemFillColor);
-            return;
+            //self.drawPolygon(this, this.points, self.style.itemFillColor);
+            //return;
 
             console.log(offX, offY, oldOffset, newOffset)
             switch(this.dir) {
@@ -328,7 +328,7 @@ export default class resize extends element {
 
     onDragMove(event) {
         if(!this.isMoving) return;
-
+        
         const offX = (event.global.x - this.dragStartPosition.x);
         const offY = (event.global.y - this.dragStartPosition.y);
 
@@ -341,6 +341,10 @@ export default class resize extends element {
 
             // 计算手标点在操作方块与中心线上的投影距离
             const offset = Math.cos(angle - this.moveItem.bounds.angle) * Math.sqrt(cx * cx + cy * cy);
+
+            //const offsetPos = offset - this.dragStartPosition.offset;// 在连线上的移动距离
+            //const offX = offsetPos * Math.cos(this.moveItem.bounds.angle);
+            //const offY = offsetPos * Math.sin(this.moveItem.bounds.angle);
 
             this.moveItem.move(offX, offY, this.dragStartPosition.offset, offset);
 

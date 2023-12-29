@@ -26812,8 +26812,66 @@ class resize extends element {
                 this.points[i] += offX;
                 this.points[i+1] += offY;
             }
-            self.drawPolygon(this, this.points, self.style.itemFillColor);
-            return;
+            //self.drawPolygon(this, this.points, self.style.itemFillColor);
+            //return;
+
+            console.log(offX, offY, oldOffset, newOffset);
+            switch(this.dir) {
+                case 'l': {
+                    const cx = newOffset - oldOffset;
+                    self.x -= cx;
+                    self.width += cx;
+                    break;
+                }
+                case 'lt':{
+                    
+                    self.x += offX;
+                    self.width -= offX;
+
+                    self.y += offY;
+                    self.height -= offY;
+                    break;
+                }
+                case self.cursors['t']: {
+                    self.y += offY;
+                    self.height -= offY;
+                    break;
+                }
+                case self.cursors['tr']: {
+                    self.width += offX;
+                    self.y += offY;
+                    self.height -= offY;
+                    break;
+                }
+                case self.cursors['r']: {
+                    self.width += offX;
+                    break;
+                }
+                case self.cursors['rb']: {
+                    self.width += offX;
+                    self.height += offY;
+                    break;
+                }
+                case self.cursors['b']: {
+                    self.height += offY;
+                    break;
+                }
+                case self.cursors['lb']: {
+                    self.x += offX;
+                    self.width -= offX;
+                    self.height += offY;
+                    break;
+                }
+            }
+
+            if(self.width < self.itemSize) {
+                self.width = self.itemSize;
+                if(['l', 'lt', 'lb'].includes(this.dir)) self.x -= offX;
+            }
+            if(self.height < self.itemSize) {
+                self.height = self.itemSize;
+                if(['lt', 't', 'tr'].includes(this.dir)) self.y -= offY;
+            }
         };
 
         g.on('pointerdown', (event) => {
@@ -27001,7 +27059,7 @@ class resize extends element {
 
     onDragMove(event) {
         if(!this.isMoving) return;
-
+        
         const offX = (event.global.x - this.dragStartPosition.x);
         const offY = (event.global.y - this.dragStartPosition.y);
 
@@ -27014,6 +27072,10 @@ class resize extends element {
 
             // 计算手标点在操作方块与中心线上的投影距离
             const offset = Math.cos(angle - this.moveItem.bounds.angle) * Math.sqrt(cx * cx + cy * cy);
+
+            //const offsetPos = offset - this.dragStartPosition.offset;// 在连线上的移动距离
+            //const offX = offsetPos * Math.cos(this.moveItem.bounds.angle);
+            //const offY = offsetPos * Math.sin(this.moveItem.bounds.angle);
 
             this.moveItem.move(offX, offY, this.dragStartPosition.offset, offset);
 
