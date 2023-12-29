@@ -180,7 +180,7 @@ export default class resize extends element {
             }
             
             g.bounds.left = g.bounds.left === undefined? g.points[i] : Math.min(g.bounds.left, g.points[i]);
-            g.bounds.top = g.bounds.top === undefined? g.points[i+1] :Math.min(g.bounds.top, g.points[i+1]);
+            g.bounds.top = g.bounds.top === undefined? g.points[i+1] : Math.min(g.bounds.top, g.points[i+1]);
             g.bounds.right = Math.max(g.bounds.right, g.points[i]);
             g.bounds.bottom = Math.max(g.bounds.bottom, g.points[i+1]);
         }
