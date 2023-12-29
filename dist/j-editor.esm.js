@@ -225,9 +225,9 @@ function getAugmentedNamespace(n) {
 	return a;
 }
 
-var eventemitter3$1 = {exports: {}};
+var eventemitter3 = {exports: {}};
 
-eventemitter3$1.exports;
+eventemitter3.exports;
 
 (function (module) {
 
@@ -565,10 +565,10 @@ eventemitter3$1.exports;
 	{
 	  module.exports = EventEmitter;
 	} 
-} (eventemitter3$1));
+} (eventemitter3));
 
-var eventemitter3Exports$1 = eventemitter3$1.exports;
-var EventEmitter$1 = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports$1);
+var eventemitter3Exports = eventemitter3.exports;
+var EventEmiter = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports);
 
 var earcut$2 = {exports: {}};
 
@@ -5132,7 +5132,7 @@ function isWebGLSupported() {
   }()), supported;
 }
 
-var r={grad:.9,turn:360,rad:360/(2*Math.PI)},t=function(r){return "string"==typeof r?r.length>0:"number"==typeof r},n=function(r,t,n){return void 0===t&&(t=0),void 0===n&&(n=Math.pow(10,t)),Math.round(n*r)/n+0},e=function(r,t,n){return void 0===t&&(t=0),void 0===n&&(n=1),r>n?n:r>t?r:t},u=function(r){return (r=isFinite(r)?r%360:0)>0?r:r+360},a=function(r){return {r:e(r.r,0,255),g:e(r.g,0,255),b:e(r.b,0,255),a:e(r.a)}},o=function(r){return {r:n(r.r),g:n(r.g),b:n(r.b),a:n(r.a,3)}},i=/^#([0-9a-f]{3,8})$/i,s=function(r){var t=r.toString(16);return t.length<2?"0"+t:t},h=function(r){var t=r.r,n=r.g,e=r.b,u=r.a,a=Math.max(t,n,e),o=a-Math.min(t,n,e),i=o?a===t?(n-e)/o:a===n?2+(e-t)/o:4+(t-n)/o:0;return {h:60*(i<0?i+6:i),s:a?o/a*100:0,v:a/255*100,a:u}},b=function(r){var t=r.h,n=r.s,e=r.v,u=r.a;t=t/360*6,n/=100,e/=100;var a=Math.floor(t),o=e*(1-n),i=e*(1-(t-a)*n),s=e*(1-(1-t+a)*n),h=a%6;return {r:255*[e,i,o,o,s,e][h],g:255*[s,e,e,i,o,o][h],b:255*[o,o,s,e,e,i][h],a:u}},g=function(r){return {h:u(r.h),s:e(r.s,0,100),l:e(r.l,0,100),a:e(r.a)}},d=function(r){return {h:n(r.h),s:n(r.s),l:n(r.l),a:n(r.a,3)}},f=function(r){return b((n=(t=r).s,{h:t.h,s:(n*=((e=t.l)<50?e:100-e)/100)>0?2*n/(e+n)*100:0,v:e+n,a:t.a}));var t,n,e;},c=function(r){return {h:(t=h(r)).h,s:(u=(200-(n=t.s))*(e=t.v)/100)>0&&u<200?n*e/100/(u<=100?u:200-u)*100:0,l:u/2,a:t.a};var t,n,e,u;},l=/^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s*,\s*([+-]?\d*\.?\d+)%\s*,\s*([+-]?\d*\.?\d+)%\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,p=/^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s+([+-]?\d*\.?\d+)%\s+([+-]?\d*\.?\d+)%\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,v=/^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,m=/^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,y={string:[[function(r){var t=i.exec(r);return t?(r=t[1]).length<=4?{r:parseInt(r[0]+r[0],16),g:parseInt(r[1]+r[1],16),b:parseInt(r[2]+r[2],16),a:4===r.length?n(parseInt(r[3]+r[3],16)/255,2):1}:6===r.length||8===r.length?{r:parseInt(r.substr(0,2),16),g:parseInt(r.substr(2,2),16),b:parseInt(r.substr(4,2),16),a:8===r.length?n(parseInt(r.substr(6,2),16)/255,2):1}:null:null},"hex"],[function(r){var t=v.exec(r)||m.exec(r);return t?t[2]!==t[4]||t[4]!==t[6]?null:a({r:Number(t[1])/(t[2]?100/255:1),g:Number(t[3])/(t[4]?100/255:1),b:Number(t[5])/(t[6]?100/255:1),a:void 0===t[7]?1:Number(t[7])/(t[8]?100:1)}):null},"rgb"],[function(t){var n=l.exec(t)||p.exec(t);if(!n)return null;var e,u,a=g({h:(e=n[1],u=n[2],void 0===u&&(u="deg"),Number(e)*(r[u]||1)),s:Number(n[3]),l:Number(n[4]),a:void 0===n[5]?1:Number(n[5])/(n[6]?100:1)});return f(a)},"hsl"]],object:[[function(r){var n=r.r,e=r.g,u=r.b,o=r.a,i=void 0===o?1:o;return t(n)&&t(e)&&t(u)?a({r:Number(n),g:Number(e),b:Number(u),a:Number(i)}):null},"rgb"],[function(r){var n=r.h,e=r.s,u=r.l,a=r.a,o=void 0===a?1:a;if(!t(n)||!t(e)||!t(u))return null;var i=g({h:Number(n),s:Number(e),l:Number(u),a:Number(o)});return f(i)},"hsl"],[function(r){var n=r.h,a=r.s,o=r.v,i=r.a,s=void 0===i?1:i;if(!t(n)||!t(a)||!t(o))return null;var h=function(r){return {h:u(r.h),s:e(r.s,0,100),v:e(r.v,0,100),a:e(r.a)}}({h:Number(n),s:Number(a),v:Number(o),a:Number(s)});return b(h)},"hsv"]]},N=function(r,t){for(var n=0;n<t.length;n++){var e=t[n][0](r);if(e)return [e,t[n][1]]}return [null,void 0]},x=function(r){return "string"==typeof r?N(r.trim(),y.string):"object"==typeof r&&null!==r?N(r,y.object):[null,void 0]},M=function(r,t){var n=c(r);return {h:n.h,s:e(n.s+100*t,0,100),l:n.l,a:n.a}},H=function(r){return (299*r.r+587*r.g+114*r.b)/1e3/255},$=function(r,t){var n=c(r);return {h:n.h,s:n.s,l:e(n.l+100*t,0,100),a:n.a}},j=function(){function r(r){this.parsed=x(r)[0],this.rgba=this.parsed||{r:0,g:0,b:0,a:1};}return r.prototype.isValid=function(){return null!==this.parsed},r.prototype.brightness=function(){return n(H(this.rgba),2)},r.prototype.isDark=function(){return H(this.rgba)<.5},r.prototype.isLight=function(){return H(this.rgba)>=.5},r.prototype.toHex=function(){return r=o(this.rgba),t=r.r,e=r.g,u=r.b,i=(a=r.a)<1?s(n(255*a)):"","#"+s(t)+s(e)+s(u)+i;var r,t,e,u,a,i;},r.prototype.toRgb=function(){return o(this.rgba)},r.prototype.toRgbString=function(){return r=o(this.rgba),t=r.r,n=r.g,e=r.b,(u=r.a)<1?"rgba("+t+", "+n+", "+e+", "+u+")":"rgb("+t+", "+n+", "+e+")";var r,t,n,e,u;},r.prototype.toHsl=function(){return d(c(this.rgba))},r.prototype.toHslString=function(){return r=d(c(this.rgba)),t=r.h,n=r.s,e=r.l,(u=r.a)<1?"hsla("+t+", "+n+"%, "+e+"%, "+u+")":"hsl("+t+", "+n+"%, "+e+"%)";var r,t,n,e,u;},r.prototype.toHsv=function(){return r=h(this.rgba),{h:n(r.h),s:n(r.s),v:n(r.v),a:n(r.a,3)};var r;},r.prototype.invert=function(){return w({r:255-(r=this.rgba).r,g:255-r.g,b:255-r.b,a:r.a});var r;},r.prototype.saturate=function(r){return void 0===r&&(r=.1),w(M(this.rgba,r))},r.prototype.desaturate=function(r){return void 0===r&&(r=.1),w(M(this.rgba,-r))},r.prototype.grayscale=function(){return w(M(this.rgba,-1))},r.prototype.lighten=function(r){return void 0===r&&(r=.1),w($(this.rgba,r))},r.prototype.darken=function(r){return void 0===r&&(r=.1),w($(this.rgba,-r))},r.prototype.rotate=function(r){return void 0===r&&(r=15),this.hue(this.hue()+r)},r.prototype.alpha=function(r){return "number"==typeof r?w({r:(t=this.rgba).r,g:t.g,b:t.b,a:r}):n(this.rgba.a,3);var t;},r.prototype.hue=function(r){var t=c(this.rgba);return "number"==typeof r?w({h:r,s:t.s,l:t.l,a:t.a}):n(t.h)},r.prototype.isEqual=function(r){return this.toHex()===w(r).toHex()},r}(),w=function(r){return r instanceof j?r:new j(r)},S=[],k=function(r){r.forEach(function(r){S.indexOf(r)<0&&(r(j,y),S.push(r));});};
+var r={grad:.9,turn:360,rad:360/(2*Math.PI)},t=function(r){return "string"==typeof r?r.length>0:"number"==typeof r},n=function(r,t,n){return void 0===t&&(t=0),void 0===n&&(n=Math.pow(10,t)),Math.round(n*r)/n+0},e=function(r,t,n){return void 0===t&&(t=0),void 0===n&&(n=1),r>n?n:r>t?r:t},u=function(r){return (r=isFinite(r)?r%360:0)>0?r:r+360},a=function(r){return {r:e(r.r,0,255),g:e(r.g,0,255),b:e(r.b,0,255),a:e(r.a)}},o=function(r){return {r:n(r.r),g:n(r.g),b:n(r.b),a:n(r.a,3)}},i=/^#([0-9a-f]{3,8})$/i,s=function(r){var t=r.toString(16);return t.length<2?"0"+t:t},h$1=function(r){var t=r.r,n=r.g,e=r.b,u=r.a,a=Math.max(t,n,e),o=a-Math.min(t,n,e),i=o?a===t?(n-e)/o:a===n?2+(e-t)/o:4+(t-n)/o:0;return {h:60*(i<0?i+6:i),s:a?o/a*100:0,v:a/255*100,a:u}},b=function(r){var t=r.h,n=r.s,e=r.v,u=r.a;t=t/360*6,n/=100,e/=100;var a=Math.floor(t),o=e*(1-n),i=e*(1-(t-a)*n),s=e*(1-(1-t+a)*n),h=a%6;return {r:255*[e,i,o,o,s,e][h],g:255*[s,e,e,i,o,o][h],b:255*[o,o,s,e,e,i][h],a:u}},g=function(r){return {h:u(r.h),s:e(r.s,0,100),l:e(r.l,0,100),a:e(r.a)}},d=function(r){return {h:n(r.h),s:n(r.s),l:n(r.l),a:n(r.a,3)}},f=function(r){return b((n=(t=r).s,{h:t.h,s:(n*=((e=t.l)<50?e:100-e)/100)>0?2*n/(e+n)*100:0,v:e+n,a:t.a}));var t,n,e;},c=function(r){return {h:(t=h$1(r)).h,s:(u=(200-(n=t.s))*(e=t.v)/100)>0&&u<200?n*e/100/(u<=100?u:200-u)*100:0,l:u/2,a:t.a};var t,n,e,u;},l=/^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s*,\s*([+-]?\d*\.?\d+)%\s*,\s*([+-]?\d*\.?\d+)%\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,p=/^hsla?\(\s*([+-]?\d*\.?\d+)(deg|rad|grad|turn)?\s+([+-]?\d*\.?\d+)%\s+([+-]?\d*\.?\d+)%\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,v=/^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*,\s*([+-]?\d*\.?\d+)(%)?\s*(?:,\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,m=/^rgba?\(\s*([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s+([+-]?\d*\.?\d+)(%)?\s*(?:\/\s*([+-]?\d*\.?\d+)(%)?\s*)?\)$/i,y$1={string:[[function(r){var t=i.exec(r);return t?(r=t[1]).length<=4?{r:parseInt(r[0]+r[0],16),g:parseInt(r[1]+r[1],16),b:parseInt(r[2]+r[2],16),a:4===r.length?n(parseInt(r[3]+r[3],16)/255,2):1}:6===r.length||8===r.length?{r:parseInt(r.substr(0,2),16),g:parseInt(r.substr(2,2),16),b:parseInt(r.substr(4,2),16),a:8===r.length?n(parseInt(r.substr(6,2),16)/255,2):1}:null:null},"hex"],[function(r){var t=v.exec(r)||m.exec(r);return t?t[2]!==t[4]||t[4]!==t[6]?null:a({r:Number(t[1])/(t[2]?100/255:1),g:Number(t[3])/(t[4]?100/255:1),b:Number(t[5])/(t[6]?100/255:1),a:void 0===t[7]?1:Number(t[7])/(t[8]?100:1)}):null},"rgb"],[function(t){var n=l.exec(t)||p.exec(t);if(!n)return null;var e,u,a=g({h:(e=n[1],u=n[2],void 0===u&&(u="deg"),Number(e)*(r[u]||1)),s:Number(n[3]),l:Number(n[4]),a:void 0===n[5]?1:Number(n[5])/(n[6]?100:1)});return f(a)},"hsl"]],object:[[function(r){var n=r.r,e=r.g,u=r.b,o=r.a,i=void 0===o?1:o;return t(n)&&t(e)&&t(u)?a({r:Number(n),g:Number(e),b:Number(u),a:Number(i)}):null},"rgb"],[function(r){var n=r.h,e=r.s,u=r.l,a=r.a,o=void 0===a?1:a;if(!t(n)||!t(e)||!t(u))return null;var i=g({h:Number(n),s:Number(e),l:Number(u),a:Number(o)});return f(i)},"hsl"],[function(r){var n=r.h,a=r.s,o=r.v,i=r.a,s=void 0===i?1:i;if(!t(n)||!t(a)||!t(o))return null;var h=function(r){return {h:u(r.h),s:e(r.s,0,100),v:e(r.v,0,100),a:e(r.a)}}({h:Number(n),s:Number(a),v:Number(o),a:Number(s)});return b(h)},"hsv"]]},N=function(r,t){for(var n=0;n<t.length;n++){var e=t[n][0](r);if(e)return [e,t[n][1]]}return [null,void 0]},x$1=function(r){return "string"==typeof r?N(r.trim(),y$1.string):"object"==typeof r&&null!==r?N(r,y$1.object):[null,void 0]},M=function(r,t){var n=c(r);return {h:n.h,s:e(n.s+100*t,0,100),l:n.l,a:n.a}},H=function(r){return (299*r.r+587*r.g+114*r.b)/1e3/255},$=function(r,t){var n=c(r);return {h:n.h,s:n.s,l:e(n.l+100*t,0,100),a:n.a}},j=function(){function r(r){this.parsed=x$1(r)[0],this.rgba=this.parsed||{r:0,g:0,b:0,a:1};}return r.prototype.isValid=function(){return null!==this.parsed},r.prototype.brightness=function(){return n(H(this.rgba),2)},r.prototype.isDark=function(){return H(this.rgba)<.5},r.prototype.isLight=function(){return H(this.rgba)>=.5},r.prototype.toHex=function(){return r=o(this.rgba),t=r.r,e=r.g,u=r.b,i=(a=r.a)<1?s(n(255*a)):"","#"+s(t)+s(e)+s(u)+i;var r,t,e,u,a,i;},r.prototype.toRgb=function(){return o(this.rgba)},r.prototype.toRgbString=function(){return r=o(this.rgba),t=r.r,n=r.g,e=r.b,(u=r.a)<1?"rgba("+t+", "+n+", "+e+", "+u+")":"rgb("+t+", "+n+", "+e+")";var r,t,n,e,u;},r.prototype.toHsl=function(){return d(c(this.rgba))},r.prototype.toHslString=function(){return r=d(c(this.rgba)),t=r.h,n=r.s,e=r.l,(u=r.a)<1?"hsla("+t+", "+n+"%, "+e+"%, "+u+")":"hsl("+t+", "+n+"%, "+e+"%)";var r,t,n,e,u;},r.prototype.toHsv=function(){return r=h$1(this.rgba),{h:n(r.h),s:n(r.s),v:n(r.v),a:n(r.a,3)};var r;},r.prototype.invert=function(){return w$1({r:255-(r=this.rgba).r,g:255-r.g,b:255-r.b,a:r.a});var r;},r.prototype.saturate=function(r){return void 0===r&&(r=.1),w$1(M(this.rgba,r))},r.prototype.desaturate=function(r){return void 0===r&&(r=.1),w$1(M(this.rgba,-r))},r.prototype.grayscale=function(){return w$1(M(this.rgba,-1))},r.prototype.lighten=function(r){return void 0===r&&(r=.1),w$1($(this.rgba,r))},r.prototype.darken=function(r){return void 0===r&&(r=.1),w$1($(this.rgba,-r))},r.prototype.rotate=function(r){return void 0===r&&(r=15),this.hue(this.hue()+r)},r.prototype.alpha=function(r){return "number"==typeof r?w$1({r:(t=this.rgba).r,g:t.g,b:t.b,a:r}):n(this.rgba.a,3);var t;},r.prototype.hue=function(r){var t=c(this.rgba);return "number"==typeof r?w$1({h:r,s:t.s,l:t.l,a:t.a}):n(t.h)},r.prototype.isEqual=function(r){return this.toHex()===w$1(r).toHex()},r}(),w$1=function(r){return r instanceof j?r:new j(r)},S=[],k=function(r){r.forEach(function(r){S.indexOf(r)<0&&(r(j,y$1),S.push(r));});};
 
 function namesPlugin(e,f){var a={white:"#ffffff",bisque:"#ffe4c4",blue:"#0000ff",cadetblue:"#5f9ea0",chartreuse:"#7fff00",chocolate:"#d2691e",coral:"#ff7f50",antiquewhite:"#faebd7",aqua:"#00ffff",azure:"#f0ffff",whitesmoke:"#f5f5f5",papayawhip:"#ffefd5",plum:"#dda0dd",blanchedalmond:"#ffebcd",black:"#000000",gold:"#ffd700",goldenrod:"#daa520",gainsboro:"#dcdcdc",cornsilk:"#fff8dc",cornflowerblue:"#6495ed",burlywood:"#deb887",aquamarine:"#7fffd4",beige:"#f5f5dc",crimson:"#dc143c",cyan:"#00ffff",darkblue:"#00008b",darkcyan:"#008b8b",darkgoldenrod:"#b8860b",darkkhaki:"#bdb76b",darkgray:"#a9a9a9",darkgreen:"#006400",darkgrey:"#a9a9a9",peachpuff:"#ffdab9",darkmagenta:"#8b008b",darkred:"#8b0000",darkorchid:"#9932cc",darkorange:"#ff8c00",darkslateblue:"#483d8b",gray:"#808080",darkslategray:"#2f4f4f",darkslategrey:"#2f4f4f",deeppink:"#ff1493",deepskyblue:"#00bfff",wheat:"#f5deb3",firebrick:"#b22222",floralwhite:"#fffaf0",ghostwhite:"#f8f8ff",darkviolet:"#9400d3",magenta:"#ff00ff",green:"#008000",dodgerblue:"#1e90ff",grey:"#808080",honeydew:"#f0fff0",hotpink:"#ff69b4",blueviolet:"#8a2be2",forestgreen:"#228b22",lawngreen:"#7cfc00",indianred:"#cd5c5c",indigo:"#4b0082",fuchsia:"#ff00ff",brown:"#a52a2a",maroon:"#800000",mediumblue:"#0000cd",lightcoral:"#f08080",darkturquoise:"#00ced1",lightcyan:"#e0ffff",ivory:"#fffff0",lightyellow:"#ffffe0",lightsalmon:"#ffa07a",lightseagreen:"#20b2aa",linen:"#faf0e6",mediumaquamarine:"#66cdaa",lemonchiffon:"#fffacd",lime:"#00ff00",khaki:"#f0e68c",mediumseagreen:"#3cb371",limegreen:"#32cd32",mediumspringgreen:"#00fa9a",lightskyblue:"#87cefa",lightblue:"#add8e6",midnightblue:"#191970",lightpink:"#ffb6c1",mistyrose:"#ffe4e1",moccasin:"#ffe4b5",mintcream:"#f5fffa",lightslategray:"#778899",lightslategrey:"#778899",navajowhite:"#ffdead",navy:"#000080",mediumvioletred:"#c71585",powderblue:"#b0e0e6",palegoldenrod:"#eee8aa",oldlace:"#fdf5e6",paleturquoise:"#afeeee",mediumturquoise:"#48d1cc",mediumorchid:"#ba55d3",rebeccapurple:"#663399",lightsteelblue:"#b0c4de",mediumslateblue:"#7b68ee",thistle:"#d8bfd8",tan:"#d2b48c",orchid:"#da70d6",mediumpurple:"#9370db",purple:"#800080",pink:"#ffc0cb",skyblue:"#87ceeb",springgreen:"#00ff7f",palegreen:"#98fb98",red:"#ff0000",yellow:"#ffff00",slateblue:"#6a5acd",lavenderblush:"#fff0f5",peru:"#cd853f",palevioletred:"#db7093",violet:"#ee82ee",teal:"#008080",slategray:"#708090",slategrey:"#708090",aliceblue:"#f0f8ff",darkseagreen:"#8fbc8f",darkolivegreen:"#556b2f",greenyellow:"#adff2f",seagreen:"#2e8b57",seashell:"#fff5ee",tomato:"#ff6347",silver:"#c0c0c0",sienna:"#a0522d",lavender:"#e6e6fa",lightgreen:"#90ee90",orange:"#ffa500",orangered:"#ff4500",steelblue:"#4682b4",royalblue:"#4169e1",turquoise:"#40e0d0",yellowgreen:"#9acd32",salmon:"#fa8072",saddlebrown:"#8b4513",sandybrown:"#f4a460",rosybrown:"#bc8f8f",darksalmon:"#e9967a",lightgoldenrodyellow:"#fafad2",snow:"#fffafa",lightgrey:"#d3d3d3",lightgray:"#d3d3d3",dimgray:"#696969",dimgrey:"#696969",olivedrab:"#6b8e23",olive:"#808000"},r={};for(var d in a)r[a[d]]=d;var l={};e.prototype.toName=function(f){if(!(this.rgba.a||this.rgba.r||this.rgba.g||this.rgba.b))return "transparent";var d,i,n=r[this.toHex()];if(n)return n;if(null==f?void 0:f.closest){var o=this.toRgb(),t=1/0,b="black";if(!l.length)for(var c in a)l[c]=new e(a[c]).toRgb();for(var g in a){var u=(d=o,i=l[g],Math.pow(d.r-i.r,2)+Math.pow(d.g-i.g,2)+Math.pow(d.b-i.b,2));u<t&&(t=u,b=g);}return b}};f.string.push([function(f){var r=f.toLowerCase(),d="transparent"===r?"#0000":a[r];return d?new e(d).toRgb():null},"name"]);}
 
@@ -5371,7 +5371,7 @@ const _Color = class _Color2 {
         const match = _Color2.HEX_PATTERN.exec(value);
         match && (value = `#${match[2]}`);
       }
-      const color = w(value);
+      const color = w$1(value);
       color.isValid() && ({ r, g, b, a } = color.rgba, r /= 255, g /= 255, b /= 255);
     }
     if (r !== void 0)
@@ -6186,7 +6186,7 @@ class BufferResource extends Resource {
 const defaultBufferOptions = {
   scaleMode: SCALE_MODES.NEAREST,
   alphaMode: ALPHA_MODES.NPM
-}, _BaseTexture = class _BaseTexture2 extends EventEmitter$1 {
+}, _BaseTexture = class _BaseTexture2 extends EventEmiter {
   /**
    * @param {PIXI.Resource|HTMLImageElement|HTMLVideoElement|ImageBitmap|ICanvas|string} [resource=null] -
    *        The current resource to use, for things that aren't Resource objects, will be converted
@@ -9626,7 +9626,7 @@ function removeAllHandlers(tex) {
   }, tex.emit = function() {
   };
 }
-class Texture extends EventEmitter$1 {
+class Texture extends EventEmiter {
   /**
    * @param baseTexture - The base texture source to create the texture from
    * @param frame - The rectangle frame of the texture to show
@@ -12102,7 +12102,7 @@ _StateSystem.extension = {
 let StateSystem = _StateSystem;
 extensions$1.add(StateSystem);
 
-class SystemManager extends EventEmitter$1 {
+class SystemManager extends EventEmiter {
   constructor() {
     super(...arguments), this.runners = {}, this._systemsHash = {};
   }
@@ -14602,7 +14602,7 @@ class Bounds {
   }
 }
 
-class DisplayObject extends EventEmitter$1 {
+class DisplayObject extends EventEmiter {
   constructor() {
     super(), this.tempDisplayObjectParent = null, this.transform = new Transform(), this.alpha = 1, this.visible = !0, this.renderable = !0, this.cullable = !1, this.cullArea = null, this.parent = null, this.worldAlpha = 1, this._lastSortedIndex = 0, this._zIndex = 0, this.filterArea = null, this.filters = null, this._enabledFilters = null, this._bounds = new Bounds(), this._localBounds = null, this._boundsID = 0, this._boundsRect = null, this._localBoundsRect = null, this._mask = null, this._maskRefCount = 0, this._destroyed = !1, this.isSprite = !1, this.isMask = !1;
   }
@@ -17330,7 +17330,7 @@ class EventBoundary {
    * @param rootTarget - The holder of the event boundary.
    */
   constructor(rootTarget) {
-    this.dispatch = new EventEmitter$1(), this.moveOnAll = !1, this.enableGlobalMoveEvents = !0, this.mappingState = {
+    this.dispatch = new EventEmiter(), this.moveOnAll = !1, this.enableGlobalMoveEvents = !0, this.mappingState = {
       trackingData: {}
     }, this.eventPool = /* @__PURE__ */ new Map(), this._allInteractiveElements = [], this._hitElements = [], this._isPointerMoveEvent = !1, this.rootTarget = rootTarget, this.hitPruneFn = this.hitPruneFn.bind(this), this.hitTestFn = this.hitTestFn.bind(this), this.mapPointerDown = this.mapPointerDown.bind(this), this.mapPointerMove = this.mapPointerMove.bind(this), this.mapPointerOut = this.mapPointerOut.bind(this), this.mapPointerOver = this.mapPointerOver.bind(this), this.mapPointerUp = this.mapPointerUp.bind(this), this.mapPointerUpOutside = this.mapPointerUpOutside.bind(this), this.mapWheel = this.mapWheel.bind(this), this.mappingTable = {}, this.addEventMapping("pointerdown", this.mapPointerDown), this.addEventMapping("pointermove", this.mapPointerMove), this.addEventMapping("pointerout", this.mapPointerOut), this.addEventMapping("pointerleave", this.mapPointerOut), this.addEventMapping("pointerover", this.mapPointerOver), this.addEventMapping("pointerup", this.mapPointerUp), this.addEventMapping("pointerupoutside", this.mapPointerUpOutside), this.addEventMapping("wheel", this.mapWheel);
   }
@@ -26465,352 +26465,7 @@ _HTMLText.defaultMaxWidth = 2024, /** Default maxHeight, set at construction */
 _HTMLText.defaultMaxHeight = 2024, /** Default autoResolution for all HTMLText objects */
 _HTMLText.defaultAutoResolution = !0;
 
-var eventemitter3 = {exports: {}};
-
-eventemitter3.exports;
-
-(function (module) {
-
-	var has = Object.prototype.hasOwnProperty
-	  , prefix = '~';
-
-	/**
-	 * Constructor to create a storage for our `EE` objects.
-	 * An `Events` instance is a plain object whose properties are event names.
-	 *
-	 * @constructor
-	 * @private
-	 */
-	function Events() {}
-
-	//
-	// We try to not inherit from `Object.prototype`. In some engines creating an
-	// instance in this way is faster than calling `Object.create(null)` directly.
-	// If `Object.create(null)` is not supported we prefix the event names with a
-	// character to make sure that the built-in object properties are not
-	// overridden or used as an attack vector.
-	//
-	if (Object.create) {
-	  Events.prototype = Object.create(null);
-
-	  //
-	  // This hack is needed because the `__proto__` property is still inherited in
-	  // some old browsers like Android 4, iPhone 5.1, Opera 11 and Safari 5.
-	  //
-	  if (!new Events().__proto__) prefix = false;
-	}
-
-	/**
-	 * Representation of a single event listener.
-	 *
-	 * @param {Function} fn The listener function.
-	 * @param {*} context The context to invoke the listener with.
-	 * @param {Boolean} [once=false] Specify if the listener is a one-time listener.
-	 * @constructor
-	 * @private
-	 */
-	function EE(fn, context, once) {
-	  this.fn = fn;
-	  this.context = context;
-	  this.once = once || false;
-	}
-
-	/**
-	 * Add a listener for a given event.
-	 *
-	 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
-	 * @param {(String|Symbol)} event The event name.
-	 * @param {Function} fn The listener function.
-	 * @param {*} context The context to invoke the listener with.
-	 * @param {Boolean} once Specify if the listener is a one-time listener.
-	 * @returns {EventEmitter}
-	 * @private
-	 */
-	function addListener(emitter, event, fn, context, once) {
-	  if (typeof fn !== 'function') {
-	    throw new TypeError('The listener must be a function');
-	  }
-
-	  var listener = new EE(fn, context || emitter, once)
-	    , evt = prefix ? prefix + event : event;
-
-	  if (!emitter._events[evt]) emitter._events[evt] = listener, emitter._eventsCount++;
-	  else if (!emitter._events[evt].fn) emitter._events[evt].push(listener);
-	  else emitter._events[evt] = [emitter._events[evt], listener];
-
-	  return emitter;
-	}
-
-	/**
-	 * Clear event by name.
-	 *
-	 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
-	 * @param {(String|Symbol)} evt The Event name.
-	 * @private
-	 */
-	function clearEvent(emitter, evt) {
-	  if (--emitter._eventsCount === 0) emitter._events = new Events();
-	  else delete emitter._events[evt];
-	}
-
-	/**
-	 * Minimal `EventEmitter` interface that is molded against the Node.js
-	 * `EventEmitter` interface.
-	 *
-	 * @constructor
-	 * @public
-	 */
-	function EventEmitter() {
-	  this._events = new Events();
-	  this._eventsCount = 0;
-	}
-
-	/**
-	 * Return an array listing the events for which the emitter has registered
-	 * listeners.
-	 *
-	 * @returns {Array}
-	 * @public
-	 */
-	EventEmitter.prototype.eventNames = function eventNames() {
-	  var names = []
-	    , events
-	    , name;
-
-	  if (this._eventsCount === 0) return names;
-
-	  for (name in (events = this._events)) {
-	    if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
-	  }
-
-	  if (Object.getOwnPropertySymbols) {
-	    return names.concat(Object.getOwnPropertySymbols(events));
-	  }
-
-	  return names;
-	};
-
-	/**
-	 * Return the listeners registered for a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @returns {Array} The registered listeners.
-	 * @public
-	 */
-	EventEmitter.prototype.listeners = function listeners(event) {
-	  var evt = prefix ? prefix + event : event
-	    , handlers = this._events[evt];
-
-	  if (!handlers) return [];
-	  if (handlers.fn) return [handlers.fn];
-
-	  for (var i = 0, l = handlers.length, ee = new Array(l); i < l; i++) {
-	    ee[i] = handlers[i].fn;
-	  }
-
-	  return ee;
-	};
-
-	/**
-	 * Return the number of listeners listening to a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @returns {Number} The number of listeners.
-	 * @public
-	 */
-	EventEmitter.prototype.listenerCount = function listenerCount(event) {
-	  var evt = prefix ? prefix + event : event
-	    , listeners = this._events[evt];
-
-	  if (!listeners) return 0;
-	  if (listeners.fn) return 1;
-	  return listeners.length;
-	};
-
-	/**
-	 * Calls each of the listeners registered for a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @returns {Boolean} `true` if the event had listeners, else `false`.
-	 * @public
-	 */
-	EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
-	  var evt = prefix ? prefix + event : event;
-
-	  if (!this._events[evt]) return false;
-
-	  var listeners = this._events[evt]
-	    , len = arguments.length
-	    , args
-	    , i;
-
-	  if (listeners.fn) {
-	    if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
-
-	    switch (len) {
-	      case 1: return listeners.fn.call(listeners.context), true;
-	      case 2: return listeners.fn.call(listeners.context, a1), true;
-	      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
-	      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
-	      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
-	      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
-	    }
-
-	    for (i = 1, args = new Array(len -1); i < len; i++) {
-	      args[i - 1] = arguments[i];
-	    }
-
-	    listeners.fn.apply(listeners.context, args);
-	  } else {
-	    var length = listeners.length
-	      , j;
-
-	    for (i = 0; i < length; i++) {
-	      if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
-
-	      switch (len) {
-	        case 1: listeners[i].fn.call(listeners[i].context); break;
-	        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
-	        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
-	        case 4: listeners[i].fn.call(listeners[i].context, a1, a2, a3); break;
-	        default:
-	          if (!args) for (j = 1, args = new Array(len -1); j < len; j++) {
-	            args[j - 1] = arguments[j];
-	          }
-
-	          listeners[i].fn.apply(listeners[i].context, args);
-	      }
-	    }
-	  }
-
-	  return true;
-	};
-
-	/**
-	 * Add a listener for a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @param {Function} fn The listener function.
-	 * @param {*} [context=this] The context to invoke the listener with.
-	 * @returns {EventEmitter} `this`.
-	 * @public
-	 */
-	EventEmitter.prototype.on = function on(event, fn, context) {
-	  return addListener(this, event, fn, context, false);
-	};
-
-	/**
-	 * Add a one-time listener for a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @param {Function} fn The listener function.
-	 * @param {*} [context=this] The context to invoke the listener with.
-	 * @returns {EventEmitter} `this`.
-	 * @public
-	 */
-	EventEmitter.prototype.once = function once(event, fn, context) {
-	  return addListener(this, event, fn, context, true);
-	};
-
-	/**
-	 * Remove the listeners of a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @param {Function} fn Only remove the listeners that match this function.
-	 * @param {*} context Only remove the listeners that have this context.
-	 * @param {Boolean} once Only remove one-time listeners.
-	 * @returns {EventEmitter} `this`.
-	 * @public
-	 */
-	EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
-	  var evt = prefix ? prefix + event : event;
-
-	  if (!this._events[evt]) return this;
-	  if (!fn) {
-	    clearEvent(this, evt);
-	    return this;
-	  }
-
-	  var listeners = this._events[evt];
-
-	  if (listeners.fn) {
-	    if (
-	      listeners.fn === fn &&
-	      (!once || listeners.once) &&
-	      (!context || listeners.context === context)
-	    ) {
-	      clearEvent(this, evt);
-	    }
-	  } else {
-	    for (var i = 0, events = [], length = listeners.length; i < length; i++) {
-	      if (
-	        listeners[i].fn !== fn ||
-	        (once && !listeners[i].once) ||
-	        (context && listeners[i].context !== context)
-	      ) {
-	        events.push(listeners[i]);
-	      }
-	    }
-
-	    //
-	    // Reset the array, or remove it completely if we have no more listeners.
-	    //
-	    if (events.length) this._events[evt] = events.length === 1 ? events[0] : events;
-	    else clearEvent(this, evt);
-	  }
-
-	  return this;
-	};
-
-	/**
-	 * Remove all listeners, or those of the specified event.
-	 *
-	 * @param {(String|Symbol)} [event] The event name.
-	 * @returns {EventEmitter} `this`.
-	 * @public
-	 */
-	EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
-	  var evt;
-
-	  if (event) {
-	    evt = prefix ? prefix + event : event;
-	    if (this._events[evt]) clearEvent(this, evt);
-	  } else {
-	    this._events = new Events();
-	    this._eventsCount = 0;
-	  }
-
-	  return this;
-	};
-
-	//
-	// Alias methods names because people roll like that.
-	//
-	EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
-	EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-
-	//
-	// Expose the prefix.
-	//
-	EventEmitter.prefixed = prefix;
-
-	//
-	// Allow `EventEmitter` to be imported as module namespace.
-	//
-	EventEmitter.EventEmitter = EventEmitter;
-
-	//
-	// Expose the module.
-	//
-	{
-	  module.exports = EventEmitter;
-	} 
-} (eventemitter3));
-
-var eventemitter3Exports = eventemitter3.exports;
-var EventEmitter = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports);
-
-class element extends EventEmitter {
+class element extends EventEmiter {
 
     constructor(option) {
         super();
@@ -27153,105 +26808,22 @@ class resize extends element {
         const self = this;
         // 如果item进行了移动，则反应到控制的目标上
         g.move = function(offX, offY, oldOffset, newOffset) {
-            switch(this.dir) {
-                case 'l': {
-                    const cx = newOffset - oldOffset;
-                    self.x -= cx;
-                    self.width += cx;
-                    break;
-                }
-                case self.cursors['lt']:{
-                    self.x += offX;
-                    self.width -= offX;
-
-                    self.y += offY;
-                    self.height -= offY;
-                    break;
-                }
-                case self.cursors['t']: {
-                    self.y += offY;
-                    self.height -= offY;
-                    break;
-                }
-                case self.cursors['tr']: {
-                    self.width += offX;
-                    self.y += offY;
-                    self.height -= offY;
-                    break;
-                }
-                case self.cursors['r']: {
-                    self.width += offX;
-                    break;
-                }
-                case self.cursors['rb']: {
-                    self.width += offX;
-                    self.height += offY;
-                    break;
-                }
-                case self.cursors['b']: {
-                    self.height += offY;
-                    break;
-                }
-                case self.cursors['lb']: {
-                    self.x += offX;
-                    self.width -= offX;
-                    self.height += offY;
-                    break;
-                }
+            for(let i=0; i<this.points.length; i+=2) {
+                this.points[i] += offX;
+                this.points[i+1] += offY;
             }
-
-            if(self.width < self.itemSize) {
-                self.width = self.itemSize;
-                if(['l', 'lt', 'lb'].includes(this.dir)) self.x -= offX;
-            }
-            if(self.height < self.itemSize) {
-                self.height = self.itemSize;
-                if(['lt', 't', 'tr'].includes(this.dir)) self.y -= offY;
-            }
+            self.drawPolygon(this, this.points, self.style.itemFillColor);
+            return;
         };
 
         g.on('pointerdown', (event) => {
             this.onDragStart(event, g);
         });
     }
-
-    // 绘制
-    draw() {
-        let matrix = null;
-        if(this.target && this.target.rotation) {
-            matrix = new Matrix();
-            matrix.center = this.toControlPosition({
-                x: this.target.x,
-                y: this.target.y
-            });
-            matrix.rotate(this.target.rotation);
-        }
-
-        this.drawRect(this.graphics, this.x, this.y, this.width, this.height, matrix);
-
-        const t = this.y - this.itemSize / 2;
-        const l = this.x - this.itemSize/2;
-        const mid = this.y + this.height/2 - this.itemSize/2;
-        const cid = this.x + this.width/2 - this.itemSize/2;
-        const r = this.x + this.width - this.itemSize/2;
-        const b = this.y + this.height - this.itemSize/2;
-
-        this.drawRect(this.items[0], l, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[1], l, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[2], cid, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[3], r, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[4], r, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[5], r, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[6], cid, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[7], l, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-    }
-    // 绘制方块
-    drawRect(g, x, y, w, h, matrix = null, fill = null) {
-        g.clear();
-        g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
-        if(fill) g.beginFill(fill);
-
+    // 计算坐标等参数
+    initRectPoints(g, x, y, w, h, matrix = null) {
         g.bounds = {
+            matrix,
             left: undefined,
             top: undefined,
             right: 0,
@@ -27290,8 +26862,48 @@ class resize extends element {
         g.bounds.center.x = g.bounds.left + g.bounds.width/2;
         g.bounds.center.y = g.bounds.top + g.bounds.height/2;
 
-        g.drawPolygon(g.points);
-        g.endFill();
+        return g.points;
+    }
+
+    // 绘制
+    draw() {
+        let matrix = null;
+        if(this.target && this.target.rotation) {
+            matrix = new Matrix();
+            matrix.center = this.toControlPosition({
+                x: this.target.x,
+                y: this.target.y
+            });
+            matrix.rotate(this.target.rotation);
+        }
+
+        this.drawRect(this.graphics, this.x, this.y, this.width, this.height, matrix);
+
+        const t = this.y - this.itemSize / 2;
+        const l = this.x - this.itemSize/2;
+        const mid = this.y + this.height/2 - this.itemSize/2;
+        const cid = this.x + this.width/2 - this.itemSize/2;
+        const r = this.x + this.width - this.itemSize/2;
+        const b = this.y + this.height - this.itemSize/2;
+
+        this.drawRect(this.items[0], l, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[1], l, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[2], cid, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[3], r, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[4], r, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[5], r, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[6], cid, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[7], l, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+    }
+    // 绘制方块
+    drawRect(g, x, y, w, h, matrix = null, fill = null) {
+        g.clear();
+        g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
+        if(fill) g.beginFill(fill);
+
+        const points = this.initRectPoints(g, x, y, w, h, matrix);
+
+        this.drawPolygon(g, points, fill);
 
         // 是用于控制方法的方块
         if(g.dir) {
@@ -27299,43 +26911,40 @@ class resize extends element {
             const cy = g.bounds.center.y - this.graphics.bounds.center.y;
             const angle = Math.atan(cy / cx);// 与中心连线和x轴的夹角
             g.bounds.angle = angle;
+            g.cursor = 'move';
+            /*
             const sp1 = Math.PI/6;
             const sp2 = sp1 * 2;
-            console.log(g.dir, angle, sp1, sp2);
+           
             // 左正方向
             if(cx <= 0) {
-                if(['l','t','r','b'].includes(g.dir)) {
                     if(angle > -sp1 && angle <= sp1) g.cursor = this.cursors['l'];
                     else if(angle > sp1 && angle <= sp2) g.cursor = this.cursors['lt'];
-                    else if(angle <-sp1 && angle > -sp2) g.cursor = this.cursors['lb'];
-                    else if(angle > sp2) g.cursor = this.cursors['b'];
+                    else if(angle <=-sp1 && angle > -sp2) g.cursor = this.cursors['lb'];
+                    else if(angle >= sp2) g.cursor = this.cursors['b'];
                     else g.cursor = this.cursors['t'];
-                }
-                else {
-                    if(angle === 0) g.cursor = this.cursors['l'];
-                    else if(angle < 0 && angle > -Math.PI/2) g.cursor = this.cursors['lb'];
-                    else if(angle > 0 && angle < Math.PI/2) g.cursor = this.cursors['lt']; 
-                    else if(angle === Math.PI/2) g.cursor = this.cursors['t'];
-                    else if(angle === -Math.PI/2) g.cursor = this.cursors['b'];
-                }
+                
             }
             else {
-                if(['l','t','r','b'].includes(g.dir)) {
-                    if(angle > -sp1 && angle < sp1) g.cursor = this.cursors['r'];
-                    else if(angle > sp1 && angle < sp2) g.cursor = this.cursors['tr'];
-                    else if(angle <-sp1 && angle > -sp2) g.cursor = this.cursors['rb'];
-                    else if(angle > sp2) g.cursor = this.cursors['t'];
+                    if(angle > -sp1 && angle <= sp1) g.cursor = this.cursors['r'];
+                    else if(angle > sp1 && angle <= sp2) g.cursor = this.cursors['rb'];
+                    else if(angle <= -sp1 && angle > -sp2) g.cursor = this.cursors['tr'];
+                    else if(angle >= sp2) g.cursor = this.cursors['t'];
                     else g.cursor = this.cursors['b'];
-                }
-                else {
-                    if(angle === 0) g.cursor = this.cursors['r'];
-                    else if(angle < 0 && angle > -Math.PI/2) g.cursor = this.cursors['tr'];
-                    else if(angle > 0 && angle < Math.PI/2) g.cursor = this.cursors['rb']; 
-                    else if(angle === Math.PI/2) g.cursor = this.cursors['b'];
-                    else if(angle === -Math.PI/2) g.cursor = this.cursors['t'];
-                }
-            }
+               
+            }*/
         }
+    }
+    // 绘制多边形
+    drawPolygon(g, points, fill = null) {
+        g.clear();
+        g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
+        if(fill) g.beginFill(fill);
+
+        points = points || this.initRectPoints(g, x, y, w, h, matrix);
+
+        g.drawPolygon(points);
+        g.endFill();
     }
 
     // 绑到当前选中的元素
@@ -27402,10 +27011,9 @@ class resize extends element {
 
             const angle = Math.atan(cy / cx);// 手标与中心的夹角
 
+
             // 计算手标点在操作方块与中心线上的投影距离
             const offset = Math.cos(angle - this.moveItem.bounds.angle) * Math.sqrt(cx * cx + cy * cy);
-
-            console.log(this.dragStartPosition, offset);
 
             this.moveItem.move(offX, offY, this.dragStartPosition.offset, offset);
 
@@ -27465,7 +27073,7 @@ class resize extends element {
     }
 }
 
-class editor extends EventEmitter {
+class editor extends EventEmiter {
 
     constructor(container, option={}) {  
         super(option);

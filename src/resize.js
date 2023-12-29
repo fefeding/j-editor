@@ -77,6 +77,14 @@ export default class resize extends element {
         const self = this;
         // 如果item进行了移动，则反应到控制的目标上
         g.move = function(offX, offY, oldOffset, newOffset) {
+            for(let i=0; i<this.points.length; i+=2) {
+                this.points[i] += offX;
+                this.points[i+1] += offY;
+            }
+            self.drawPolygon(this, this.points, self.style.itemFillColor);
+            return;
+
+            console.log(offX, offY, oldOffset, newOffset)
             switch(this.dir) {
                 case 'l': {
                     const cx = newOffset - oldOffset;
@@ -84,7 +92,8 @@ export default class resize extends element {
                     self.width += cx;
                     break;
                 }
-                case self.cursors['lt']:{
+                case 'lt':{
+                    
                     self.x += offX;
                     self.width -= offX;
 
@@ -138,44 +147,10 @@ export default class resize extends element {
             this.onDragStart(event, g);
         });
     }
-
-    // 绘制
-    draw() {
-        let matrix = null;
-        if(this.target && this.target.rotation) {
-            matrix = new PIXI.Matrix();
-            matrix.center = this.toControlPosition({
-                x: this.target.x,
-                y: this.target.y
-            });
-            matrix.rotate(this.target.rotation);
-        }
-
-        this.drawRect(this.graphics, this.x, this.y, this.width, this.height, matrix);
-
-        const t = this.y - this.itemSize / 2;
-        const l = this.x - this.itemSize/2;
-        const mid = this.y + this.height/2 - this.itemSize/2;
-        const cid = this.x + this.width/2 - this.itemSize/2;
-        const r = this.x + this.width - this.itemSize/2;
-        const b = this.y + this.height - this.itemSize/2;
-
-        this.drawRect(this.items[0], l, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[1], l, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[2], cid, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[3], r, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[4], r, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[5], r, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[6], cid, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-        this.drawRect(this.items[7], l, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
-    }
-    // 绘制方块
-    drawRect(g, x, y, w, h, matrix = null, fill = null) {
-        g.clear();
-        g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
-        if(fill) g.beginFill(fill);
-
+    // 计算坐标等参数
+    initRectPoints(g, x, y, w, h, matrix = null) {
         g.bounds = {
+            matrix,
             left: undefined,
             top: undefined,
             right: 0,
@@ -214,8 +189,48 @@ export default class resize extends element {
         g.bounds.center.x = g.bounds.left + g.bounds.width/2;
         g.bounds.center.y = g.bounds.top + g.bounds.height/2;
 
-        g.drawPolygon(g.points);
-        g.endFill();
+        return g.points;
+    }
+
+    // 绘制
+    draw() {
+        let matrix = null;
+        if(this.target && this.target.rotation) {
+            matrix = new PIXI.Matrix();
+            matrix.center = this.toControlPosition({
+                x: this.target.x,
+                y: this.target.y
+            });
+            matrix.rotate(this.target.rotation);
+        }
+
+        this.drawRect(this.graphics, this.x, this.y, this.width, this.height, matrix);
+
+        const t = this.y - this.itemSize / 2;
+        const l = this.x - this.itemSize/2;
+        const mid = this.y + this.height/2 - this.itemSize/2;
+        const cid = this.x + this.width/2 - this.itemSize/2;
+        const r = this.x + this.width - this.itemSize/2;
+        const b = this.y + this.height - this.itemSize/2;
+
+        this.drawRect(this.items[0], l, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[1], l, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[2], cid, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[3], r, t, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[4], r, mid, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[5], r, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[6], cid, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+        this.drawRect(this.items[7], l, b, this.itemSize, this.itemSize, matrix, this.style.itemFillColor);
+    }
+    // 绘制方块
+    drawRect(g, x, y, w, h, matrix = null, fill = null) {
+        g.clear();
+        g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
+        if(fill) g.beginFill(fill);
+
+        const points = this.initRectPoints(g, x, y, w, h, matrix);
+
+        this.drawPolygon(g, points, fill);
 
         // 是用于控制方法的方块
         if(g.dir) {
@@ -223,43 +238,40 @@ export default class resize extends element {
             const cy = g.bounds.center.y - this.graphics.bounds.center.y;
             const angle = Math.atan(cy / cx);// 与中心连线和x轴的夹角
             g.bounds.angle = angle;
+            g.cursor = 'move';
+            /*
             const sp1 = Math.PI/6;
             const sp2 = sp1 * 2;
-            console.log(g.dir, angle, sp1, sp2);
+           
             // 左正方向
             if(cx <= 0) {
-                if(['l','t','r','b'].includes(g.dir)) {
                     if(angle > -sp1 && angle <= sp1) g.cursor = this.cursors['l'];
                     else if(angle > sp1 && angle <= sp2) g.cursor = this.cursors['lt'];
-                    else if(angle <-sp1 && angle > -sp2) g.cursor = this.cursors['lb'];
-                    else if(angle > sp2) g.cursor = this.cursors['b'];
+                    else if(angle <=-sp1 && angle > -sp2) g.cursor = this.cursors['lb'];
+                    else if(angle >= sp2) g.cursor = this.cursors['b'];
                     else g.cursor = this.cursors['t'];
-                }
-                else {
-                    if(angle === 0) g.cursor = this.cursors['l'];
-                    else if(angle < 0 && angle > -Math.PI/2) g.cursor = this.cursors['lb'];
-                    else if(angle > 0 && angle < Math.PI/2) g.cursor = this.cursors['lt']; 
-                    else if(angle === Math.PI/2) g.cursor = this.cursors['t'];
-                    else if(angle === -Math.PI/2) g.cursor = this.cursors['b'];
-                }
+                
             }
             else {
-                if(['l','t','r','b'].includes(g.dir)) {
-                    if(angle > -sp1 && angle < sp1) g.cursor = this.cursors['r'];
-                    else if(angle > sp1 && angle < sp2) g.cursor = this.cursors['tr'];
-                    else if(angle <-sp1 && angle > -sp2) g.cursor = this.cursors['rb'];
-                    else if(angle > sp2) g.cursor = this.cursors['t'];
+                    if(angle > -sp1 && angle <= sp1) g.cursor = this.cursors['r'];
+                    else if(angle > sp1 && angle <= sp2) g.cursor = this.cursors['rb'];
+                    else if(angle <= -sp1 && angle > -sp2) g.cursor = this.cursors['tr'];
+                    else if(angle >= sp2) g.cursor = this.cursors['t'];
                     else g.cursor = this.cursors['b'];
-                }
-                else {
-                    if(angle === 0) g.cursor = this.cursors['r'];
-                    else if(angle < 0 && angle > -Math.PI/2) g.cursor = this.cursors['tr'];
-                    else if(angle > 0 && angle < Math.PI/2) g.cursor = this.cursors['rb']; 
-                    else if(angle === Math.PI/2) g.cursor = this.cursors['b'];
-                    else if(angle === -Math.PI/2) g.cursor = this.cursors['t'];
-                }
-            }
+               
+            }*/
         }
+    }
+    // 绘制多边形
+    drawPolygon(g, points, fill = null) {
+        g.clear();
+        g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
+        if(fill) g.beginFill(fill);
+
+        points = points || this.initRectPoints(g, x, y, w, h, matrix);
+
+        g.drawPolygon(points);
+        g.endFill();
     }
 
     // 绑到当前选中的元素
@@ -326,10 +338,9 @@ export default class resize extends element {
 
             const angle = Math.atan(cy / cx);// 手标与中心的夹角
 
+
             // 计算手标点在操作方块与中心线上的投影距离
             const offset = Math.cos(angle - this.moveItem.bounds.angle) * Math.sqrt(cx * cx + cy * cy);
-
-            console.log(this.dragStartPosition, offset);
 
             this.moveItem.move(offX, offY, this.dragStartPosition.offset, offset);
 
