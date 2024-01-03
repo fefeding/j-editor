@@ -13,6 +13,8 @@ export default class element extends EventEmiter {
         this.style = this.option.style || {};
     }
 
+    children = []
+
     // 位置
     get x() {
         return this.container.x - this.editor.left;
@@ -123,7 +125,13 @@ export default class element extends EventEmiter {
             }
             return this;
         }
-        return this.container.addChild(child);
+        if(child instanceof element) {
+            this.container.addChild(child.container);
+            this.children.push(child);
+        }
+        else {
+            this.container.addChild(child);
+        }
     }
 
     

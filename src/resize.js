@@ -2,13 +2,190 @@
 import * as PIXI from 'pixi.js';
 import element from './element.js';
 
-export default class resize extends element {
+
+
+/**
+ * 拖放方块 
+ */
+ class resizeItem extends element {
+    constructor(option) {
+        super(option);
+        this.dir = option.dir || 'l';
+        this.style.fill = this.style.fill || '#fff';
+        this.style.lineColor =  this.style.lineColor|| 'rgba(6,155,181,1)';
+        this.size = option.size || 8;
+        this.init();
+    }
+    // 鼠标指针
+    cursors = {
+        'l': 'w-resize',
+        'lt': 'nw-resize',
+        't': 'n-resize',
+        'tr': 'ne-resize',
+        'r': 'e-resize',
+        'rb': 'se-resize',
+        'b': 's-resize',
+        'lb': 'sw-resize',
+    };
+
+    x = 0;
+    y = 0;
+    width = 1;
+    height = 1;
+
+    points = [];
+
+    get cursor() {
+        return this.graphics.cursor;
+    }
+    set cursor(v) {
+        return this.graphics.cursor = v;
+    }
+
+    init() {
+        this.graphics = new PIXI.Graphics();
+        
+        this.graphics.eventMode = 'static';
+        this.cursor = this.cursors[this.dir];
+
+        this.graphics.on('pointerdown', (event) => {
+            this.emit('pointerdown', event, this);
+        });
+
+        this.addChild(this.graphics);
+    }
+
+    // 计算坐标等参数
+    initRectPoints(x, y, w=this.width, h=this.height, matrix = null) {
+
+        if(!this.points || !this.points.length) {
+            this.points = [
+                {x, y}, 
+                {x: x + w, y},
+                {x: x + w, y: y + h},
+                {x, y: y + h}
+            ];
+        }
+        else {
+            this.points[0].x = x;
+            this.points[0].y = y;
+            this.points[1].x = x + w;
+            this.points[1].y = y;
+            this.points[2].x = x + w;
+            this.points[2].y = y + h;
+            this.points[3].x = x;
+            this.points[3].y = y + h;
+        }
+
+        this.rotatePoints(matrix);
+
+        this.bounds = this.createBounds();
+
+        return this.points;
+    }
+
+
+
+    createBounds(points = this.points) {
+        const bounds = {
+            left: undefined,
+            top: undefined,
+            right: 0,
+            bottom: 0,
+            width: 1,
+            height: 1,
+            center: {
+                x: 0,
+                y: 0
+            }
+        };
+        for(let i=0; i<points.length; i++) {
+            
+            bounds.left = bounds.left === undefined? points[i].x : Math.min(bounds.left, points[i].x);
+            bounds.top = bounds.top === undefined? points[i].y : Math.min(bounds.top, points[i].y);
+            bounds.right = Math.max(bounds.right, points[i].x);
+            bounds.bottom = Math.max(bounds.bottom, points[i].y);
+        }
+        bounds.width = bounds.right - bounds.left;
+        bounds.height = bounds.bottom - bounds.top;
+        bounds.center.x = bounds.left + bounds.width/2;
+        bounds.center.y = bounds.top + bounds.height/2;
+
+        return bounds;
+    }
+
+    move(dx, dy) {
+        this.x += dx;
+        this.y += dy;
+
+        for(const p of this.points) {
+            p.x += dx;
+            p.y += dy;
+        }
+    }
+
+    // 如果item进行了移动，则反应到控制的目标上
+    dragMove(event, offX, offY, offset) {   
+
+        switch(this.dir) {
+            case 'l': {
+                this.move(offX, offY);
+                break;
+            }
+            case 't': {
+                this.move(offX, offY);
+                break;
+            }
+            case 'r': {
+                this.move(offX, offY);
+                break;
+            }
+            case 'b': {
+                this.move(offX, offY);
+                break;
+            }
+            case 'lt':{   
+                this.move(offX, offY);     
+                break;
+            }
+        }
+    };
+
+    draw(points = this.points) {
+        this.graphics.clear();
+        this.graphics.lineStyle(1, this.style.lineColor, 1);
+        if(this.style.fill) this.graphics.beginFill(this.style.fill);
+
+        this.graphics.drawPolygon(points);
+        this.graphics.endFill();
+    }
+    
+
+    // 旋转
+    rotatePoints(matrix, points = this.points) {
+        for(let i=0; i<points.length; i++) {
+            if(matrix) {
+                const p = matrix.apply({
+                    x: points[i].x - matrix.center.x, 
+                    y: points[i].y - matrix.center.y
+                });
+                points[i].x = p.x + matrix.center.x;
+                points[i].y = p.y + matrix.center.y;
+            }
+        }
+        return points;
+    }
+}
+
+export default class resize extends resizeItem {
 
     constructor(option) {
         option.zIndex = 100000;
         super(option);
         this.editable = false;// 这个不可编辑
-        this.style.itemFillColor = this.style.itemFillColor || '#fff';
+        this.style.fill = 'transparent';
+
+        this.itemSize = option.itemSize || 8;
 
         // 绑定拖放操作, 所有操作都放到control层  
         this.editor.app.stage.eventMode = 'static';
@@ -23,18 +200,12 @@ export default class resize extends element {
         this.init();
     }
 
-    itemSize = 8;
     // 拖放位置
     dragStartPosition = {
         x: 0,
         y: 0,
         offset: 0 // 离中心点距离
     };
-
-    x = 0;
-    y = 0;
-    width = 1;
-    height = 1;
 
     rotation = 0;
     angle = 0;
@@ -48,16 +219,6 @@ export default class resize extends element {
 
         // 改变大小的方块
         this.items = [];
-        this.cursors = {
-            'l': 'w-resize',
-            'lt': 'nw-resize',
-            't': 'n-resize',
-            'tr': 'ne-resize',
-            'r': 'e-resize',
-            'rb': 'se-resize',
-            'b': 's-resize',
-            'lb': 'sw-resize',
-        };
         this.createItem('l');
         this.createItem('lt');
         this.createItem('t');
@@ -68,99 +229,26 @@ export default class resize extends element {
         this.createItem('lb');
     }
 
-    createItem(id, cursor = this.cursors[id]) {
-        const g = new PIXI.Graphics();
-        
-        g.eventMode = 'static';
-        g.cursor = cursor;
-        g.dir = id;
-        this.addChild(g);
-        this.items.push(g);
+    createItem(id) {
+        const item = new resizeItem({
+            dir: id,
+            size: this.itemSize,
+            style: this.style.itemStyle
+        });
+        this.addChild(item);
+        this.items.push(item);
 
-        const self = this;
-        // 如果item进行了移动，则反应到控制的目标上
-        g.dragMove = function(offX, offY, offset) {   
 
-            switch(this.dir) {
-                case 'l': {
-                    self.graphicMove(this, offX, offY);
-                    self.graphicMove(self.items[1], offX, offY);
-                    self.graphicMove(self.items[7], offX, offY);
-                    self.movePoints([
-                        self.graphics.points[0], self.graphics.points[3]
-                    ], offX, offY);
-                    break;
-                }
-                case 't': {
-                    self.graphicMove(this, offX, offY);
-                    self.graphicMove(self.items[1], offX, offY);
-                    self.graphicMove(self.items[3], offX, offY);
-                    self.movePoints([
-                        self.graphics.points[0], self.graphics.points[1]
-                    ], offX, offY);
-                    break;
-                }
-                case 'r': {
-                    self.graphicMove(this, offX, offY);
-                    self.graphicMove(self.items[3], offX, offY);
-                    self.graphicMove(self.items[5], offX, offY);
-                    self.movePoints([
-                        self.graphics.points[1], self.graphics.points[2]
-                    ], offX, offY);
-                    break;
-                }
-                case 'b': {
-                    self.graphicMove(this, offX, offY);
-                    self.graphicMove(self.items[5], offX, offY);
-                    self.graphicMove(self.items[7], offX, offY);
-                    self.movePoints([
-                        self.graphics.points[2], self.graphics.points[3]
-                    ], offX, offY);
-                    break;
-                }
-                case 'lt':{        
-                    self.graphicMove(this, -dx, -dy);      
-                    break;
-                }
-            }
-        };
-
-        g.on('pointerdown', (event) => {
-            this.onDragStart(event, g);
+        item.on('pointerdown', (event, target) => {
+            this.onDragStart(event, target);
         });
     }
-    // 计算坐标等参数
-    initRectPoints(g, x, y, w, h, matrix = null) {
-        if(!g.points) {
-            g.points = [
-                {x, y}, 
-                {x: x + w, y},
-                {x: x + w, y: y + h},
-                {x, y: y + h}
-            ];
-        }
-        else {
-            g.points[0].x = x;
-            g.points[0].y = y;
-            g.points[1].x = x + w;
-            g.points[1].y = y;
-            g.points[2].x = x + w;
-            g.points[2].y = y + h;
-            g.points[3].x = x;
-            g.points[3].y = y + h;
-        }
-
-        this.rotatePoints(g, matrix);
-
-        g.bounds = this.createRectBounds(g);
-
-        return g.points;
-    }
+    
 
     // 初始化方块位置大小
     initRects() {
         const matrix = this.getMatrix(this.rotation);
-        this.initRectPoints(this.graphics, this.x, this.y, this.width, this.height, matrix);
+        this.initRectPoints(this.x, this.y, this.width, this.height, matrix);
 
         const t = this.y - this.itemSize / 2;
         const l = this.x - this.itemSize/2;
@@ -169,83 +257,26 @@ export default class resize extends element {
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
-        this.initRectPoints(this.items[0], l, mid, this.itemSize, this.itemSize, matrix);
-        this.initRectPoints(this.items[1], l, t, this.itemSize, this.itemSize, matrix);
-        this.initRectPoints(this.items[2], cid, t, this.itemSize, this.itemSize, matrix);
-        this.initRectPoints(this.items[3], r, t, this.itemSize, this.itemSize, matrix);
-        this.initRectPoints(this.items[4], r, mid, this.itemSize, this.itemSize, matrix);
-        this.initRectPoints(this.items[5], r, b, this.itemSize, this.itemSize, matrix);
-        this.initRectPoints(this.items[6], cid, b, this.itemSize, this.itemSize, matrix);
-        this.initRectPoints(this.items[7], l, b, this.itemSize, this.itemSize, matrix);
+        this.items[0].initRectPoints(l, mid, this.itemSize, this.itemSize, matrix);
+        this.items[1].initRectPoints(l, t, this.itemSize, this.itemSize, matrix);
+        this.items[2].initRectPoints(cid, t, this.itemSize, this.itemSize, matrix);
+        this.items[3].initRectPoints(r, t, this.itemSize, this.itemSize, matrix);
+        this.items[4].initRectPoints(r, mid, this.itemSize, this.itemSize, matrix);
+        this.items[5].initRectPoints(r, b, this.itemSize, this.itemSize, matrix);
+        this.items[6].initRectPoints(cid, b, this.itemSize, this.itemSize, matrix);
+        this.items[7].initRectPoints(l, b, this.itemSize, this.itemSize, matrix);
     }
 
-    // 旋转
-    rotatePoints(g, matrix) {
-        for(let i=0; i<g.points.length; i++) {
-            if(matrix) {
-                const p = matrix.apply({
-                    x: g.points[i].x - matrix.center.x, 
-                    y: g.points[i].y - matrix.center.y
-                });
-                g.points[i].x = p.x + matrix.center.x;
-                g.points[i].y = p.y + matrix.center.y;
-            }
-        }
-        return g;
-    }
-
-    createRectBounds(g) {
-        const bounds = {
-            left: undefined,
-            top: undefined,
-            right: 0,
-            bottom: 0,
-            width: 1,
-            height: 1,
-            center: {
-                x: 0,
-                y: 0
-            }
-        };
-        for(let i=0; i<g.points.length; i++) {
-            
-            bounds.left = bounds.left === undefined? g.points[i].x : Math.min(bounds.left, g.points[i].x);
-            bounds.top = bounds.top === undefined? g.points[i].y : Math.min(bounds.top, g.points[i].y);
-            bounds.right = Math.max(bounds.right, g.points[i].x);
-            bounds.bottom = Math.max(bounds.bottom, g.points[i].y);
-        }
-        bounds.width = bounds.right - bounds.left;
-        bounds.height = bounds.bottom - bounds.top;
-        bounds.center.x = bounds.left + bounds.width/2;
-        bounds.center.y = bounds.top + bounds.height/2;
-
-        // 是用于控制方法的方块
-        if(g.dir) {
-            const cx = bounds.center.x - this.graphics.bounds.center.x;
-            const cy = bounds.center.y - this.graphics.bounds.center.y;
-            const angle = Math.atan(cy / cx);// 与中心连线和x轴的夹角
-            bounds.angle = angle;
-            g.cursor = 'move';
-        }
-
-        g.bounds = bounds;
-
-        return bounds;
-    }
+    
 
     // 整理移动
     move(dx, dy) {
-        this.x += dx;
-        this.y += dy;
 
-        this.movePoints(this.graphics.points, dx, dy);
+        super.move(dx, dy);
+
         for(const g of this.items) {
-            this.movePoints(g.points, dx, dy);
+            g.move(dx, dy);
         }
-    }
-
-    graphicMove(g, dx, dy) {
-        this.movePoints(g.points, dx, dy);
     }
 
     // 把点位移
@@ -260,7 +291,7 @@ export default class resize extends element {
     // 绘制
     draw() {
 
-        this.drawPolygon(this.graphics, this.graphics.points);
+        super.draw();
 
         /*
         this.drawRect(this.items[0], this.style.itemFillColor);
@@ -273,18 +304,8 @@ export default class resize extends element {
         this.drawRect(this.items[7], this.style.itemFillColor);
         */
        for(const item of this.items) {
-            this.drawPolygon(item, item.points, this.style.itemFillColor);
+            item.draw();
        }
-    }
-
-    // 绘制多边形
-    drawPolygon(g, points, fill = null) {
-        g.clear();
-        g.lineStyle(1, this.style.lineColor || 'rgba(6,155,181,1)', 1);
-        if(fill) g.beginFill(fill);
-
-        g.drawPolygon(points);
-        g.endFill();
     }
 
     // 获取旋转矩阵
@@ -367,19 +388,8 @@ export default class resize extends element {
         const offY = (event.global.y - this.dragStartPosition.y);
 
         if(this.moveItem) {
-            const cx = event.global.x - this.graphics.bounds.center.x;
-            const cy = event.global.y - this.graphics.bounds.center.y;
 
-            const newOffset = Math.sqrt(cx * cx + cy * cy);
-            const offset = Math.abs(newOffset - this.dragStartPosition.offset);
-
-            const rotation = Math.abs(this.moveItem.bounds.angle);
-            const ox = Math.cos(rotation) * offset * (offX<0? -1: 1);
-            const oy = Math.sin(rotation) * offset * (offY<0? -1: 1);
-
-            this.moveItem.dragMove(ox, oy, offset);
-
-            this.dragStartPosition.offset = newOffset;
+            this.moveItem.dragMove(event, offX, offY);
         }
         else {
             this.move(offX, offY);
@@ -405,19 +415,20 @@ export default class resize extends element {
         };
 
         // 操作元素，如果是其它的则表示不是移动目标
-        if(target instanceof element) {
-            if(this.target && this.target !== target) this.target.selected = false;
-            target.selected = true;// 选中当前元素
-            this.moveItem = null;
-        }
-        else {
+        if(target instanceof resizeItem) {
             this.moveItem = target;
-            const cx = this.dragStartPosition.x - this.graphics.bounds.center.x;
-            const cy = this.dragStartPosition.y - this.graphics.bounds.center.y;
+            //const cx = this.dragStartPosition.x - this.graphics.bounds.center.x;
+            //const cy = this.dragStartPosition.y - this.graphics.bounds.center.y;
             
             // 离中心的距离
             // 计算手标点在操作方块与中心线上的投影距离
-            this.dragStartPosition.offset = Math.sqrt(cx * cx + cy * cy);
+            //this.dragStartPosition.offset = Math.sqrt(cx * cx + cy * cy);
+        }
+        else {
+            if(this.target && this.target !== target) this.target.selected = false;
+            target.selected = true;// 选中当前元素
+            this.moveItem = null;
+            
         }
     
         this.editor.app.stage.off('pointermove', this.onDragMove);
