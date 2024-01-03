@@ -26794,7 +26794,7 @@ class background extends image {
 
     // 计算坐标等参数
     initRectPoints(x, y, w=this.width, h=this.height, matrix = null) {
-
+        
         if(!this.points || !this.points.length) {
             this.points = [
                 {x, y}, 
@@ -27049,17 +27049,19 @@ class resize extends resizeItem {
     // 如果 没有更新rotaion，则还有上次生成的
     getMatrix(rotation = null) {
         if(rotation === null && this.matrix) return this.matrix;
-        this.matrix = null;
+        
 
         rotation = rotation === null? this.rotation : rotation;
         if(rotation) {
             this.matrix = new Matrix();
+            this.matrix.rotate(rotation);
+
             this.matrix.center = this.toControlPosition({
                 x: this.target.x,
                 y: this.target.y
             });
-            this.matrix.rotate(rotation);
         }
+
         return this.matrix;
     }
 
