@@ -10,7 +10,7 @@ import element from './element.js';
  class resizeItem extends element {
     constructor(option) {
         super(option);
-        this.dir = option.dir || 'l';
+        this.dir = option.dir || '';
         this.style.fill = this.style.fill || '#fff';
         this.style.lineColor =  this.style.lineColor|| 'rgba(6,155,181,1)';
         this.size = option.size || 8;
@@ -130,18 +130,6 @@ import element from './element.js';
             height: 0
         };
 
-        // 如果当前的角度，则把点还原，再计算原大小
-        if(bounds.rotation) {
-            const rebackMatrix = this.getMatrix(-bounds.rotation, bounds.center);
-            const srcPos = this.rotatePoints(rebackMatrix, [
-                {
-                    x: this.x + offX,
-                    y: this.y + offY
-                }
-            ]);
-            offX = srcPos.x - this.x;
-            offY = srcPos.y - this.y;
-        }
         switch(this.dir) {
             case 'l': {
                 args.x = offX;
@@ -150,20 +138,42 @@ import element from './element.js';
             }
             case 't': {
                 args.y = offY;
-                args.height = -args.offY;
+                args.height = -offY;
                 break;
             }
             case 'r': {
+                args.width = offX;
                 break;
             }
             case 'b': {
+                args.height = offY;
                 break;
             }
-            case 'lt':{    
+            case 'lt':{   
+                args.x = offX;
+                args.width = -offX; 
+                args.y = offY;
+                args.height = -offY;
+                break;
+            }
+            case 'tr':{   
+                args.width = offX; 
+                args.y = offY;
+                args.height = -offY;
+                break;
+            }
+            case 'rb':{   
+                args.width = offX; 
+                args.height = offY;
+                break;
+            }
+            case 'lb':{   
+                args.x = offX;
+                args.width = -offX; 
+                args.height = offY;
                 break;
             }
         }
-        console.log(offX, offY, args, bounds);
 
         this.emit('change', event, args);// 触发改变事件
     };
@@ -178,6 +188,19 @@ import element from './element.js';
         }
         this.graphics.drawPolygon(points);
         this.graphics.endFill();
+
+        if(matrix && this.dir) {
+            this.computeCursor(matrix, points);
+        }
+    }
+
+    // 计算指针
+    computeCursor(matrix, points = this.points) {
+        const bounds = this.createBounds(points);// 实时计算位置，指针
+        const cx = bounds.center.x - matrix.center.x;
+        const cy = bounds.center.y - matrix.center.y;
+        const angle = Math.atan(cy / cx);
+        console.log(this.dir, angle);
     }
 
     // 获取旋转矩阵
@@ -295,11 +318,27 @@ export default class resize extends resizeItem {
         });
 
         item.on('change', (event, {x, y, width, height} = args) => {
-            this.x += x;
-            this.y += y;
-            this.width += width;
-            this.height += height;
-            this.initRects();            
+            const w = this.width + width;
+            const h = this.height + height;
+
+            // 大小最少要有1
+            if(w < 1) {
+                x = 0;
+            }
+            else if(width !== 0) {
+                this.width = w;
+            }
+            if(h < 1) {
+                y = 0;
+            }
+            else if(height !== 0) {
+                this.height = h;
+            }
+            
+            if(x !== 0 || y !== 0 || width !== 0 || height !== 0) {
+                this.move(x, y);
+                this.initRects();  
+            }    
         });
     }
     
@@ -325,14 +364,6 @@ export default class resize extends resizeItem {
         this.items[7].initRectPoints(l, b, this.itemSize, this.itemSize);
     }
 
-    // 整理移动
-    move(dx, dy) {
-
-        super.move(dx, dy);
-
-        this.initRects();
-    }
-
     // 把点位移
     movePoints(points, dx, dy) {
         for(const p of points) {
@@ -345,17 +376,6 @@ export default class resize extends resizeItem {
     // 绘制
     draw(matrix = this.getMatrix()) {
         super.draw(matrix);
-
-        /*
-        this.drawRect(this.items[0], this.style.itemFillColor);
-        this.drawRect(this.items[1], this.style.itemFillColor);
-        this.drawRect(this.items[2], this.style.itemFillColor);
-        this.drawRect(this.items[3], this.style.itemFillColor);
-        this.drawRect(this.items[4], this.style.itemFillColor);
-        this.drawRect(this.items[5], this.style.itemFillColor);
-        this.drawRect(this.items[6], this.style.itemFillColor);
-        this.drawRect(this.items[7], this.style.itemFillColor);
-        */
        for(const item of this.items) {
             item.draw(matrix);
        }
@@ -422,24 +442,35 @@ export default class resize extends resizeItem {
 
     onDragMove(event) {
         if(!this.isMoving) return;
-        const offX = (event.global.x - this.dragStartPosition.x);
-        const offY = (event.global.y - this.dragStartPosition.y);
+        let offX = (event.global.x - this.dragStartPosition.x);
+        let offY = (event.global.y - this.dragStartPosition.y);
 
         if(this.moveItem) {
-            // 计算当前点在方块和中心连线上的投影点
-            const point = this.point2Line({
+            let srcPos = {
+                x: this.dragStartPosition.x,
+                y: this.dragStartPosition.y
+            };
+            let dstPos = {
                 x: event.global.x,
                 y: event.global.y
-            }, this.moveItem.bounds.center, this.bounds.center);
-            const cx = point.x - this.dragStartPosition.startPointInLine.x;
-            const cy = point.y - this.dragStartPosition.startPointInLine.y;
+            };
+            // 把当前操作的点，回正，再计算大小改变
+            if(this.rotation) {
+                const rebackMatrix = this.getMatrix(-this.rotation, this.bounds.center);
+                [srcPos, dstPos] = this.rotatePoints(rebackMatrix, [srcPos, dstPos]);
+            }
+            // 计算当前点在方块和中心连线上的投影点
+            srcPos = this.point2Line(srcPos, this.moveItem.bounds.center, this.bounds.center);
+            dstPos = this.point2Line(dstPos, this.moveItem.bounds.center, this.bounds.center);
+
+            const cx = dstPos.x - srcPos.x;
+            const cy = dstPos.y - srcPos.y;
             
             this.moveItem.dragMove(event, cx, cy, this.bounds);
-
-            this.dragStartPosition.startPointInLine = point;
         }
         else {
             this.move(offX, offY);
+            this.initRects();      
         }
         
         // 控制目标元素位置大大小
@@ -464,10 +495,6 @@ export default class resize extends resizeItem {
         // 操作元素，如果是其它的则表示不是移动目标
         if(target instanceof resizeItem) {
             this.moveItem = target;
-
-            // 计算当前点在方块和中心连线上的投影点
-            const point = this.point2Line(this.dragStartPosition, target.bounds.center, this.bounds.center);
-            this.dragStartPosition.startPointInLine = point;
         }
         else {
             if(this.target && this.target !== target) this.target.selected = false;
