@@ -11,6 +11,7 @@ import element from './element.js';
     constructor(option) {
         super(option);
         this.dir = option.dir || '';
+        this.shape = option.shape || 'rect';
         this.style.fill = this.style.fill || '#fff';
         this.style.lineColor =  this.style.lineColor|| 'rgba(6,155,181,1)';
         this.size = option.size || 8;
@@ -26,6 +27,7 @@ import element from './element.js';
         'rb': 'se-resize',
         'b': 's-resize',
         'lb': 'sw-resize',
+        'rotate': 'crosshair'
     };
 
     x = 0;
@@ -56,29 +58,37 @@ import element from './element.js';
     }
 
     // 计算坐标等参数
-    initRectPoints(x=this.x, y=this.y, w=this.width, h=this.height) {
+    initPoints(x=this.x, y=this.y, w=this.width, h=this.height) {
         this.x = x; 
         this.y = y;
         this.width = w;
         this.height = h;
+        this.size = w;
 
-        if(!this.points || !this.points.length) {
+        if(this.shape === 'circle') {
             this.points = [
-                {x, y}, 
-                {x: x + w, y},
-                {x: x + w, y: y + h},
-                {x, y: y + h}
+                {x, y}
             ];
         }
         else {
-            this.points[0].x = x;
-            this.points[0].y = y;
-            this.points[1].x = x + w;
-            this.points[1].y = y;
-            this.points[2].x = x + w;
-            this.points[2].y = y + h;
-            this.points[3].x = x;
-            this.points[3].y = y + h;
+            if(!this.points || !this.points.length) {
+                this.points = [
+                    {x, y}, 
+                    {x: x + w, y},
+                    {x: x + w, y: y + h},
+                    {x, y: y + h}
+                ];
+            }
+            else {
+                this.points[0].x = x;
+                this.points[0].y = y;
+                this.points[1].x = x + w;
+                this.points[1].y = y;
+                this.points[2].x = x + w;
+                this.points[2].y = y + h;
+                this.points[3].x = x;
+                this.points[3].y = y + h;
+            }
         }
 
         this.bounds = this.createBounds();
@@ -106,6 +116,13 @@ import element from './element.js';
             bounds.right = Math.max(bounds.right, points[i].x);
             bounds.bottom = Math.max(bounds.bottom, points[i].y);
         }
+
+        if(this.shape === 'circle') {
+            bounds.right += this.size;
+            bounds.bottom += this.size;
+            bounds.left -= this.size;
+            bounds.top -= this.size;
+        }
         bounds.width = bounds.right - bounds.left;
         bounds.height = bounds.bottom - bounds.top;
         bounds.center.x = bounds.left + bounds.width/2;
@@ -120,14 +137,15 @@ import element from './element.js';
     }
 
     // 如果item进行了移动，则反应到控制的目标上
-    dragMove(event, offX, offY, bounds) { 
+    dragMove(event, offX, offY, {srcPos,dstPos,bounds}=params) { 
 
         // 当前移动对原对象的改变
         const args = {
             x: 0, 
             y: 0, 
             width: 0, 
-            height: 0
+            height: 0,
+            rotation: 0,
         };
 
         switch(this.dir) {
@@ -173,6 +191,32 @@ import element from './element.js';
                 args.height = offY;
                 break;
             }
+            case 'rotate':{   
+                //const crossPoint = this.point2Line(dstPos, srcPos, bounds.center);
+                const cx1 = srcPos.x - bounds.center.x;
+                const cy1 = srcPos.y - bounds.center.y;
+                let angle1 = Math.atan(cy1 / cx1);
+                const cx2 = dstPos.x - bounds.center.x;
+                const cy2 = dstPos.y - bounds.center.y;
+                let angle2 = Math.atan(cy2 / cx2);
+
+                console.log(cx1, cy1, cx2, cy2, angle1, angle2, args.rotation)
+
+                if(angle1 >= 0 && angle2 < 0) {
+                    if(cx1 >= 0 && cy1 >= 0 && cx2 <= 0 && cy2 >= 0) angle2 = Math.PI + angle2;
+                    else if(cx1 <= 0 && cy1 <=0 && cx2 >= 0 && cy2 <= 0) angle2 = Math.PI + angle2;
+                    //else if(cx1 <= 0 && cy1 <=0 && cx2 >= 0 && cy2 >= 0) angle2 = Math.PI + angle2;
+                }
+                else if(angle1 <= 0 && angle2 >= 0) {
+                    if(cx1 >= 0 && cy1 <= 0 && cx2 < 0) angle2 = angle2 - Math.PI;
+                    else angle2 = -angle2;
+                }
+                else if(angle1 >= 0 && angle2 > 0) {
+                    //if(cy2 === 0) angle2 = 0;
+                }
+                args.rotation = angle2 - angle1;
+                break;
+            }
         }
 
         this.emit('change', event, args);// 触发改变事件
@@ -186,7 +230,12 @@ import element from './element.js';
         if(matrix) {
             points = this.rotatePoints(matrix, points);
         }
-        this.graphics.drawPolygon(points);
+        if(this.shape === 'circle') {
+            this.graphics.drawCircle(points[0].x, points[0].y, this.size);
+        }
+        else {
+            this.graphics.drawPolygon(points);
+        }
         this.graphics.endFill();
 
         if(matrix && this.dir) {
@@ -200,7 +249,6 @@ import element from './element.js';
         const cx = bounds.center.x - matrix.center.x;
         const cy = bounds.center.y - matrix.center.y;
         const angle = Math.atan(cy / cx);
-        console.log(this.dir, angle);
     }
 
     // 获取旋转矩阵
@@ -286,13 +334,12 @@ export default class resize extends resizeItem {
 
     init() {
         
+        // 改变大小的方块
+        this.items = [];
 
         this.graphics = new PIXI.Graphics();
         this.graphics.eventMode = 'none';
-        this.addChild(this.graphics);
-
-        // 改变大小的方块
-        this.items = [];
+        this.addChild(this.graphics);   
         this.createItem('l');
         this.createItem('lt');
         this.createItem('t');
@@ -301,11 +348,14 @@ export default class resize extends resizeItem {
         this.createItem('rb');
         this.createItem('b');
         this.createItem('lb');
+
+        this.rotateItem = this.createItem('rotate', 'circle');// 旋转块     
     }
 
-    createItem(id) {
+    createItem(id, shape='rect') {
         const item = new resizeItem({
             dir: id,
+            shape,
             size: this.itemSize,
             style: this.style.itemStyle
         });
@@ -317,7 +367,7 @@ export default class resize extends resizeItem {
             this.onDragStart(event, target);
         });
 
-        item.on('change', (event, {x, y, width, height} = args) => {
+        item.on('change', (event, {x, y, width, height, rotation} = args) => {
             const w = this.width + width;
             const h = this.height + height;
 
@@ -337,15 +387,20 @@ export default class resize extends resizeItem {
             
             if(x !== 0 || y !== 0 || width !== 0 || height !== 0) {
                 this.move(x, y);
-                this.initRects();  
-            }    
+                this.initShapes();  
+            }   
+            
+            if(rotation) {
+                this.rotation += rotation;
+            }
         });
+        return item;
     }
     
 
     // 初始化方块位置大小
-    initRects() {
-        this.initRectPoints(this.x, this.y, this.width, this.height);
+    initShapes() {
+        this.initPoints(this.x, this.y, this.width, this.height);
 
         const t = this.y - this.itemSize / 2;
         const l = this.x - this.itemSize/2;
@@ -354,14 +409,16 @@ export default class resize extends resizeItem {
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
-        this.items[0].initRectPoints(l, mid, this.itemSize, this.itemSize);
-        this.items[1].initRectPoints(l, t, this.itemSize, this.itemSize);
-        this.items[2].initRectPoints(cid, t, this.itemSize, this.itemSize);
-        this.items[3].initRectPoints(r, t, this.itemSize, this.itemSize);
-        this.items[4].initRectPoints(r, mid, this.itemSize, this.itemSize);
-        this.items[5].initRectPoints(r, b, this.itemSize, this.itemSize);
-        this.items[6].initRectPoints(cid, b, this.itemSize, this.itemSize);
-        this.items[7].initRectPoints(l, b, this.itemSize, this.itemSize);
+        this.items[0].initPoints(l, mid, this.itemSize, this.itemSize);
+        this.items[1].initPoints(l, t, this.itemSize, this.itemSize);
+        this.items[2].initPoints(cid, t, this.itemSize, this.itemSize);
+        this.items[3].initPoints(r, t, this.itemSize, this.itemSize);
+        this.items[4].initPoints(r, mid, this.itemSize, this.itemSize);
+        this.items[5].initPoints(r, b, this.itemSize, this.itemSize);
+        this.items[6].initPoints(cid, b, this.itemSize, this.itemSize);
+        this.items[7].initPoints(l, b, this.itemSize, this.itemSize);
+
+        this.rotateItem.initPoints(this.x + this.width/2, this.y- 4*this.itemSize, this.itemSize/2, this.itemSize/2);
     }
 
     // 把点位移
@@ -401,7 +458,7 @@ export default class resize extends resizeItem {
 
         this.rotation = el.rotation;
         
-        this.initRects();
+        this.initShapes();
 
         // 变换坐标
         const matrix = this.getMatrix(this.rotation);
@@ -437,6 +494,8 @@ export default class resize extends resizeItem {
 
             this.target.width = this.width;
             this.target.height = this.height;
+
+            this.target.rotation = this.rotation;
         }
     }
 
@@ -454,23 +513,29 @@ export default class resize extends resizeItem {
                 x: event.global.x,
                 y: event.global.y
             };
-            // 把当前操作的点，回正，再计算大小改变
-            if(this.rotation) {
-                const rebackMatrix = this.getMatrix(-this.rotation, this.bounds.center);
-                [srcPos, dstPos] = this.rotatePoints(rebackMatrix, [srcPos, dstPos]);
+            if(this.moveItem !== this.rotateItem) {
+                // 把当前操作的点，回正，再计算大小改变
+                if(this.rotation) {
+                    const rebackMatrix = this.getMatrix(-this.rotation, this.bounds.center);
+                    [srcPos, dstPos] = this.rotatePoints(rebackMatrix, [srcPos, dstPos]);
+                }
+                // 计算当前点在方块和中心连线上的投影点
+                srcPos = this.point2Line(srcPos, this.moveItem.bounds.center, this.bounds.center);
+                dstPos = this.point2Line(dstPos, this.moveItem.bounds.center, this.bounds.center);
             }
-            // 计算当前点在方块和中心连线上的投影点
-            srcPos = this.point2Line(srcPos, this.moveItem.bounds.center, this.bounds.center);
-            dstPos = this.point2Line(dstPos, this.moveItem.bounds.center, this.bounds.center);
 
             const cx = dstPos.x - srcPos.x;
             const cy = dstPos.y - srcPos.y;
             
-            this.moveItem.dragMove(event, cx, cy, this.bounds);
+            this.moveItem.dragMove(event, cx, cy, {
+                dstPos,
+                srcPos,
+                bounds: this.bounds
+            });
         }
         else {
             this.move(offX, offY);
-            this.initRects();      
+            this.initShapes();      
         }
         
         // 控制目标元素位置大大小
