@@ -26793,7 +26793,7 @@ class background extends image {
     }
 
     // 计算坐标等参数
-    initRectPoints(x, y, w=this.width, h=this.height, matrix = null) {
+    initRectPoints(x, y, w=this.width, h=this.height) {
         
         if(!this.points || !this.points.length) {
             this.points = [
@@ -26813,8 +26813,6 @@ class background extends image {
             this.points[3].x = x;
             this.points[3].y = y + h;
         }
-
-        this.rotatePoints(matrix);
 
         this.bounds = this.createBounds();
 
@@ -26854,11 +26852,6 @@ class background extends image {
     move(dx, dy) {
         this.x += dx;
         this.y += dy;
-
-        for(const p of this.points) {
-            p.x += dx;
-            p.y += dy;
-        }
     }
 
     // 如果item进行了移动，则反应到控制的目标上
@@ -26888,11 +26881,14 @@ class background extends image {
         }
     };
 
-    draw(points = this.points) {
+    draw(matrix = null, points = this.points) {
         this.graphics.clear();
         this.graphics.lineStyle(1, this.style.lineColor, 1);
         if(this.style.fill) this.graphics.beginFill(this.style.fill);
 
+        if(matrix) {
+            points = this.rotatePoints(matrix, points);
+        }
         this.graphics.drawPolygon(points);
         this.graphics.endFill();
     }
@@ -26900,17 +26896,20 @@ class background extends image {
 
     // 旋转
     rotatePoints(matrix, points = this.points) {
+        const res = [];
         for(let i=0; i<points.length; i++) {
             if(matrix) {
                 const p = matrix.apply({
                     x: points[i].x - matrix.center.x, 
                     y: points[i].y - matrix.center.y
                 });
-                points[i].x = p.x + matrix.center.x;
-                points[i].y = p.y + matrix.center.y;
+                res.push({
+                    x: p.x + matrix.center.x,
+                    y: p.y + matrix.center.y
+                });
             }
         }
-        return points;
+        return res;
     }
 }
 
@@ -26984,8 +26983,7 @@ class resize extends resizeItem {
 
     // 初始化方块位置大小
     initRects() {
-        const matrix = this.getMatrix(this.rotation);
-        this.initRectPoints(this.x, this.y, this.width, this.height, matrix);
+        this.initRectPoints(this.x, this.y, this.width, this.height);
 
         const t = this.y - this.itemSize / 2;
         const l = this.x - this.itemSize/2;
@@ -26994,26 +26992,22 @@ class resize extends resizeItem {
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
-        this.items[0].initRectPoints(l, mid, this.itemSize, this.itemSize, matrix);
-        this.items[1].initRectPoints(l, t, this.itemSize, this.itemSize, matrix);
-        this.items[2].initRectPoints(cid, t, this.itemSize, this.itemSize, matrix);
-        this.items[3].initRectPoints(r, t, this.itemSize, this.itemSize, matrix);
-        this.items[4].initRectPoints(r, mid, this.itemSize, this.itemSize, matrix);
-        this.items[5].initRectPoints(r, b, this.itemSize, this.itemSize, matrix);
-        this.items[6].initRectPoints(cid, b, this.itemSize, this.itemSize, matrix);
-        this.items[7].initRectPoints(l, b, this.itemSize, this.itemSize, matrix);
+        this.items[0].initRectPoints(l, mid, this.itemSize, this.itemSize);
+        this.items[1].initRectPoints(l, t, this.itemSize, this.itemSize);
+        this.items[2].initRectPoints(cid, t, this.itemSize, this.itemSize);
+        this.items[3].initRectPoints(r, t, this.itemSize, this.itemSize);
+        this.items[4].initRectPoints(r, mid, this.itemSize, this.itemSize);
+        this.items[5].initRectPoints(r, b, this.itemSize, this.itemSize);
+        this.items[6].initRectPoints(cid, b, this.itemSize, this.itemSize);
+        this.items[7].initRectPoints(l, b, this.itemSize, this.itemSize);
     }
-
-    
 
     // 整理移动
     move(dx, dy) {
 
         super.move(dx, dy);
 
-        for(const g of this.items) {
-            g.move(dx, dy);
-        }
+        this.initRects();
     }
 
     // 把点位移
@@ -27026,9 +27020,8 @@ class resize extends resizeItem {
     }
 
     // 绘制
-    draw() {
-
-        super.draw();
+    draw(matrix = this.getMatrix()) {
+        super.draw(matrix);
 
         /*
         this.drawRect(this.items[0], this.style.itemFillColor);
@@ -27041,16 +27034,16 @@ class resize extends resizeItem {
         this.drawRect(this.items[7], this.style.itemFillColor);
         */
        for(const item of this.items) {
-            item.draw();
+            item.draw(matrix);
        }
     }
 
     // 获取旋转矩阵
     // 如果 没有更新rotaion，则还有上次生成的
     getMatrix(rotation = null) {
-        if(rotation === null && this.matrix) return this.matrix;
+        //if(rotation === null && this.matrix) return this.matrix;
         
-
+        this.matrix = null;
         rotation = rotation === null? this.rotation : rotation;
         if(rotation) {
             this.matrix = new Matrix();
@@ -27086,7 +27079,9 @@ class resize extends resizeItem {
         
         this.initRects();
 
-        this.draw();
+        // 变换坐标
+        const matrix = this.getMatrix(this.rotation);
+        this.draw(matrix);
     }
 
     unbind(el) {
