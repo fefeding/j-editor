@@ -26793,8 +26793,12 @@ class background extends image {
     }
 
     // 计算坐标等参数
-    initRectPoints(x, y, w=this.width, h=this.height) {
-        
+    initRectPoints(x=this.x, y=this.y, w=this.width, h=this.height) {
+        this.x = x; 
+        this.y = y;
+        this.width = w;
+        this.height = h;
+
         if(!this.points || !this.points.length) {
             this.points = [
                 {x, y}, 
@@ -26815,11 +26819,8 @@ class background extends image {
         }
 
         this.bounds = this.createBounds();
-
         return this.points;
     }
-
-
 
     createBounds(points = this.points) {
         const bounds = {
@@ -26829,6 +26830,7 @@ class background extends image {
             bottom: 0,
             width: 1,
             height: 1,
+            rotation: this.rotation,
             center: {
                 x: 0,
                 y: 0
@@ -26855,30 +26857,43 @@ class background extends image {
     }
 
     // 如果item进行了移动，则反应到控制的目标上
-    dragMove(event, offX, offY, offset) {   
+    dragMove(event, offX, offY, bounds) { 
 
+        // 当前移动对原对象的改变
+        const args = {
+            x: 0, 
+            y: 0, 
+            width: 0, 
+            height: 0
+        };
+
+        // 如果当前的角度，则把点还原，再计算原大小
+        if(bounds.rotation) {
+            const rebackMatrix = this.getMatrix(-bounds.rotation, bounds.center);
+            const srcPos = this.rotatePoints(rebackMatrix, [
+                {
+                    x: this.x + offX,
+                    y: this.y + offY
+                }
+            ]);
+            offX = srcPos.x - this.x;
+            offY = srcPos.y - this.y;
+        }
         switch(this.dir) {
             case 'l': {
-                this.move(offX, offY);
+                args.x = offX;
+                args.width = -offX;
                 break;
             }
             case 't': {
-                this.move(offX, offY);
-                break;
-            }
-            case 'r': {
-                this.move(offX, offY);
-                break;
-            }
-            case 'b': {
-                this.move(offX, offY);
-                break;
-            }
-            case 'lt':{   
-                this.move(offX, offY);     
+                args.y = offY;
+                args.height = -args.offY;
                 break;
             }
         }
+        console.log(offX, offY, args, bounds);
+
+        this.emit('change', event, args);// 触发改变事件
     };
 
     draw(matrix = null, points = this.points) {
@@ -26891,6 +26906,21 @@ class background extends image {
         }
         this.graphics.drawPolygon(points);
         this.graphics.endFill();
+    }
+
+    // 获取旋转矩阵
+    // 如果 没有更新rotaion，则还有上次生成的
+    getMatrix(rotation = this.rotation, center = {x: this.x + this.width/2, y: this.y + this.height/2}) {
+        
+        let matrix = null;
+        if(rotation) {
+            matrix = new Matrix();
+            matrix.rotate(rotation);
+
+            matrix.center = center;
+        }
+
+        return matrix;
     }
     
 
@@ -26911,6 +26941,19 @@ class background extends image {
         }
         return res;
     }
+
+    // 计算点在线段的投影点
+    point2Line(point, start, end) {
+        const px = end.x - start.x,
+            py = end.y - start.y,
+            dAB = px * px + py * py,
+            u = ((point.x - start.x) * px + (point.y - start.y) * py) / dAB;
+        const x = start.x + u * px,
+            y = start.y + u * py;
+        
+        return {x, y};  
+      }
+      
 }
 
 class resize extends resizeItem {
@@ -26978,6 +27021,14 @@ class resize extends resizeItem {
         item.on('pointerdown', (event, target) => {
             this.onDragStart(event, target);
         });
+
+        item.on('change', (event, {x, y, width, height} = args) => {
+            this.x += x;
+            this.y += y;
+            this.width += width;
+            this.height += height;
+            this.initRects();            
+        });
     }
     
 
@@ -27038,26 +27089,6 @@ class resize extends resizeItem {
        }
     }
 
-    // 获取旋转矩阵
-    // 如果 没有更新rotaion，则还有上次生成的
-    getMatrix(rotation = null) {
-        //if(rotation === null && this.matrix) return this.matrix;
-        
-        this.matrix = null;
-        rotation = rotation === null? this.rotation : rotation;
-        if(rotation) {
-            this.matrix = new Matrix();
-            this.matrix.rotate(rotation);
-
-            this.matrix.center = this.toControlPosition({
-                x: this.target.x,
-                y: this.target.y
-            });
-        }
-
-        return this.matrix;
-    }
-
     // 绑到当前选中的元素
     bind(el) {
         this.target = el;
@@ -27065,6 +27096,7 @@ class resize extends resizeItem {
 
         this.width = this.target.width;
         this.height = this.target.height;
+        
 
         // 操作元素在控制层，需要转换坐标
         const pos = this.toControlPosition({
@@ -27122,8 +27154,17 @@ class resize extends resizeItem {
         const offY = (event.global.y - this.dragStartPosition.y);
 
         if(this.moveItem) {
+            // 计算当前点在方块和中心连线上的投影点
+            const point = this.point2Line({
+                x: event.global.x,
+                y: event.global.y
+            }, this.moveItem.bounds.center, this.bounds.center);
+            const cx = point.x - this.dragStartPosition.startPointInLine.x;
+            const cy = point.y - this.dragStartPosition.startPointInLine.y;
+            
+            this.moveItem.dragMove(event, cx, cy, this.bounds);
 
-            this.moveItem.dragMove(event, offX, offY);
+            this.dragStartPosition.startPointInLine = point;
         }
         else {
             this.move(offX, offY);
@@ -27151,12 +27192,10 @@ class resize extends resizeItem {
         // 操作元素，如果是其它的则表示不是移动目标
         if(target instanceof resizeItem) {
             this.moveItem = target;
-            //const cx = this.dragStartPosition.x - this.graphics.bounds.center.x;
-            //const cy = this.dragStartPosition.y - this.graphics.bounds.center.y;
-            
-            // 离中心的距离
-            // 计算手标点在操作方块与中心线上的投影距离
-            //this.dragStartPosition.offset = Math.sqrt(cx * cx + cy * cy);
+
+            // 计算当前点在方块和中心连线上的投影点
+            const point = this.point2Line(this.dragStartPosition, target.bounds.center, this.bounds.center);
+            this.dragStartPosition.startPointInLine = point;
         }
         else {
             if(this.target && this.target !== target) this.target.selected = false;
