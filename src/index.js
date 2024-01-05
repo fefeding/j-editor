@@ -21,10 +21,11 @@ export default class editor extends EventEmiter {
         this.rootContainer = container;
         container.appendChild(this.container);
 
-        this.resolution = window.devicePixelRatio || 2;
+        this.resolution = option.resolution || 2;//window.devicePixelRatio > 1? window.devicePixelRatio : 2;
         this.app = new PIXI.Application({ 
             backgroundAlpha: 1, // 背景不透明
             antialias: true,     // 消除锯齿
+            autoDensity: true,
             resolution: this.resolution
         });
 
@@ -87,8 +88,11 @@ export default class editor extends EventEmiter {
         const controlHeight = height * 3;
         this.app.renderer.resize(controlWidth, controlHeight);
         
-        this.app.renderer.view.style.width = this.container.style.width = `${controlWidth}px`;
-        this.app.renderer.view.style.height = this.container.style.height = `${controlHeight}px`;
+        this.container.style.width = `${controlWidth}px`;
+        this.container.style.height = `${controlHeight}px`;
+
+        //this.app.view.style.width = `${controlWidth}px`;
+        //this.app.view.style.height = `${controlHeight}px`;
 
         this.left = controlWidth / 2 - width /2;
         this.top = controlHeight / 2 - height /2;

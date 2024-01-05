@@ -53,15 +53,15 @@ export default class background extends image {
         // 挡住非渲染区域
         const path = [
             0, 0, 
-            this.editor.app.screen.width, 0, 
-            this.editor.app.screen.width, this.editor.app.screen.height, 
-            this.editor.left + this.editor.width, this.editor.app.screen.height, 
+            this.editor.app.renderer.width, 0, 
+            this.editor.app.renderer.width, this.editor.app.renderer.height, 
+            this.editor.left + this.editor.width, this.editor.app.renderer.height, 
             this.editor.left + this.editor.width, this.editor.top,
             this.editor.left, this.editor.top,
             this.editor.left, this.editor.top + this.editor.height,
             this.editor.left + this.editor.width, this.editor.top + this.editor.height,
-            this.editor.left + this.editor.width, this.editor.app.screen.height,
-            0, this.editor.app.screen.height
+            this.editor.left + this.editor.width, this.editor.app.renderer.height,
+            0, this.editor.app.renderer.height
         ];
 
         //this.editor.sort();

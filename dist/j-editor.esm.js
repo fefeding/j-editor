@@ -26730,15 +26730,15 @@ class background extends image {
         // 挡住非渲染区域
         const path = [
             0, 0, 
-            this.editor.app.screen.width, 0, 
-            this.editor.app.screen.width, this.editor.app.screen.height, 
-            this.editor.left + this.editor.width, this.editor.app.screen.height, 
+            this.editor.app.renderer.width, 0, 
+            this.editor.app.renderer.width, this.editor.app.renderer.height, 
+            this.editor.left + this.editor.width, this.editor.app.renderer.height, 
             this.editor.left + this.editor.width, this.editor.top,
             this.editor.left, this.editor.top,
             this.editor.left, this.editor.top + this.editor.height,
             this.editor.left + this.editor.width, this.editor.top + this.editor.height,
-            this.editor.left + this.editor.width, this.editor.app.screen.height,
-            0, this.editor.app.screen.height
+            this.editor.left + this.editor.width, this.editor.app.renderer.height,
+            0, this.editor.app.renderer.height
         ];
 
         //this.editor.sort();
@@ -27346,10 +27346,11 @@ class editor extends EventEmiter {
         this.rootContainer = container;
         container.appendChild(this.container);
 
-        this.resolution = window.devicePixelRatio || 2;
+        this.resolution = option.resolution || 2;//window.devicePixelRatio > 1? window.devicePixelRatio : 2;
         this.app = new Application({ 
             backgroundAlpha: 1, // 背景不透明
             antialias: true,     // 消除锯齿
+            autoDensity: true,
             resolution: this.resolution
         });
 
@@ -27412,8 +27413,11 @@ class editor extends EventEmiter {
         const controlHeight = height * 3;
         this.app.renderer.resize(controlWidth, controlHeight);
         
-        this.app.renderer.view.style.width = this.container.style.width = `${controlWidth}px`;
-        this.app.renderer.view.style.height = this.container.style.height = `${controlHeight}px`;
+        this.container.style.width = `${controlWidth}px`;
+        this.container.style.height = `${controlHeight}px`;
+
+        //this.app.view.style.width = `${controlWidth}px`;
+        //this.app.view.style.height = `${controlHeight}px`;
 
         this.left = controlWidth / 2 - width /2;
         this.top = controlHeight / 2 - height /2;
