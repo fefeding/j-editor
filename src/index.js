@@ -21,7 +21,12 @@ export default class editor extends EventEmiter {
         this.rootContainer = container;
         container.appendChild(this.container);
 
-        this.app = new PIXI.Application({ backgroundAlpha: 0 });
+        this.resolution = window.devicePixelRatio || 2;
+        this.app = new PIXI.Application({ 
+            backgroundAlpha: 1, // 背景不透明
+            antialias: true,     // 消除锯齿
+            resolution: this.resolution
+        });
 
         this.container.appendChild(this.app.view);      
         
@@ -33,7 +38,7 @@ export default class editor extends EventEmiter {
         });
         this.addChild(this.background);
 
-        this.init(option);
+        this.init(option);        
     }
 
     // 初始化整个编辑器
@@ -49,13 +54,16 @@ export default class editor extends EventEmiter {
 
         this.app.view.style.position = 'absolute'; 
         this.app.view.style.left = '0';
-        this.app.view.style.top = '0';   
+        this.app.view.style.top = '0';  
+        // 按zIndex排序
+        this.app.stage.sortableChildren = true;
+
+        //this.app.renderer.events.cursorStyles['rotate'] = 'url("https://jtcospublic.ciccten.com/public/image/rotate.png")';
 
         this.controlElement = new jResize({
             editor: this
         });
-        this.addChild(this.controlElement);
-    }
+        this.addChild(this.controlElement); }
 
     get width() {
         return this._width;
@@ -78,8 +86,9 @@ export default class editor extends EventEmiter {
         const controlWidth = width * 3;
         const controlHeight = height * 3;
         this.app.renderer.resize(controlWidth, controlHeight);
-        this.container.style.width = `${controlWidth}px`;
-        this.container.style.height = `${controlHeight}px`;
+        
+        this.app.renderer.view.style.width = this.container.style.width = `${controlWidth}px`;
+        this.app.renderer.view.style.height = this.container.style.height = `${controlHeight}px`;
 
         this.left = controlWidth / 2 - width /2;
         this.top = controlHeight / 2 - height /2;
@@ -118,7 +127,7 @@ export default class editor extends EventEmiter {
 
     // 转为图片数据
     async toImage() {
-        const imgData = await this.app.renderer.extract.base64(this.app.stage, 'image/jpeg', 1);//, new PIXI.Rectangle(this.left, this.top, this.width, this.height)
+        const imgData = await this.app.renderer.extract.base64(this.app.stage, 'image/jpeg', 1, new PIXI.Rectangle(this.left, this.top, this.width, this.height));
         
         /*const canvas = document.createElement('canvas');
         canvas.width = this.width;

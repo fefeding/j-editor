@@ -11,6 +11,8 @@ export default class element extends EventEmiter {
         this.editor = option.editor;
         this.option = option || {};
         this.style = this.option.style || {};
+
+        this.bindEvent();
     }
 
     children = []
@@ -98,10 +100,17 @@ export default class element extends EventEmiter {
         else {
             this.editor.controlElement.unbind(this);
         }
-        return this._selected = v;
+        this._selected = v;
+        this.emit('selectedChange', v);
     }
 
-    
+    bindEvent() {
+        this.container.eventMode = 'static';
+        this.container.cursor = 'pointer';
+        this.container.on('pointerdown', function(event) {
+            this.emit('pointerdown', event);
+        }, this);
+    }    
 
     // 重置大小
     resize(w, h) {

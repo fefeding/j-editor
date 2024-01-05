@@ -27,7 +27,7 @@ import element from './element.js';
         'rb': 'se-resize',
         'b': 's-resize',
         'lb': 'sw-resize',
-        'rotate': 'crosshair'
+        'rotate': 'cell'
     };
 
     x = 0;
@@ -50,9 +50,9 @@ import element from './element.js';
         this.graphics.eventMode = 'static';
         this.cursor = this.cursors[this.dir];
 
-        this.graphics.on('pointerdown', (event) => {
+        /*this.graphics.on('pointerdown', (event) => {
             this.emit('pointerdown', event, this);
-        });
+        });*/
 
         this.addChild(this.graphics);
     }
@@ -67,7 +67,11 @@ import element from './element.js';
 
         if(this.shape === 'circle') {
             this.points = [
-                {x, y}
+                {x, y},
+                {
+                    x,
+                    y: y + this.size * 5
+                }
             ];
         }
         else {
@@ -200,7 +204,6 @@ import element from './element.js';
                 const cy2 = dstPos.y - bounds.center.y;
                 let angle2 = Math.atan(cy2 / cx2);
 
-                console.log(cx1, cy1, cx2, cy2, angle1, angle2, args.rotation)
 
                 if(angle1 >= 0 && angle2 < 0) {
                     if(cx1 >= 0 && cy1 >= 0 && cx2 <= 0 && cy2 >= 0) angle2 = Math.PI + angle2;
@@ -224,18 +227,19 @@ import element from './element.js';
 
     draw(matrix = null, points = this.points) {
         this.graphics.clear();
-        this.graphics.lineStyle(1, this.style.lineColor, 1);
-        if(this.style.fill) this.graphics.beginFill(this.style.fill);
+        this.graphics.lineStyle(1.0, this.style.lineColor, 0.8);
+        if(this.style.fill) this.graphics.beginFill(this.style.fill, this.dir?0.6:0);
 
         if(matrix) {
             points = this.rotatePoints(matrix, points);
         }
+
+        this.graphics.drawPolygon(points);
+
         if(this.shape === 'circle') {
             this.graphics.drawCircle(points[0].x, points[0].y, this.size);
         }
-        else {
-            this.graphics.drawPolygon(points);
-        }
+
         this.graphics.endFill();
 
         if(matrix && this.dir) {
@@ -356,15 +360,16 @@ export default class resize extends resizeItem {
         const item = new resizeItem({
             dir: id,
             shape,
+            editor: this.editor,
             size: this.itemSize,
             style: this.style.itemStyle
         });
         this.addChild(item);
         this.items.push(item);
 
-
-        item.on('pointerdown', (event, target) => {
-            this.onDragStart(event, target);
+        const self = this;
+        item.on('pointerdown', function(event) {
+            self.onDragStart(event, this);
         });
 
         item.on('change', (event, {x, y, width, height, rotation} = args) => {
@@ -404,18 +409,18 @@ export default class resize extends resizeItem {
 
         const t = this.y - this.itemSize / 2;
         const l = this.x - this.itemSize/2;
-        const mid = this.y + this.height/2 - this.itemSize/2;
-        const cid = this.x + this.width/2 - this.itemSize/2;
+        const mid = this.y + this.height/2 - this.itemSize;
+        const cid = this.x + this.width/2 - this.itemSize;
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
-        this.items[0].initPoints(l, mid, this.itemSize, this.itemSize);
+        this.items[0].initPoints(l, mid, this.itemSize, this.itemSize * 2);
         this.items[1].initPoints(l, t, this.itemSize, this.itemSize);
-        this.items[2].initPoints(cid, t, this.itemSize, this.itemSize);
+        this.items[2].initPoints(cid, t, this.itemSize * 2, this.itemSize);
         this.items[3].initPoints(r, t, this.itemSize, this.itemSize);
-        this.items[4].initPoints(r, mid, this.itemSize, this.itemSize);
+        this.items[4].initPoints(r, mid, this.itemSize, this.itemSize * 2);
         this.items[5].initPoints(r, b, this.itemSize, this.itemSize);
-        this.items[6].initPoints(cid, b, this.itemSize, this.itemSize);
+        this.items[6].initPoints(cid, b, this.itemSize * 2, this.itemSize);
         this.items[7].initPoints(l, b, this.itemSize, this.itemSize);
 
         this.rotateItem.initPoints(this.x + this.width/2, this.y- 4*this.itemSize, this.itemSize/2, this.itemSize/2);
@@ -472,13 +477,13 @@ export default class resize extends resizeItem {
     }
 
     // 绑定操作事件
-    bindEvent(el) {   
-        el.container.eventMode = 'static';
-        el.container.cursor = 'pointer';
+    bindEvent(el) { 
+        if(!el) return;
         const self = this;
-        el.container.on('pointerdown', function(event) {
+        el.on('pointerdown', function(event) {
             self.onDragStart(event, this);
-        }, el);
+            this.selected = true;
+        });
     }
 
     // 同步位置和大小到控制的元素上
@@ -563,9 +568,8 @@ export default class resize extends resizeItem {
         }
         else {
             if(this.target && this.target !== target) this.target.selected = false;
-            target.selected = true;// 选中当前元素
-            this.moveItem = null;
-            
+            //target.selected = true;// 选中当前元素
+            this.moveItem = null;            
         }
     
         this.editor.app.stage.off('pointermove', this.onDragMove);

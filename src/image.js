@@ -45,7 +45,7 @@ export default class image extends element {
             this.sprite.texture = texture;
             this.emit('load', texture);
 
-            this.editor.sort();
+            //this.editor.sort();
             //this.zIndex = this.zIndex || 0;
         });
     }
