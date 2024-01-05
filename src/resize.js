@@ -243,16 +243,23 @@ import element from './element.js';
         this.graphics.endFill();
 
         if(matrix && this.dir) {
-            this.computeCursor(matrix, points);
+            this.resetCursor(matrix, points);
         }
     }
 
     // 计算指针
-    computeCursor(matrix, points = this.points) {
-        const bounds = this.createBounds(points);// 实时计算位置，指针
+    resetCursor(matrix, points = this.points) {
+        /*const bounds = this.createBounds(points);// 实时计算位置，指针
         const cx = bounds.center.x - matrix.center.x;
         const cy = bounds.center.y - matrix.center.y;
-        const angle = Math.atan(cy / cx);
+        const angle = Math.atan(cy / cx);*/
+        // 先简单处理
+        if(!matrix || !matrix.rotation) {
+            this.cursor = this.cursors[this.dir];
+        }
+        else {
+            this.cursor = this.cursors['rotate'];
+        }
     }
 
     // 获取旋转矩阵
@@ -263,7 +270,7 @@ import element from './element.js';
         if(rotation) {
             matrix = new PIXI.Matrix();
             matrix.rotate(rotation);
-
+            matrix.rotation = rotation;
             matrix.center = center;
         }
 
