@@ -8,7 +8,6 @@ export default class background extends image {
         super(option);
 
         this.editable = false;// 不可编辑
-        this.init();
 
         this.on('load', () => {
             this.resize(this.editor.width, this.editor.height);
@@ -16,6 +15,7 @@ export default class background extends image {
     }
 
     init() {
+        super.init();
         if(!this.bgGraphics) {
             this.bgGraphics = new PIXI.Graphics();
             this.bgGraphics.eventMode = 'none';
@@ -32,8 +32,8 @@ export default class background extends image {
 
         super.resize(w, h);
 
-        this.x = this.pivot.x;
-        this.y = this.pivot.y;
+        this.x = this.width/2;
+        this.y = this.height/2;
 
         this.draw(w, h)
     }

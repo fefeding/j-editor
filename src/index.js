@@ -1,6 +1,7 @@
 import * as PIXI from 'pixi.js';
 import EventEmiter from 'eventemitter3';
 import jImage from './image.js';
+import jText from './text.js';
 import jBackground from './background.js';
 import jResize from './resize.js';
 
@@ -29,7 +30,13 @@ export default class editor extends EventEmiter {
             resolution: this.resolution
         });
 
-        this.container.appendChild(this.app.view);      
+        this.container.appendChild(this.app.view);  
+        
+        this.shapes = {
+            'image': jImage,
+            'text': jText,
+
+        }
         
         this.children = [];
 
@@ -119,12 +126,24 @@ export default class editor extends EventEmiter {
         this.app.stage.sortChildren()
     }
 
+    // 创建元素
+    createShape(type, option={}) {
+        const shape = this.shapes[type];
+        if(!shape) {
+            throw Error(`${type}不存在的元素类型`);
+        }
+        const el = new shape({
+            ...option,
+            editor: this
+        });
+        return el;
+    }
+
     // 创建图片元素
     createImage(url, option={}) {
-        const img = new jImage({
+        const img = this.createShape('image', {
             ...option,
             url,
-            editor: this,
         });
         return img;
     }

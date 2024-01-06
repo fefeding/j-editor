@@ -16,6 +16,7 @@ import element from './element.js';
         this.style.lineColor =  this.style.lineColor|| 'rgba(6,155,181,1)';
         this.size = option.size || 8;
         this.init();
+
     }
     // 鼠标指针
     cursors = {
@@ -45,6 +46,8 @@ import element from './element.js';
     }
 
     init() {
+        super.init();
+
         this.graphics = new PIXI.Graphics();
         
         this.graphics.eventMode = 'static';
@@ -330,7 +333,6 @@ export default class resize extends resizeItem {
         this.editor.app.stage.on('pointerdown', (event) => {
             if(event.target === this.editor.app.stage && this.target) this.target.selected = false;
         });
-        this.init();
     }
 
     // 拖放位置
@@ -344,7 +346,7 @@ export default class resize extends resizeItem {
     angle = 0;
 
     init() {
-        
+        super.init();
         // 改变大小的方块
         this.items = [];
 

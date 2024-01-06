@@ -6,14 +6,23 @@ export default class element extends EventEmiter {
     constructor(option) {
         super();
         this.container = new PIXI.Container();
-
-        this.container.zIndex = option.zIndex || 1;
         this.editor = option.editor;
         this.option = option || {};
         this.style = this.option.style || {};
 
+
         this.bindEvent();
     }
+
+    init() {
+        this.zIndex = this.option.zIndex || 1;
+        this.x = this.option.x || 0;
+        this.y = this.option.y || 0;
+        //this.width = this.option.width || 1;
+        //this.height = this.option.height || 1;
+    }
+
+    type = '';
 
     children = []
 
@@ -36,7 +45,7 @@ export default class element extends EventEmiter {
     }
     set width(v) {
         this.container.width = v;
-        this.pivot.x = v/2;
+        //this.pivot.x = v/2;
     }
 
     get height() {
@@ -44,7 +53,7 @@ export default class element extends EventEmiter {
     }
     set height(v) {
         this.container.height = v;
-        this.pivot.y = v/2;
+        //this.pivot.y = v/2;
     }
 
     // 旋转角度

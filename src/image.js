@@ -5,14 +5,17 @@ import element from './element.js';
 export default class image extends element {
     constructor(option) {
         super(option);
-        // 图片载体
-        this.sprite = new PIXI.Sprite();   
+
+        this.sprite = new PIXI.Sprite();  
+        this.sprite.anchor.set(0.5);
 
         this.addChild(this.sprite);
 
         if(option.url) {
             this.url = option.url;
         }
+
+        this.init();
     }
 
     get width() {
@@ -20,7 +23,7 @@ export default class image extends element {
     }
     set width(v) {
         this.sprite.width = v;
-        super.width = v;
+        //super.width = v;
     }
 
     get height() {
@@ -28,7 +31,7 @@ export default class image extends element {
     }
     set height(v) {
         this.sprite.height = v;
-        super.height = v;
+        //super.height = v;
     }
 
     // 当前图片url
@@ -43,6 +46,10 @@ export default class image extends element {
     load(url) {
         return PIXI.Assets.load(url).then((texture) => {
             this.sprite.texture = texture;
+
+            this.width = this.width;
+            this.height = this.height;
+
             this.emit('load', texture);
 
             //this.editor.sort();

@@ -26815,14 +26815,23 @@ class element extends EventEmitter {
     constructor(option) {
         super();
         this.container = new Container();
-
-        this.container.zIndex = option.zIndex || 1;
         this.editor = option.editor;
         this.option = option || {};
         this.style = this.option.style || {};
 
+
         this.bindEvent();
     }
+
+    init() {
+        this.zIndex = this.option.zIndex || 1;
+        this.x = this.option.x || 0;
+        this.y = this.option.y || 0;
+        //this.width = this.option.width || 1;
+        //this.height = this.option.height || 1;
+    }
+
+    type = '';
 
     children = []
 
@@ -26845,7 +26854,7 @@ class element extends EventEmitter {
     }
     set width(v) {
         this.container.width = v;
-        this.pivot.x = v/2;
+        //this.pivot.x = v/2;
     }
 
     get height() {
@@ -26853,7 +26862,7 @@ class element extends EventEmitter {
     }
     set height(v) {
         this.container.height = v;
-        this.pivot.y = v/2;
+        //this.pivot.y = v/2;
     }
 
     // 旋转角度
@@ -26978,14 +26987,88 @@ class element extends EventEmitter {
 class image extends element {
     constructor(option) {
         super(option);
-        // 图片载体
-        this.sprite = new Sprite();   
+
+        this.sprite = new Sprite();  
+        this.sprite.anchor.set(0.5);
 
         this.addChild(this.sprite);
 
         if(option.url) {
             this.url = option.url;
         }
+
+        this.init();
+    }
+
+    get width() {
+        return this.sprite.width;
+    }
+    set width(v) {
+        this.sprite.width = v;
+        //super.width = v;
+    }
+
+    get height() {
+        return this.sprite.height;
+    }
+    set height(v) {
+        this.sprite.height = v;
+        //super.height = v;
+    }
+
+    // 当前图片url
+    get url() {
+        return  this.__url;
+    }
+    set url(v) {
+        this.load(v);
+        this.__url = v;
+    }
+
+    load(url) {
+        return Assets.load(url).then((texture) => {
+            this.sprite.texture = texture;
+
+            this.width = this.width;
+            this.height = this.height;
+
+            this.emit('load', texture);
+
+            //this.editor.sort();
+            //this.zIndex = this.zIndex || 0;
+        });
+    }
+}
+
+// font元素
+class text extends element {
+    constructor(option) {
+        super(option);
+        Assets.addBundle;
+        this.style = {
+            fontFamily: 'Arial',
+            dropShadow: true,
+            dropShadowAlpha: 0.3,
+            dropShadowAngle: 2.1,
+            dropShadowBlur: 4,
+            dropShadowColor: '0xeeeeee',
+            dropShadowDistance: 10,
+            fill: ['#ffffff'],
+            stroke: '#004620',
+            fontSize: 22,
+            fontWeight: 'lighter',
+            lineJoin: 'round',
+            strokeThickness: 12,
+            ...this.style
+        };
+
+        // 图片载体
+        this.sprite = new Text(option.text, new TextStyle(this.style));   
+        this.sprite.anchor.set(0.5);
+
+        this.addChild(this.sprite);
+        
+        this.init();
     }
 
     get width() {
@@ -27004,23 +27087,11 @@ class image extends element {
         super.height = v;
     }
 
-    // 当前图片url
-    get url() {
-        return  this.__url;
+    get text() {
+        return this.sprite.text;
     }
-    set url(v) {
-        this.load(v);
-        this.__url = v;
-    }
-
-    load(url) {
-        return Assets.load(url).then((texture) => {
-            this.sprite.texture = texture;
-            this.emit('load', texture);
-
-            //this.editor.sort();
-            //this.zIndex = this.zIndex || 0;
-        });
+    set text(v) {
+        this.sprite.text = v;
     }
 }
 
@@ -27030,7 +27101,6 @@ class background extends image {
         super(option);
 
         this.editable = false;// 不可编辑
-        this.init();
 
         this.on('load', () => {
             this.resize(this.editor.width, this.editor.height);
@@ -27038,6 +27108,7 @@ class background extends image {
     }
 
     init() {
+        super.init();
         if(!this.bgGraphics) {
             this.bgGraphics = new Graphics();
             this.bgGraphics.eventMode = 'none';
@@ -27054,8 +27125,8 @@ class background extends image {
 
         super.resize(w, h);
 
-        this.x = this.pivot.x;
-        this.y = this.pivot.y;
+        this.x = this.width/2;
+        this.y = this.height/2;
 
         this.draw(w, h);
     }
@@ -27107,6 +27178,7 @@ class background extends image {
         this.style.lineColor =  this.style.lineColor|| 'rgba(6,155,181,1)';
         this.size = option.size || 8;
         this.init();
+
     }
     // 鼠标指针
     cursors = {
@@ -27136,6 +27208,8 @@ class background extends image {
     }
 
     init() {
+        super.init();
+
         this.graphics = new Graphics();
         
         this.graphics.eventMode = 'static';
@@ -27419,7 +27493,6 @@ class resize extends resizeItem {
         this.editor.app.stage.on('pointerdown', (event) => {
             if(event.target === this.editor.app.stage && this.target) this.target.selected = false;
         });
-        this.init();
     }
 
     // 拖放位置
@@ -27433,7 +27506,7 @@ class resize extends resizeItem {
     angle = 0;
 
     init() {
-        
+        super.init();
         // 改变大小的方块
         this.items = [];
 
@@ -27707,7 +27780,13 @@ class editor extends EventEmitter {
             resolution: this.resolution
         });
 
-        this.container.appendChild(this.app.view);      
+        this.container.appendChild(this.app.view);  
+        
+        this.shapes = {
+            'image': image,
+            'text': text,
+
+        };
         
         this.children = [];
 
@@ -27797,12 +27876,24 @@ class editor extends EventEmitter {
         this.app.stage.sortChildren();
     }
 
+    // 创建元素
+    createShape(type, option={}) {
+        const shape = this.shapes[type];
+        if(!shape) {
+            throw Error(`${type}不存在的元素类型`);
+        }
+        const el = new shape({
+            ...option,
+            editor: this
+        });
+        return el;
+    }
+
     // 创建图片元素
     createImage(url, option={}) {
-        const img = new image({
+        const img = this.createShape('image', {
             ...option,
             url,
-            editor: this,
         });
         return img;
     }
