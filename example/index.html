@@ -17,7 +17,9 @@
 			position: relative;
 			margin: auto;
 		}
-		
+		#mycanvas_container > div{
+			scale: 0.6;
+		}
 	</style>
 	</head>
 	<body>
@@ -25,8 +27,8 @@
 			<div class="row" style="width: 100%; overflow: hidden;">
 			  <div class="col-2">
 				<ul class="list-group" id="tmpl_container">
-					<li class="list-group-item"><img src="" class="img-thumbnail" data-tmplid="1" alt="..."></li>
-					<li class="list-group-item"><img src="" class="img-thumbnail" data-tmplid="2" alt="..."></li>
+					<li class="list-group-item"><img src="templates/1.jpeg" class="img-thumbnail" data-tmplid="1" alt="..."></li>
+					<li class="list-group-item"><img src="templates/2.jpeg" class="img-thumbnail" data-tmplid="2" alt="..."></li>
 				  </ul>
 			  </div>
 			  <div class="col-8">
@@ -114,7 +116,7 @@
 			console.log('load fonts', e);
 		}).then(()=>{
 			txt1.text += ', complete'
-		});
+		});*/
 
 		const preview = document.getElementById('previewImg');
 		async function createPreivew(delta) {
@@ -125,7 +127,7 @@
 			//const json = editor.toString();
 			//console.log(json);
 		};
-		setTimeout(createPreivew, 1000);*/
+		setTimeout(createPreivew, 1000);
 	</script>
 
 </html>

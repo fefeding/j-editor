@@ -796,7 +796,8 @@ if(otherTmpl.objects) {
                 fontStyle: w.fontStyle,
                 align: w.textAlign,
                 strokeThickness: w.strokeWidth || 1,
-                lineJoin: w.strokeLineJoin,
+                lineJoin: w.strokeLineJoin||'',
+                lineCap: w.strokeLineCap||'',
                 lineHeight: w.lineHeight,
                 miterLimit: w.strokeMiterLimit,
                 fontWeight: w.fontWeight,
@@ -807,6 +808,8 @@ if(otherTmpl.objects) {
                 dropShadowDistance: 0,
             }
         }
+		obj.x += obj.width/2;
+		obj.y += obj.height/2;
         if(w.type === 'image' && w.src) {
             obj.type = 'image';
             obj.url = w.src || '';

@@ -46,6 +46,7 @@ export default class background extends image {
             this.bgGraphics.beginFill(this.style.fill||0xFFFFFF, 1);
             this.bgGraphics.drawRect(-this.x, -this.y, w||this.width, h||this.height);
             this.bgGraphics.endFill();
+            this.bgGraphics.visible = true;
         }
         else if(this.bgGraphics) {
             this.bgGraphics.visible = false;

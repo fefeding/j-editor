@@ -5,3 +5,4 @@
 /Makefile
 node_modules
 build/package-lock.json
+.DS_Store

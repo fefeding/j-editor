@@ -41,6 +41,8 @@ if(otherTmpl.widgets) {
             obj.type = 'text';
             obj.text = w.text || '';
         }
+        obj.x += obj.width/2;
+		obj.y += obj.height/2;
         if(obj.type) tmpl.data.children.push(obj);
     }
 }
