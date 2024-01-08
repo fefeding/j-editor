@@ -44,10 +44,13 @@
 
 		const editor = new JEditor(container, {
 			width: 600,
-			height: 800
+			height: 800,
+			resolution: 1
 		});
 
-		editor.background.url = 'https://jtcospublic.ciccten.com/public/image/bf.jpg';
+		editor.fromJSON({"backgroundUrl":"https://jtcospublic.ciccten.com/public/image/bf.jpg","backgroundColor":"#fffffff","width":600,"height":800,"children":[{"x":300,"y":400,"width":100,"height":100,"url":"https://pixijs.com/assets/bunny.png","rotation":0,"type":"image","style":{}},{"x":300,"y":100,"width":461,"height":39,"text":"Basic text, 中文测试, complete","rotation":0,"type":"text","style":{"fontFamily":"Crosterian","dropShadow":true,"dropShadowAlpha":0.3,"dropShadowAngle":2.1,"dropShadowBlur":4,"dropShadowColor":"0xeeeeee","dropShadowDistance":10,"fill":["#ffffff"],"stroke":"#004620","fontSize":22,"fontWeight":"lighter","lineJoin":"round","strokeThickness":1}},{"x":400,"y":500,"width":400,"height":400,"url":"https://jtcospublic.ciccten.com/config-server/1703730310545220869/idcard_qrcode.png","rotation":1.0471975511965976,"type":"image","style":{}}]})
+
+		/*editor.background.url = 'https://jtcospublic.ciccten.com/public/image/bf.jpg';
 
 		const img = editor.createImage('https://pixijs.com/assets/bunny.png');
 		img.width = 100;
@@ -59,9 +62,11 @@
 			img.x = editor.width / 2;
 			img.y = editor.height / 2;
 
-			const img2 = editor.createImage('https://pixijs.com/assets/bunny.png');
+			const img2 = editor.createImage();
 			//img2.width = 200;
 			//img2.height = 200;
+
+			img2.url = 'https://jtcospublic.ciccten.com/config-server/1703730310545220869/idcard_qrcode.png';
 
 			img2.x = img.x + 100;
 			img2.y = img.y + 100;
@@ -70,19 +75,38 @@
 		});
 		editor.addChild(img);
 
+		
+
 		const txt1 = editor.createShape('text', {
-			text: 'Basic text, 中文测试'
+			text: 'Basic text, 中文测试',
+			style: {
+				fontFamily: 'Crosterian'
+			}
 		});
 		editor.addChild(txt1);
 		txt1.x = 300;
 		txt1.y = 100;
+
+		editor.loader.loadFont({
+			ChaChicle: 'https://pixijs.com/assets/webfont-loader/ChaChicle.ttf',
+			Lineal: 'https://pixijs.com/assets/webfont-loader/Lineal.otf',
+			'Dotrice Regular': 'https://pixijs.com/assets/webfont-loader/Dotrice-Regular.woff',
+			Crosterian: 'https://pixijs.com/assets/webfont-loader/Crosterian.woff2',
+		}, (e) => {
+			console.log('load fonts', e);
+		}).then(()=>{
+			txt1.text += ', complete'
+		});
 
 		const preview = document.getElementById('previewImg');
 		async function createPreivew(delta) {
 			const data = await editor.toImage();
 			if(data !== preview.src) preview.src = data;
 			setTimeout(createPreivew, 10000);
+
+			//const json = editor.toString();
+			//console.log(json);
 		};
-		setTimeout(createPreivew, 1000);
+		setTimeout(createPreivew, 1000);*/
 	</script>
 </html>

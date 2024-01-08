@@ -5,10 +5,11 @@ import image from './image.js';
 // 画布背景
 export default class background extends image {
     constructor(option) {
+        
         super(option);
 
         this.editable = false;// 不可编辑
-
+        this.style.backgroundColor = this.style.fill||0xFFFFFF;
         this.on('load', () => {
             this.resize(this.editor.width, this.editor.height);
         });
@@ -42,8 +43,8 @@ export default class background extends image {
         // 如果没有指定图片，则画白色背景
         if(!this.url) {       
             this.bgGraphics.clear();
-            this.bgGraphics.beginFill(this.style.backgroundColor || 0xFFFFFF, 1);
-            this.bgGraphics.drawRect(this.left, this.top, w||this.width, h||this.height);
+            this.bgGraphics.beginFill(this.style.backgroundColor||0xFFFFFF, 1);
+            this.bgGraphics.drawRect(-this.x, -this.y, w||this.width, h||this.height);
             this.bgGraphics.endFill();
         }
         else if(this.bgGraphics) {

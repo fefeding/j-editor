@@ -15,6 +15,10 @@ export default class image extends element {
             this.url = option.url;
         }
 
+        if(option.image) {
+            this.texture = option.image;
+        }
+
         this.init();
     }
 
@@ -39,21 +43,34 @@ export default class image extends element {
         return  this.__url;
     }
     set url(v) {
-        this.load(v);
+        if(v) this.load(v);
+        else {
+            this.texture = null;
+        }
         this.__url = v;
     }
 
-    load(url) {
-        return PIXI.Assets.load(url).then((texture) => {
-            this.sprite.texture = texture;
+    // 当前图片纹理
+    get texture() {
+        return  this.sprite.texture;
+    }
+    set texture(v) {
+        if(v instanceof ImageData || v instanceof Image) {
+          v = PIXI.Texture.from(v);     
+        }
+        else if(typeof v === 'string') {
+            v = PIXI.Texture.from(v);
+        }
+        this.sprite.texture = v;
+    }
 
-            this.width = this.width;
-            this.height = this.height;
+    async load(url) {
+        const texture = await this.editor.loader.load(url);
+        this.texture = texture;
 
-            this.emit('load', texture);
+        this.width = this.width;
+        this.height = this.height;
 
-            //this.editor.sort();
-            //this.zIndex = this.zIndex || 0;
-        });
+        this.emit('load', texture);
     }
 }

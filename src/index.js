@@ -4,6 +4,7 @@ import jImage from './image.js';
 import jText from './text.js';
 import jBackground from './background.js';
 import jResize from './resize.js';
+import jLoader from './loader.js';
 
 export default class editor extends EventEmiter {
 
@@ -11,6 +12,8 @@ export default class editor extends EventEmiter {
         super(option);
         this.option = option || {};
         this.style = this.option.style || {};
+
+        this.loader = new jLoader();// 加载器
 
         this.container = document.createElement(
             'div'
@@ -22,7 +25,7 @@ export default class editor extends EventEmiter {
         this.rootContainer = container;
         container.appendChild(this.container);
 
-        this.resolution = option.resolution || 2;//window.devicePixelRatio > 1? window.devicePixelRatio : 2;
+        this.resolution = option.resolution || (window.devicePixelRatio > 1? window.devicePixelRatio : 2);
         this.app = new PIXI.Application({ 
             backgroundAlpha: 1, // 背景不透明
             antialias: true,     // 消除锯齿
@@ -35,13 +38,12 @@ export default class editor extends EventEmiter {
         this.shapes = {
             'image': jImage,
             'text': jText,
-
+            'background': jBackground
         }
         
         this.children = [];
 
-        this.background = new jBackground({
-            editor: this,
+        this.background = this.createShape('background', {
             style: this.style
         });
         this.addChild(this.background);
@@ -120,6 +122,25 @@ export default class editor extends EventEmiter {
                 this.controlElement.bindEvent(el);
             }
         }
+        this.children.push(el);
+    }
+
+    // 移除
+    removeChild(el) {
+        if(this.app.stage.children.includes(el.container)) this.app.stage.removeChild(el.container);
+        const index = this.children.indexOf(el);
+        if(index > -1) this.children.splice(this.children.indexOf(el), 1);
+    }
+
+    clear() {
+        this.background.url = '';
+        this.background.style.fill = '#fff';
+
+        for(let i=this.children.length-1;i>=0; i--) {
+            const el = this.children[i];
+            if(!el.type || el === this.background) continue;
+            this.removeChild(el);
+        }
     }
 
     sort() {
@@ -134,6 +155,7 @@ export default class editor extends EventEmiter {
         }
         const el = new shape({
             ...option,
+            type,
             editor: this
         });
         return el;
@@ -159,6 +181,44 @@ export default class editor extends EventEmiter {
         ctx.drawImage(imgData, this.left, this.top, this.width, this.height);*/
 
         return imgData;
+    }
+
+    toJSON() {
+        const data = {
+            backgroundUrl: this.background.url || '',
+            backgroundColor: this.background.style.fill || '#fff',
+            width: this.width,
+            height: this.height,
+            children: []
+        };
+        for(const c of this.children) {
+            if(c.type === 'background' || !c.type) continue;
+            if(c.toJSON) {
+                data.children.push(c.toJSON());
+            }
+        }
+        return data;
+    }
+
+    toString() {
+        const data = this.toJSON();
+        return JSON.stringify(data);
+    }
+
+    fromJSON(data) {
+        this.clear();
+        if(typeof data === 'string') data = JSON.parse(data);
+        this.background.url = data.backgroundUrl || '';
+        this.background.style.fill = data.backgroundColor || '';
+
+        if(data.width) this.width = data.width;
+        if(data.height) this.height = data.height;
+
+        for(const c of data.children) {
+            if(c.type === 'background' || !c.type) continue;
+            const item = this.createShape(c.type, c);
+            this.addChild(item);
+        }
     }
 }
 

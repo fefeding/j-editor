@@ -19,7 +19,9 @@ export default class text extends element {
             fontSize: 22,
             fontWeight: 'lighter',
             lineJoin: 'round',
-            strokeThickness: 12,
+            strokeThickness: 1,
+            //wordWrap: true,
+            //wordWrapWidth: 440,
             ...this.style
         };
 

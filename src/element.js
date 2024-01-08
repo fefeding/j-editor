@@ -10,7 +10,7 @@ export default class element extends EventEmiter {
         this.option = option || {};
         this.style = this.option.style || {};
 
-
+        this.type = option.type || '';
         this.bindEvent();
     }
 
@@ -18,8 +18,9 @@ export default class element extends EventEmiter {
         this.zIndex = this.option.zIndex || 1;
         this.x = this.option.x || 0;
         this.y = this.option.y || 0;
-        //this.width = this.option.width || 1;
-        //this.height = this.option.height || 1;
+        this.rotation = this.option.rotation || 0;
+        if(this.option.width && this.option.width > 0) this.width = this.option.width;
+        if(this.option.height && this.option.height > 0) this.height = this.option.height;
     }
 
     type = '';
@@ -152,7 +153,10 @@ export default class element extends EventEmiter {
         }
     }
 
-    
+    // 移除自已
+    remove() {
+        this.editor.removeChild(this);
+    }
 
     // 把渲染层坐标转为控制层
     toControlPosition(p) {
@@ -170,6 +174,19 @@ export default class element extends EventEmiter {
     }
 
     toJSON() {
-        return JSON.stringify(this);
+        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style'];
+        const obj = {};
+       
+        for(const k of fields) {
+            if(typeof this[k] !== 'undefined') {
+                obj[k] = this[k];
+            }
+        }
+        return obj;
+    }
+
+    toString() {
+        const obj = this.toJSON();
+        return JSON.stringify(obj);
     }
 }

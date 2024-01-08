@@ -331,7 +331,7 @@ export default class resize extends resizeItem {
 
         // 其它区域点击则取消选择
         this.editor.app.stage.on('pointerdown', (event) => {
-            if(event.target === this.editor.app.stage && this.target) this.target.selected = false;
+            if(this.target && this.target.selected && this.editor.background.container === event.target) this.target.selected = false;
         });
     }
 
