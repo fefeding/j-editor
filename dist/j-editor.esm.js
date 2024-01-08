@@ -27985,6 +27985,7 @@ class editor extends EventEmitter {
 
         //this.app.view.style.width = `${controlWidth}px`;
         //this.app.view.style.height = `${controlHeight}px`;
+        this.container.setAttribute('data-size', `${width}*${height}`);
 
         this.left = controlWidth / 2 - width /2;
         this.top = controlHeight / 2 - height /2;
