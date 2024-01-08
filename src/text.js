@@ -5,21 +5,25 @@ import element from './element.js';
 export default class text extends element {
     constructor(option) {
         super(option);
-        PIXI.Assets.addBundle
+        
         this.style = {
             fontFamily: 'Arial',
-            dropShadow: true,
-            dropShadowAlpha: 0.3,
-            dropShadowAngle: 2.1,
-            dropShadowBlur: 4,
-            dropShadowColor: '0xeeeeee',
-            dropShadowDistance: 10,
+            dropShadow: false,
+            dropShadowAlpha: 0,
+            dropShadowAngle: 0,
+            dropShadowBlur: 0,
+            dropShadowColor: 'transparent',
+            dropShadowDistance: 0,
+            align: 'left',
             fill: ['#ffffff'],
             stroke: '#004620',
             fontSize: 22,
             fontWeight: 'lighter',
             lineJoin: 'round',
+            lineHeight: 22,
             strokeThickness: 1,
+            miterLimit: 1,
+            fontStyle: 'normal',
             //wordWrap: true,
             //wordWrapWidth: 440,
             ...this.style
@@ -33,7 +37,7 @@ export default class text extends element {
         
         this.init();
     }
-
+/*
     get width() {
         return this.sprite.width;
     }
@@ -48,7 +52,7 @@ export default class text extends element {
     set height(v) {
         this.sprite.height = v;
         super.height = v;
-    }
+    }*/
 
     get text() {
         return this.sprite.text;

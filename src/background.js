@@ -9,7 +9,7 @@ export default class background extends image {
         super(option);
 
         this.editable = false;// 不可编辑
-        this.style.backgroundColor = this.style.fill||0xFFFFFF;
+        this.style.fill = this.style.fill||0xFFFFFF;
         this.on('load', () => {
             this.resize(this.editor.width, this.editor.height);
         });
@@ -43,7 +43,7 @@ export default class background extends image {
         // 如果没有指定图片，则画白色背景
         if(!this.url) {       
             this.bgGraphics.clear();
-            this.bgGraphics.beginFill(this.style.backgroundColor||0xFFFFFF, 1);
+            this.bgGraphics.beginFill(this.style.fill||0xFFFFFF, 1);
             this.bgGraphics.drawRect(-this.x, -this.y, w||this.width, h||this.height);
             this.bgGraphics.endFill();
         }
@@ -65,7 +65,6 @@ export default class background extends image {
             0, this.editor.app.renderer.height
         ];
 
-        //this.editor.sort();
         this.forceGraphics.clear();
         this.forceGraphics.lineStyle(0);
         this.forceGraphics.beginFill(this.style.paddingBackgroundColor || '#ccc', 1);

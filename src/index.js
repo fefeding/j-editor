@@ -211,8 +211,9 @@ export default class editor extends EventEmiter {
         this.background.url = data.backgroundUrl || '';
         this.background.style.fill = data.backgroundColor || '';
 
-        if(data.width) this.width = data.width;
-        if(data.height) this.height = data.height;
+        //if(data.width) this.width = data.width;
+        //if(data.height) this.height = data.height;
+        this.setSize(data.width, data.height);
 
         for(const c of data.children) {
             if(c.type === 'background' || !c.type) continue;

@@ -1,5 +1,6 @@
 import EventEmiter from 'eventemitter3';
 import * as PIXI from 'pixi.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class element extends EventEmiter {
 
@@ -9,6 +10,8 @@ export default class element extends EventEmiter {
         this.editor = option.editor;
         this.option = option || {};
         this.style = this.option.style || {};
+
+        this.id = option.id || uuidv4().replace(/-/g, '');
 
         this.type = option.type || '';
         this.bindEvent();
@@ -174,7 +177,7 @@ export default class element extends EventEmiter {
     }
 
     toJSON() {
-        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style'];
+        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id'];
         const obj = {};
        
         for(const k of fields) {
