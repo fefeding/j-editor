@@ -761,14 +761,16 @@ const otherTmpl = {
 	}
 };
 
+const wscale = 976 / otherTmpl.clipPath.width;
+const hscale = 1260 / otherTmpl.clipPath.height;
 const tmpl = {
     "id": 2,
     data: {
         backgroundUrl: otherTmpl.clipPath.backgroundImage || '',
         backgroundColor: hexToRGBA(otherTmpl.clipPath.backgroundColor || otherTmpl.clipPath.fill || '') || 'transparent',
         name: otherTmpl.name,
-        width: otherTmpl.clipPath.width,
-        height: otherTmpl.clipPath.height,
+        width: otherTmpl.clipPath.width * wscale,
+        height: otherTmpl.clipPath.height * hscale,
         children: []
     }
 };
@@ -779,10 +781,10 @@ if(otherTmpl.objects) {
             continue;
         }
         const obj = {
-            width: w.width,
-            height: w.height,
-            x: w.left,
-            y: w.top,
+            width: w.width * wscale,
+            height: w.height * hscale,
+            x: w.left * wscale,
+            y: w.top * hscale,
             rotation: w.angle || 0,
             name: w.name,
             style: {
@@ -790,7 +792,7 @@ if(otherTmpl.objects) {
                 stroke: hexToRGBA(w.stroke || '') || 'transparent',
                 fill: hexToRGBA(w.fill || '') || 'transparent',
                 fontFamily: w.fontFamily||'',
-                fontSize: w.fontSize,
+                fontSize: w.fontSize * wscale,
                 fontStyle: w.fontStyle,
                 align: w.textAlign,
                 strokeThickness: w.strokeWidth || 1,
