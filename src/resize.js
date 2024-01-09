@@ -359,7 +359,7 @@ export default class resize extends resizeItem {
                 if(this.target) this.target.selected = false;
                 return;
             }
-            if(this.target && this.target.selected && this.editor.background.container === event.target) this.target.selected = false;
+            if(this.target && this.target.selected && (this.editor.background.container === event.target || this.editor.app.stage === event.target)) this.target.selected = false;
         });
     }
 
