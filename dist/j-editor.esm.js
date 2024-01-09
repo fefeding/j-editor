@@ -225,9 +225,9 @@ function getAugmentedNamespace(n) {
 	return a;
 }
 
-var eventemitter3 = {exports: {}};
+var eventemitter3$1 = {exports: {}};
 
-eventemitter3.exports;
+eventemitter3$1.exports;
 
 (function (module) {
 
@@ -565,10 +565,10 @@ eventemitter3.exports;
 	{
 	  module.exports = EventEmitter;
 	} 
-} (eventemitter3));
+} (eventemitter3$1));
 
-var eventemitter3Exports = eventemitter3.exports;
-var EventEmitter = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports);
+var eventemitter3Exports$1 = eventemitter3$1.exports;
+var EventEmitter$1 = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports$1);
 
 var earcut$2 = {exports: {}};
 
@@ -6186,7 +6186,7 @@ class BufferResource extends Resource {
 const defaultBufferOptions = {
   scaleMode: SCALE_MODES.NEAREST,
   alphaMode: ALPHA_MODES.NPM
-}, _BaseTexture = class _BaseTexture2 extends EventEmitter {
+}, _BaseTexture = class _BaseTexture2 extends EventEmitter$1 {
   /**
    * @param {PIXI.Resource|HTMLImageElement|HTMLVideoElement|ImageBitmap|ICanvas|string} [resource=null] -
    *        The current resource to use, for things that aren't Resource objects, will be converted
@@ -9626,7 +9626,7 @@ function removeAllHandlers(tex) {
   }, tex.emit = function() {
   };
 }
-class Texture extends EventEmitter {
+class Texture extends EventEmitter$1 {
   /**
    * @param baseTexture - The base texture source to create the texture from
    * @param frame - The rectangle frame of the texture to show
@@ -12102,7 +12102,7 @@ _StateSystem.extension = {
 let StateSystem = _StateSystem;
 extensions$1.add(StateSystem);
 
-class SystemManager extends EventEmitter {
+class SystemManager extends EventEmitter$1 {
   constructor() {
     super(...arguments), this.runners = {}, this._systemsHash = {};
   }
@@ -14602,7 +14602,7 @@ class Bounds {
   }
 }
 
-class DisplayObject extends EventEmitter {
+class DisplayObject extends EventEmitter$1 {
   constructor() {
     super(), this.tempDisplayObjectParent = null, this.transform = new Transform(), this.alpha = 1, this.visible = !0, this.renderable = !0, this.cullable = !1, this.cullArea = null, this.parent = null, this.worldAlpha = 1, this._lastSortedIndex = 0, this._zIndex = 0, this.filterArea = null, this.filters = null, this._enabledFilters = null, this._bounds = new Bounds(), this._localBounds = null, this._boundsID = 0, this._boundsRect = null, this._localBoundsRect = null, this._mask = null, this._maskRefCount = 0, this._destroyed = !1, this.isSprite = !1, this.isMask = !1;
   }
@@ -17330,7 +17330,7 @@ class EventBoundary {
    * @param rootTarget - The holder of the event boundary.
    */
   constructor(rootTarget) {
-    this.dispatch = new EventEmitter(), this.moveOnAll = !1, this.enableGlobalMoveEvents = !0, this.mappingState = {
+    this.dispatch = new EventEmitter$1(), this.moveOnAll = !1, this.enableGlobalMoveEvents = !0, this.mappingState = {
       trackingData: {}
     }, this.eventPool = /* @__PURE__ */ new Map(), this._allInteractiveElements = [], this._hitElements = [], this._isPointerMoveEvent = !1, this.rootTarget = rootTarget, this.hitPruneFn = this.hitPruneFn.bind(this), this.hitTestFn = this.hitTestFn.bind(this), this.mapPointerDown = this.mapPointerDown.bind(this), this.mapPointerMove = this.mapPointerMove.bind(this), this.mapPointerOut = this.mapPointerOut.bind(this), this.mapPointerOver = this.mapPointerOver.bind(this), this.mapPointerUp = this.mapPointerUp.bind(this), this.mapPointerUpOutside = this.mapPointerUpOutside.bind(this), this.mapWheel = this.mapWheel.bind(this), this.mappingTable = {}, this.addEventMapping("pointerdown", this.mapPointerDown), this.addEventMapping("pointermove", this.mapPointerMove), this.addEventMapping("pointerout", this.mapPointerOut), this.addEventMapping("pointerleave", this.mapPointerOut), this.addEventMapping("pointerover", this.mapPointerOver), this.addEventMapping("pointerup", this.mapPointerUp), this.addEventMapping("pointerupoutside", this.mapPointerUpOutside), this.addEventMapping("wheel", this.mapWheel);
   }
@@ -26465,6 +26465,351 @@ _HTMLText.defaultMaxWidth = 2024, /** Default maxHeight, set at construction */
 _HTMLText.defaultMaxHeight = 2024, /** Default autoResolution for all HTMLText objects */
 _HTMLText.defaultAutoResolution = !0;
 
+var eventemitter3 = {exports: {}};
+
+eventemitter3.exports;
+
+(function (module) {
+
+	var has = Object.prototype.hasOwnProperty
+	  , prefix = '~';
+
+	/**
+	 * Constructor to create a storage for our `EE` objects.
+	 * An `Events` instance is a plain object whose properties are event names.
+	 *
+	 * @constructor
+	 * @private
+	 */
+	function Events() {}
+
+	//
+	// We try to not inherit from `Object.prototype`. In some engines creating an
+	// instance in this way is faster than calling `Object.create(null)` directly.
+	// If `Object.create(null)` is not supported we prefix the event names with a
+	// character to make sure that the built-in object properties are not
+	// overridden or used as an attack vector.
+	//
+	if (Object.create) {
+	  Events.prototype = Object.create(null);
+
+	  //
+	  // This hack is needed because the `__proto__` property is still inherited in
+	  // some old browsers like Android 4, iPhone 5.1, Opera 11 and Safari 5.
+	  //
+	  if (!new Events().__proto__) prefix = false;
+	}
+
+	/**
+	 * Representation of a single event listener.
+	 *
+	 * @param {Function} fn The listener function.
+	 * @param {*} context The context to invoke the listener with.
+	 * @param {Boolean} [once=false] Specify if the listener is a one-time listener.
+	 * @constructor
+	 * @private
+	 */
+	function EE(fn, context, once) {
+	  this.fn = fn;
+	  this.context = context;
+	  this.once = once || false;
+	}
+
+	/**
+	 * Add a listener for a given event.
+	 *
+	 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
+	 * @param {(String|Symbol)} event The event name.
+	 * @param {Function} fn The listener function.
+	 * @param {*} context The context to invoke the listener with.
+	 * @param {Boolean} once Specify if the listener is a one-time listener.
+	 * @returns {EventEmitter}
+	 * @private
+	 */
+	function addListener(emitter, event, fn, context, once) {
+	  if (typeof fn !== 'function') {
+	    throw new TypeError('The listener must be a function');
+	  }
+
+	  var listener = new EE(fn, context || emitter, once)
+	    , evt = prefix ? prefix + event : event;
+
+	  if (!emitter._events[evt]) emitter._events[evt] = listener, emitter._eventsCount++;
+	  else if (!emitter._events[evt].fn) emitter._events[evt].push(listener);
+	  else emitter._events[evt] = [emitter._events[evt], listener];
+
+	  return emitter;
+	}
+
+	/**
+	 * Clear event by name.
+	 *
+	 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
+	 * @param {(String|Symbol)} evt The Event name.
+	 * @private
+	 */
+	function clearEvent(emitter, evt) {
+	  if (--emitter._eventsCount === 0) emitter._events = new Events();
+	  else delete emitter._events[evt];
+	}
+
+	/**
+	 * Minimal `EventEmitter` interface that is molded against the Node.js
+	 * `EventEmitter` interface.
+	 *
+	 * @constructor
+	 * @public
+	 */
+	function EventEmitter() {
+	  this._events = new Events();
+	  this._eventsCount = 0;
+	}
+
+	/**
+	 * Return an array listing the events for which the emitter has registered
+	 * listeners.
+	 *
+	 * @returns {Array}
+	 * @public
+	 */
+	EventEmitter.prototype.eventNames = function eventNames() {
+	  var names = []
+	    , events
+	    , name;
+
+	  if (this._eventsCount === 0) return names;
+
+	  for (name in (events = this._events)) {
+	    if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
+	  }
+
+	  if (Object.getOwnPropertySymbols) {
+	    return names.concat(Object.getOwnPropertySymbols(events));
+	  }
+
+	  return names;
+	};
+
+	/**
+	 * Return the listeners registered for a given event.
+	 *
+	 * @param {(String|Symbol)} event The event name.
+	 * @returns {Array} The registered listeners.
+	 * @public
+	 */
+	EventEmitter.prototype.listeners = function listeners(event) {
+	  var evt = prefix ? prefix + event : event
+	    , handlers = this._events[evt];
+
+	  if (!handlers) return [];
+	  if (handlers.fn) return [handlers.fn];
+
+	  for (var i = 0, l = handlers.length, ee = new Array(l); i < l; i++) {
+	    ee[i] = handlers[i].fn;
+	  }
+
+	  return ee;
+	};
+
+	/**
+	 * Return the number of listeners listening to a given event.
+	 *
+	 * @param {(String|Symbol)} event The event name.
+	 * @returns {Number} The number of listeners.
+	 * @public
+	 */
+	EventEmitter.prototype.listenerCount = function listenerCount(event) {
+	  var evt = prefix ? prefix + event : event
+	    , listeners = this._events[evt];
+
+	  if (!listeners) return 0;
+	  if (listeners.fn) return 1;
+	  return listeners.length;
+	};
+
+	/**
+	 * Calls each of the listeners registered for a given event.
+	 *
+	 * @param {(String|Symbol)} event The event name.
+	 * @returns {Boolean} `true` if the event had listeners, else `false`.
+	 * @public
+	 */
+	EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
+	  var evt = prefix ? prefix + event : event;
+
+	  if (!this._events[evt]) return false;
+
+	  var listeners = this._events[evt]
+	    , len = arguments.length
+	    , args
+	    , i;
+
+	  if (listeners.fn) {
+	    if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
+
+	    switch (len) {
+	      case 1: return listeners.fn.call(listeners.context), true;
+	      case 2: return listeners.fn.call(listeners.context, a1), true;
+	      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
+	      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
+	      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
+	      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
+	    }
+
+	    for (i = 1, args = new Array(len -1); i < len; i++) {
+	      args[i - 1] = arguments[i];
+	    }
+
+	    listeners.fn.apply(listeners.context, args);
+	  } else {
+	    var length = listeners.length
+	      , j;
+
+	    for (i = 0; i < length; i++) {
+	      if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
+
+	      switch (len) {
+	        case 1: listeners[i].fn.call(listeners[i].context); break;
+	        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
+	        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
+	        case 4: listeners[i].fn.call(listeners[i].context, a1, a2, a3); break;
+	        default:
+	          if (!args) for (j = 1, args = new Array(len -1); j < len; j++) {
+	            args[j - 1] = arguments[j];
+	          }
+
+	          listeners[i].fn.apply(listeners[i].context, args);
+	      }
+	    }
+	  }
+
+	  return true;
+	};
+
+	/**
+	 * Add a listener for a given event.
+	 *
+	 * @param {(String|Symbol)} event The event name.
+	 * @param {Function} fn The listener function.
+	 * @param {*} [context=this] The context to invoke the listener with.
+	 * @returns {EventEmitter} `this`.
+	 * @public
+	 */
+	EventEmitter.prototype.on = function on(event, fn, context) {
+	  return addListener(this, event, fn, context, false);
+	};
+
+	/**
+	 * Add a one-time listener for a given event.
+	 *
+	 * @param {(String|Symbol)} event The event name.
+	 * @param {Function} fn The listener function.
+	 * @param {*} [context=this] The context to invoke the listener with.
+	 * @returns {EventEmitter} `this`.
+	 * @public
+	 */
+	EventEmitter.prototype.once = function once(event, fn, context) {
+	  return addListener(this, event, fn, context, true);
+	};
+
+	/**
+	 * Remove the listeners of a given event.
+	 *
+	 * @param {(String|Symbol)} event The event name.
+	 * @param {Function} fn Only remove the listeners that match this function.
+	 * @param {*} context Only remove the listeners that have this context.
+	 * @param {Boolean} once Only remove one-time listeners.
+	 * @returns {EventEmitter} `this`.
+	 * @public
+	 */
+	EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
+	  var evt = prefix ? prefix + event : event;
+
+	  if (!this._events[evt]) return this;
+	  if (!fn) {
+	    clearEvent(this, evt);
+	    return this;
+	  }
+
+	  var listeners = this._events[evt];
+
+	  if (listeners.fn) {
+	    if (
+	      listeners.fn === fn &&
+	      (!once || listeners.once) &&
+	      (!context || listeners.context === context)
+	    ) {
+	      clearEvent(this, evt);
+	    }
+	  } else {
+	    for (var i = 0, events = [], length = listeners.length; i < length; i++) {
+	      if (
+	        listeners[i].fn !== fn ||
+	        (once && !listeners[i].once) ||
+	        (context && listeners[i].context !== context)
+	      ) {
+	        events.push(listeners[i]);
+	      }
+	    }
+
+	    //
+	    // Reset the array, or remove it completely if we have no more listeners.
+	    //
+	    if (events.length) this._events[evt] = events.length === 1 ? events[0] : events;
+	    else clearEvent(this, evt);
+	  }
+
+	  return this;
+	};
+
+	/**
+	 * Remove all listeners, or those of the specified event.
+	 *
+	 * @param {(String|Symbol)} [event] The event name.
+	 * @returns {EventEmitter} `this`.
+	 * @public
+	 */
+	EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
+	  var evt;
+
+	  if (event) {
+	    evt = prefix ? prefix + event : event;
+	    if (this._events[evt]) clearEvent(this, evt);
+	  } else {
+	    this._events = new Events();
+	    this._eventsCount = 0;
+	  }
+
+	  return this;
+	};
+
+	//
+	// Alias methods names because people roll like that.
+	//
+	EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
+	EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+	//
+	// Expose the prefix.
+	//
+	EventEmitter.prefixed = prefix;
+
+	//
+	// Allow `EventEmitter` to be imported as module namespace.
+	//
+	EventEmitter.EventEmitter = EventEmitter;
+
+	//
+	// Expose the module.
+	//
+	{
+	  module.exports = EventEmitter;
+	} 
+} (eventemitter3));
+
+var eventemitter3Exports = eventemitter3.exports;
+var EventEmitter = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports);
+
 // Unique ID creation requires a high quality random # generator. In the browser we therefore
 // require the crypto API and do not support built-in fallback to lower quality random number
 // generators (like Math.random()).
@@ -26552,6 +26897,10 @@ class element extends EventEmitter {
         this.rotation = this.option.rotation || 0;
         if(this.option.width && this.option.width > 0) this.width = this.option.width;
         if(this.option.height && this.option.height > 0) this.height = this.option.height;
+
+        if(this.option.skew) {
+            this.skew = this.option.skew;
+        }
     }
 
     type = '';
@@ -26563,19 +26912,24 @@ class element extends EventEmitter {
         return this.container.x - this.editor.left;
     }
     set x(v) {
-        this.container.x = v + this.editor.left;
+        v += this.editor.left;
+        this.propertyChange('x', v, this.container.x);
+        this.container.x = v;
     }
     get y() {
         return this.container.y - this.editor.top;
     }
     set y(v) {
-        this.container.y = v + this.editor.top;
+        v += this.editor.top;
+        this.propertyChange('y', v, this.container.y);
+        this.container.y = v;
     }
 
     get width() {
         return this.container.width;
     }
     set width(v) {
+        this.propertyChange('width', v, this.container.width);
         this.container.width = v;
         //this.pivot.x = v/2;
     }
@@ -26584,12 +26938,14 @@ class element extends EventEmitter {
         return this.container.height;
     }
     set height(v) {
+        this.propertyChange('height', v, this.container.height);
         this.container.height = v;
         //this.pivot.y = v/2;
     }
 
     // 旋转角度
     set rotation(v) {
+        this.propertyChange('rotation', v, this.container.rotation);
         this.container.rotation = v;
     }
     get rotation() {
@@ -26606,6 +26962,7 @@ class element extends EventEmitter {
         return this.container.visible;
     }
     set visible(v) {
+        this.propertyChange('visible', v, this.container.visible);
         this.container.visible = v;
         //this.editor.sort();
     }
@@ -26620,6 +26977,17 @@ class element extends EventEmitter {
     }
     set position(v) {
         this.container.position = v;
+    }
+    get skew() {
+        return {
+            x: this.container.skew.x,
+            y: this.container.skew.y
+        };
+    }
+    set skew(v) {
+        if(!v) return;
+        if(typeof v.x !== 'undefined') this.container.skew.x = v.x;
+        if(typeof v.y !== 'undefined') this.container.skew.y = v.y;
     }
 
     get zIndex() {
@@ -26641,8 +27009,18 @@ class element extends EventEmitter {
         else {
             this.editor.controlElement.unbind(this);
         }
+        this.propertyChange('selected', v, this._selected);
         this._selected = v;
-        this.emit('selectedChange', v);
+    }
+
+    // 属性变化事件
+    propertyChange(name, newValue, oldValue) {
+        try {
+            this.emit('propertyChange', name, newValue, oldValue);
+        }
+        catch(e) {
+            console.error('propertyChange',name, e);
+        }
     }
 
     bindEvent() {
@@ -26705,7 +27083,7 @@ class element extends EventEmitter {
     }
 
     toJSON() {
-        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id'];
+        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id', 'skew'];
         const obj = {};
        
         for(const k of fields) {
@@ -26801,7 +27179,7 @@ class text extends element {
     constructor(option) {
         super(option);        
 
-        this.style = new TextStyle({
+        this.style = {
             fontFamily: 'Arial',
             dropShadow: false,
             dropShadowAlpha: 0,
@@ -26815,7 +27193,7 @@ class text extends element {
             fontSize: 22,
             fontWeight: 'normal',
             lineJoin: 'round',
-            lineHeight: 1,
+            //lineHeight: 1,
             strokeThickness: 1,
             miterLimit: 0,
             fontStyle: 'normal',
@@ -26823,10 +27201,10 @@ class text extends element {
             //wordWrap: true,
             //wordWrapWidth: 440,
             ...this.style
-        });
+        };
 
         // 文字载体
-        this.textSprite = new Text('', this.style);   
+        this.textSprite = new Text('', new TextStyle(this.style));   
         this.textSprite.anchor.set(0.5);
 
         this.text = option.text || '';
@@ -26837,6 +27215,16 @@ class text extends element {
         this.addChild(this.textSprite);
         
         this.init();
+    }
+
+    get style() {
+        return this._style;
+    }
+    set style(v) {
+        this._style = v;
+        if(this.textSprite) {
+            Object.assign(this.textSprite.style, v);
+        }
     }
 /*
     get width() {
@@ -26957,7 +27345,8 @@ class background extends image {
         'rb': 'se-resize',
         'b': 's-resize',
         'lb': 'sw-resize',
-        'rotate': 'cell'
+        'rotate': 'cell',
+        'skew': 'crosshair'
     };
 
     x = 0;
@@ -26987,6 +27376,10 @@ class background extends image {
         });*/
 
         this.addChild(this.graphics);
+        if(this.style.fillSprite) {
+            this.style.fillSprite.anchor.set(0.5);
+            this.addChild(this.style.fillSprite);
+        }
     }
 
     // 计算坐标等参数
@@ -26999,12 +27392,14 @@ class background extends image {
 
         if(this.shape === 'circle') {
             this.points = [
-                {x, y},
-                {
-                    x,
-                    y: y + this.size * 5
-                }
+                {x, y},                
             ];
+            if(this.dir === 'rotate') {
+                this.points.push({
+                    x,
+                    y: y + 10
+                });
+            }
         }
         else {
             if(!this.points || !this.points.length) {
@@ -27082,6 +27477,10 @@ class background extends image {
             width: 0, 
             height: 0,
             rotation: 0,
+            skew: {
+                x: 0,
+                y: 0
+            }
         };
 
         switch(this.dir) {
@@ -27150,6 +27549,13 @@ class background extends image {
                 args.rotation = angle2 - angle1;
                 break;
             }
+            case 'skew': {
+                const rx = offX / bounds.width * Math.PI;
+                const ry = offY / bounds.height * Math.PI;
+                args.skew.x = ry;
+                args.skew.y = rx;
+                break;
+            }
         }
 
         this.emit('change', event, args);// 触发改变事件
@@ -27164,10 +27570,15 @@ class background extends image {
             points = this.rotatePoints(matrix, points);
         }
 
-        this.graphics.drawPolygon(points);
+        if(points.length > 1) this.graphics.drawPolygon(points);
 
+        if(this.style.fillSprite) {
+            this.style.fillSprite.width = this.width;
+            this.style.fillSprite.height = this.height;
+            if(points.length) this.style.fillSprite.position.set(points[0].x, points[0].y);
+        }
         if(this.shape === 'circle') {
-            this.graphics.drawCircle(points[0].x, points[0].y, this.size);
+            this.graphics.drawCircle(points[0].x, points[0].y, this.size/2);
         }
 
         this.graphics.endFill();
@@ -27249,6 +27660,7 @@ class resize extends resizeItem {
         this.style.fill = 'transparent';
 
         this.itemSize = option.itemSize || 8;
+        this.rotateSize = option.rotateSize || 24;
 
         // 绑定拖放操作, 所有操作都放到control层  
         this.editor.app.stage.eventMode = 'static';
@@ -27271,6 +27683,7 @@ class resize extends resizeItem {
 
     rotation = 0;
     angle = 0;
+    skew = {x: 0, y: 0};
 
     init() {
         super.init();
@@ -27289,16 +27702,26 @@ class resize extends resizeItem {
         this.createItem('b');
         this.createItem('lb');
 
-        this.rotateItem = this.createItem('rotate', 'circle');// 旋转块     
+        // 旋转块
+        const rotateTexture = Sprite.from('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAgVBMVEUAAAAiK9MjKdUfKNYjKdUiKNYiKdUeHuAjKNYjKNYiKNYyMswiKNYiKNYiKNYiKNYhKNYiKdUiKNYiKNYjKdUjKNYgJ9cjJdYiKNYiKNYiKdUhJ9cjKNYiKdUdLNMrK9MiKNYiKNYiKdUiKNYjKNYjKdUjKdUjKNYjKdUjKdUjKdaUW7eVAAAAKnRSTlMAFdMY1/v4CPXo4wXuyLh6RfKRjWpAJxykb1tSTjARC8OslYVgOivQrqey7caqAAABM0lEQVRIx+2U6W6DMBCEDdSE+2wg950e3/s/YGOBQI0hMf+qKvODHYsZe9derXjh32C2PsU+BIcyCw3kVhnRIUj3z/TvEcTp1RGizs42BJvH+kqSbPtlFkP52LFc353oshCTMM8pJzpchuuwrLEs8fdDes9zRhwH0gG9DbY1khR+OKQfd9hkuv4Nbp/hrFIKXe+ANebIiHW9gJbod2fhN7zTq+Shpb/3UusQ2fGeuMw6rtBv1vxraX9UgNNwPV1l0NONmbdMd7jUenkFqRhzyKEr3/DZENNHDSOuKpq3zZlEBfPG3EVcVDRv/RX5VkzCAv9jkiFMyO+GwHb1eOgt4Kvq104hverJIMshea/CG61X3y6yeDb7nJMHyChwVTia1LS7HAMJ+MmyNp/gO2cmXvjD+AHprhpoJKiYYAAAAABJRU5ErkJggg==');
+        this.rotateItem = this.createItem('rotate', 'circle', {
+            ...this.style.itemStyle,
+            fillSprite: rotateTexture
+        });
+        const skewTexture = Sprite.from('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAdVBMVEUAAABlY/97e/9kYv9kY/9nZ/9lY/9kYv9kY/9kYv9kY/9lY/9kYv9kY/9pYP9oYP9kYv9kYv9kY/9kYv9iYv9nY/9kYv9lYv9kYv9lYv9lY/9kYv9lYv9kY/9kYv9lZf9lY/9kYv9kYv9lYv9kYv9lY/9lY/+ktQNRAAAAJnRSTlMA/ATv3xHmW/V0TtO3khcNy8XBUh8U6ti+ppt5bksnGTqygmNEZ0ctpdUAAAEmSURBVEjH7VPbloIwDKSloAUqF6kgd123//+Ja+jSSpGqD74xbynJycxkcDZs+BIOAa2ygrgIuaQoKxocbN03FooFQnZ73u1RIlZQUG/ZvzsJC9zGaOeZkEAJa9ou9zD28q5tWIKERDZb0kvu+3MQm5vj4LyXWh7k42Rce/VW1F1d+J5g9fILddmv29eX0PGj6vReRdhmOI7uLakqgWTnWNGBRFWBo7l9IAeRqgKGFzulCzirjyZAxGRb6/tHM2GREq1VC7eWtvpCoN3M1nq0NX3gwAt9OBiACfNwZKaSRyoaVST0xJBN0UjNMzVG+NCog0zho0tP4noebwKP/2zq+Ll5AwuNAYpEyIZXv+hJU3I4d17iiKToN6Fs/WDgg34djQ0bvo4/naYvgs8xmvwAAAAASUVORK5CYII=');
+        this.skewItem = this.createItem('skew', 'circle', {
+            ...this.style.itemStyle,
+            fillSprite: skewTexture
+        });// 旋转块   
     }
 
-    createItem(id, shape='rect') {
+    createItem(id, shape='rect', style = this.style.itemStyle) {
         const item = new resizeItem({
             dir: id,
             shape,
             editor: this.editor,
             size: this.itemSize,
-            style: this.style.itemStyle
+            style
         });
         this.addChild(item);
         this.items.push(item);
@@ -27308,7 +27731,7 @@ class resize extends resizeItem {
             self.onDragStart(event, this);
         });
 
-        item.on('change', (event, {x, y, width, height, rotation} = args) => {
+        item.on('change', (event, {x, y, width, height, rotation, skew} = args) => {
             const w = this.width + width;
             const h = this.height + height;
 
@@ -27334,6 +27757,11 @@ class resize extends resizeItem {
             if(rotation) {
                 this.rotation += rotation;
             }
+
+            if(skew && (skew.x !== 0 || skew.y !== 0)) {
+                this.skew.x += skew.x;
+                this.skew.y += skew.y;
+            }
         });
         return item;
     }
@@ -27343,10 +27771,15 @@ class resize extends resizeItem {
     initShapes() {
         this.initPoints(this.x, this.y, this.width, this.height);
 
+        const center = {
+            x: this.x + this.width/2,
+            y: this.y + this.height/2
+        };
+
         const t = this.y - this.itemSize / 2;
         const l = this.x - this.itemSize/2;
-        const mid = this.y + this.height/2 - this.itemSize;
-        const cid = this.x + this.width/2 - this.itemSize;
+        const mid = center.y - this.itemSize;
+        const cid = center.x - this.itemSize;
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
@@ -27359,7 +27792,8 @@ class resize extends resizeItem {
         this.items[6].initPoints(cid, b, this.itemSize * 2, this.itemSize);
         this.items[7].initPoints(l, b, this.itemSize, this.itemSize);
 
-        this.rotateItem.initPoints(this.x + this.width/2, this.y- 4*this.itemSize, this.itemSize/2, this.itemSize/2);
+        this.rotateItem.initPoints(center.x, this.y- 4*this.itemSize, this.rotateSize, this.rotateSize);
+        this.skewItem.initPoints(center.x, center.y, this.rotateSize, this.rotateSize);
     }
 
     // 把点位移
@@ -27398,6 +27832,7 @@ class resize extends resizeItem {
         this.y = pos.y;
 
         this.rotation = el.rotation;
+        this.skew = el.skew;
         
         this.initShapes();
 
@@ -27437,6 +27872,7 @@ class resize extends resizeItem {
             this.target.height = this.height;
 
             this.target.rotation = this.rotation;
+            this.target.skew = this.skew;
         }
     }
 
@@ -27454,7 +27890,7 @@ class resize extends resizeItem {
                 x: event.global.x,
                 y: event.global.y
             };
-            if(this.moveItem !== this.rotateItem) {
+            if(this.moveItem !== this.rotateItem && this.moveItem !== this.skewItem) {
                 // 把当前操作的点，回正，再计算大小改变
                 if(this.rotation) {
                     const rebackMatrix = this.getMatrix(-this.rotation, this.bounds.center);
@@ -27694,6 +28130,11 @@ class editor extends EventEmitter {
 
     sort() {
         this.app.stage.sortChildren();
+    }
+
+    // 缩放
+    scale(x, y=x) {
+        this.container.style.transform = `scale(${x}, ${y})`;
     }
 
     // 创建元素

@@ -28,7 +28,8 @@ import element from './element.js';
         'rb': 'se-resize',
         'b': 's-resize',
         'lb': 'sw-resize',
-        'rotate': 'cell'
+        'rotate': 'cell',
+        'skew': 'crosshair'
     };
 
     x = 0;
@@ -58,6 +59,10 @@ import element from './element.js';
         });*/
 
         this.addChild(this.graphics);
+        if(this.style.fillSprite) {
+            this.style.fillSprite.anchor.set(0.5);
+            this.addChild(this.style.fillSprite);
+        }
     }
 
     // 计算坐标等参数
@@ -70,12 +75,14 @@ import element from './element.js';
 
         if(this.shape === 'circle') {
             this.points = [
-                {x, y},
-                {
-                    x,
-                    y: y + this.size * 5
-                }
+                {x, y},                
             ];
+            if(this.dir === 'rotate') {
+                this.points.push({
+                    x,
+                    y: y + 10
+                });
+            }
         }
         else {
             if(!this.points || !this.points.length) {
@@ -153,6 +160,10 @@ import element from './element.js';
             width: 0, 
             height: 0,
             rotation: 0,
+            skew: {
+                x: 0,
+                y: 0
+            }
         };
 
         switch(this.dir) {
@@ -223,6 +234,13 @@ import element from './element.js';
                 args.rotation = angle2 - angle1;
                 break;
             }
+            case 'skew': {
+                const rx = offX / bounds.width * Math.PI;
+                const ry = offY / bounds.height * Math.PI;
+                args.skew.x = ry;
+                args.skew.y = rx;
+                break;
+            }
         }
 
         this.emit('change', event, args);// 触发改变事件
@@ -237,10 +255,15 @@ import element from './element.js';
             points = this.rotatePoints(matrix, points);
         }
 
-        this.graphics.drawPolygon(points);
+        if(points.length > 1) this.graphics.drawPolygon(points);
 
+        if(this.style.fillSprite) {
+            this.style.fillSprite.width = this.width;
+            this.style.fillSprite.height = this.height;
+            if(points.length) this.style.fillSprite.position.set(points[0].x, points[0].y);
+        }
         if(this.shape === 'circle') {
-            this.graphics.drawCircle(points[0].x, points[0].y, this.size);
+            this.graphics.drawCircle(points[0].x, points[0].y, this.size/2);
         }
 
         this.graphics.endFill();
@@ -322,6 +345,7 @@ export default class resize extends resizeItem {
         this.style.fill = 'transparent';
 
         this.itemSize = option.itemSize || 8;
+        this.rotateSize = option.rotateSize || 24;
 
         // 绑定拖放操作, 所有操作都放到control层  
         this.editor.app.stage.eventMode = 'static';
@@ -344,6 +368,7 @@ export default class resize extends resizeItem {
 
     rotation = 0;
     angle = 0;
+    skew = {x: 0, y: 0};
 
     init() {
         super.init();
@@ -362,16 +387,26 @@ export default class resize extends resizeItem {
         this.createItem('b');
         this.createItem('lb');
 
-        this.rotateItem = this.createItem('rotate', 'circle');// 旋转块     
+        // 旋转块
+        const rotateTexture = PIXI.Sprite.from('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAgVBMVEUAAAAiK9MjKdUfKNYjKdUiKNYiKdUeHuAjKNYjKNYiKNYyMswiKNYiKNYiKNYiKNYhKNYiKdUiKNYiKNYjKdUjKNYgJ9cjJdYiKNYiKNYiKdUhJ9cjKNYiKdUdLNMrK9MiKNYiKNYiKdUiKNYjKNYjKdUjKdUjKNYjKdUjKdUjKdaUW7eVAAAAKnRSTlMAFdMY1/v4CPXo4wXuyLh6RfKRjWpAJxykb1tSTjARC8OslYVgOivQrqey7caqAAABM0lEQVRIx+2U6W6DMBCEDdSE+2wg950e3/s/YGOBQI0hMf+qKvODHYsZe9derXjh32C2PsU+BIcyCw3kVhnRIUj3z/TvEcTp1RGizs42BJvH+kqSbPtlFkP52LFc353oshCTMM8pJzpchuuwrLEs8fdDes9zRhwH0gG9DbY1khR+OKQfd9hkuv4Nbp/hrFIKXe+ANebIiHW9gJbod2fhN7zTq+Shpb/3UusQ2fGeuMw6rtBv1vxraX9UgNNwPV1l0NONmbdMd7jUenkFqRhzyKEr3/DZENNHDSOuKpq3zZlEBfPG3EVcVDRv/RX5VkzCAv9jkiFMyO+GwHb1eOgt4Kvq104hverJIMshea/CG61X3y6yeDb7nJMHyChwVTia1LS7HAMJ+MmyNp/gO2cmXvjD+AHprhpoJKiYYAAAAABJRU5ErkJggg==');
+        this.rotateItem = this.createItem('rotate', 'circle', {
+            ...this.style.itemStyle,
+            fillSprite: rotateTexture
+        });
+        const skewTexture = PIXI.Sprite.from('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAdVBMVEUAAABlY/97e/9kYv9kY/9nZ/9lY/9kYv9kY/9kYv9kY/9lY/9kYv9kY/9pYP9oYP9kYv9kYv9kY/9kYv9iYv9nY/9kYv9lYv9kYv9lYv9lY/9kYv9lYv9kY/9kYv9lZf9lY/9kYv9kYv9lYv9kYv9lY/9lY/+ktQNRAAAAJnRSTlMA/ATv3xHmW/V0TtO3khcNy8XBUh8U6ti+ppt5bksnGTqygmNEZ0ctpdUAAAEmSURBVEjH7VPbloIwDKSloAUqF6kgd123//+Ja+jSSpGqD74xbynJycxkcDZs+BIOAa2ygrgIuaQoKxocbN03FooFQnZ73u1RIlZQUG/ZvzsJC9zGaOeZkEAJa9ou9zD28q5tWIKERDZb0kvu+3MQm5vj4LyXWh7k42Rce/VW1F1d+J5g9fILddmv29eX0PGj6vReRdhmOI7uLakqgWTnWNGBRFWBo7l9IAeRqgKGFzulCzirjyZAxGRb6/tHM2GREq1VC7eWtvpCoN3M1nq0NX3gwAt9OBiACfNwZKaSRyoaVST0xJBN0UjNMzVG+NCog0zho0tP4noebwKP/2zq+Ll5AwuNAYpEyIZXv+hJU3I4d17iiKToN6Fs/WDgg34djQ0bvo4/naYvgs8xmvwAAAAASUVORK5CYII=');
+        this.skewItem = this.createItem('skew', 'circle', {
+            ...this.style.itemStyle,
+            fillSprite: skewTexture
+        });// 旋转块   
     }
 
-    createItem(id, shape='rect') {
+    createItem(id, shape='rect', style = this.style.itemStyle) {
         const item = new resizeItem({
             dir: id,
             shape,
             editor: this.editor,
             size: this.itemSize,
-            style: this.style.itemStyle
+            style
         });
         this.addChild(item);
         this.items.push(item);
@@ -381,7 +416,7 @@ export default class resize extends resizeItem {
             self.onDragStart(event, this);
         });
 
-        item.on('change', (event, {x, y, width, height, rotation} = args) => {
+        item.on('change', (event, {x, y, width, height, rotation, skew} = args) => {
             const w = this.width + width;
             const h = this.height + height;
 
@@ -407,6 +442,11 @@ export default class resize extends resizeItem {
             if(rotation) {
                 this.rotation += rotation;
             }
+
+            if(skew && (skew.x !== 0 || skew.y !== 0)) {
+                this.skew.x += skew.x;
+                this.skew.y += skew.y;
+            }
         });
         return item;
     }
@@ -416,10 +456,15 @@ export default class resize extends resizeItem {
     initShapes() {
         this.initPoints(this.x, this.y, this.width, this.height);
 
+        const center = {
+            x: this.x + this.width/2,
+            y: this.y + this.height/2
+        };
+
         const t = this.y - this.itemSize / 2;
         const l = this.x - this.itemSize/2;
-        const mid = this.y + this.height/2 - this.itemSize;
-        const cid = this.x + this.width/2 - this.itemSize;
+        const mid = center.y - this.itemSize;
+        const cid = center.x - this.itemSize;
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
@@ -432,7 +477,8 @@ export default class resize extends resizeItem {
         this.items[6].initPoints(cid, b, this.itemSize * 2, this.itemSize);
         this.items[7].initPoints(l, b, this.itemSize, this.itemSize);
 
-        this.rotateItem.initPoints(this.x + this.width/2, this.y- 4*this.itemSize, this.itemSize/2, this.itemSize/2);
+        this.rotateItem.initPoints(center.x, this.y- 4*this.itemSize, this.rotateSize, this.rotateSize);
+        this.skewItem.initPoints(center.x, center.y, this.rotateSize, this.rotateSize);
     }
 
     // 把点位移
@@ -471,6 +517,7 @@ export default class resize extends resizeItem {
         this.y = pos.y;
 
         this.rotation = el.rotation;
+        this.skew = el.skew;
         
         this.initShapes();
 
@@ -510,6 +557,7 @@ export default class resize extends resizeItem {
             this.target.height = this.height;
 
             this.target.rotation = this.rotation;
+            this.target.skew = this.skew;
         }
     }
 
@@ -527,7 +575,7 @@ export default class resize extends resizeItem {
                 x: event.global.x,
                 y: event.global.y
             };
-            if(this.moveItem !== this.rotateItem) {
+            if(this.moveItem !== this.rotateItem && this.moveItem !== this.skewItem) {
                 // 把当前操作的点，回正，再计算大小改变
                 if(this.rotation) {
                     const rebackMatrix = this.getMatrix(-this.rotation, this.bounds.center);

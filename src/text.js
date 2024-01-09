@@ -6,7 +6,7 @@ export default class text extends element {
     constructor(option) {
         super(option);        
 
-        this.style = new PIXI.TextStyle({
+        this.style = {
             fontFamily: 'Arial',
             dropShadow: false,
             dropShadowAlpha: 0,
@@ -20,7 +20,7 @@ export default class text extends element {
             fontSize: 22,
             fontWeight: 'normal',
             lineJoin: 'round',
-            lineHeight: 1,
+            //lineHeight: 1,
             strokeThickness: 1,
             miterLimit: 0,
             fontStyle: 'normal',
@@ -28,10 +28,10 @@ export default class text extends element {
             //wordWrap: true,
             //wordWrapWidth: 440,
             ...this.style
-        });
+        };
 
         // 文字载体
-        this.textSprite = new PIXI.Text('', this.style);   
+        this.textSprite = new PIXI.Text('', new PIXI.TextStyle(this.style));   
         this.textSprite.anchor.set(0.5);
 
         this.text = option.text || '';
@@ -42,6 +42,16 @@ export default class text extends element {
         this.addChild(this.textSprite);
         
         this.init();
+    }
+
+    get style() {
+        return this._style;
+    }
+    set style(v) {
+        this._style = v;
+        if(this.textSprite) {
+            Object.assign(this.textSprite.style, v);
+        }
     }
 /*
     get width() {

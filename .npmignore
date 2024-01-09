@@ -2,4 +2,5 @@
 .travis.yml
 docs
 node_modules
+templates
 .DS_Store

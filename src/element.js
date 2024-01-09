@@ -24,6 +24,10 @@ export default class element extends EventEmiter {
         this.rotation = this.option.rotation || 0;
         if(this.option.width && this.option.width > 0) this.width = this.option.width;
         if(this.option.height && this.option.height > 0) this.height = this.option.height;
+
+        if(this.option.skew) {
+            this.skew = this.option.skew;
+        }
     }
 
     type = '';
@@ -35,19 +39,24 @@ export default class element extends EventEmiter {
         return this.container.x - this.editor.left;
     }
     set x(v) {
-        this.container.x = v + this.editor.left;
+        v += this.editor.left;
+        this.propertyChange('x', v, this.container.x);
+        this.container.x = v;
     }
     get y() {
         return this.container.y - this.editor.top;
     }
     set y(v) {
-        this.container.y = v + this.editor.top;
+        v += this.editor.top;
+        this.propertyChange('y', v, this.container.y);
+        this.container.y = v;
     }
 
     get width() {
         return this.container.width;
     }
     set width(v) {
+        this.propertyChange('width', v, this.container.width);
         this.container.width = v;
         //this.pivot.x = v/2;
     }
@@ -56,12 +65,14 @@ export default class element extends EventEmiter {
         return this.container.height;
     }
     set height(v) {
+        this.propertyChange('height', v, this.container.height);
         this.container.height = v;
         //this.pivot.y = v/2;
     }
 
     // 旋转角度
     set rotation(v) {
+        this.propertyChange('rotation', v, this.container.rotation);
         this.container.rotation = v;
     }
     get rotation() {
@@ -78,6 +89,7 @@ export default class element extends EventEmiter {
         return this.container.visible;
     }
     set visible(v) {
+        this.propertyChange('visible', v, this.container.visible);
         this.container.visible = v;
         //this.editor.sort();
     }
@@ -92,6 +104,17 @@ export default class element extends EventEmiter {
     }
     set position(v) {
         this.container.position = v;
+    }
+    get skew() {
+        return {
+            x: this.container.skew.x,
+            y: this.container.skew.y
+        };
+    }
+    set skew(v) {
+        if(!v) return;
+        if(typeof v.x !== 'undefined') this.container.skew.x = v.x;
+        if(typeof v.y !== 'undefined') this.container.skew.y = v.y;
     }
 
     get zIndex() {
@@ -113,8 +136,18 @@ export default class element extends EventEmiter {
         else {
             this.editor.controlElement.unbind(this);
         }
+        this.propertyChange('selected', v, this._selected);
         this._selected = v;
-        this.emit('selectedChange', v);
+    }
+
+    // 属性变化事件
+    propertyChange(name, newValue, oldValue) {
+        try {
+            this.emit('propertyChange', name, newValue, oldValue);
+        }
+        catch(e) {
+            console.error('propertyChange',name, e);
+        }
     }
 
     bindEvent() {
@@ -177,7 +210,7 @@ export default class element extends EventEmiter {
     }
 
     toJSON() {
-        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id'];
+        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id', 'skew'];
         const obj = {};
        
         for(const k of fields) {

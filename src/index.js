@@ -148,6 +148,11 @@ export default class editor extends EventEmiter {
         this.app.stage.sortChildren()
     }
 
+    // 缩放
+    scale(x, y=x) {
+        this.container.style.transform = `scale(${x}, ${y})`;
+    }
+
     // 创建元素
     createShape(type, option={}) {
         const shape = this.shapes[type];

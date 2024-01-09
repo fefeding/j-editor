@@ -32,6 +32,7 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "express": "^4.18.2",
+    "request": "^2.88.2",
     "rollup": "^2.16.1",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-sourcemaps": "^0.6.2"
