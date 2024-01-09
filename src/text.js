@@ -4,9 +4,9 @@ import element from './element.js';
 // font元素
 export default class text extends element {
     constructor(option) {
-        super(option);
-        
-        this.style = {
+        super(option);        
+
+        this.style = new PIXI.TextStyle({
             fontFamily: 'Arial',
             dropShadow: false,
             dropShadowAlpha: 0,
@@ -16,48 +16,52 @@ export default class text extends element {
             dropShadowDistance: 0,
             align: 'left',
             fill: ['#ffffff'],
-            stroke: '#004620',
+            stroke: 'transparent',
             fontSize: 22,
-            fontWeight: 'lighter',
+            fontWeight: 'normal',
             lineJoin: 'round',
-            lineHeight: 22,
+            lineHeight: 1,
             strokeThickness: 1,
-            miterLimit: 1,
+            miterLimit: 0,
             fontStyle: 'normal',
+            //breakWords
             //wordWrap: true,
             //wordWrapWidth: 440,
             ...this.style
-        };
+        });
 
-        // 图片载体
-        this.sprite = new PIXI.Text(option.text, new PIXI.TextStyle(this.style));   
-        this.sprite.anchor.set(0.5);
+        // 文字载体
+        this.textSprite = new PIXI.Text('', this.style);   
+        this.textSprite.anchor.set(0.5);
 
-        this.addChild(this.sprite);
+        this.text = option.text || '';
+
+        if(this.option.width && this.option.width > 0) this.textSprite.width = this.option.width;
+        if(this.option.height && this.option.height > 0) this.textSprite.height = this.option.height;
+        
+        this.addChild(this.textSprite);
         
         this.init();
     }
 /*
     get width() {
-        return this.sprite.width;
+        return this.textSprite.width;
     }
     set width(v) {
-        this.sprite.width = v;
-        super.width = v;
+        this.textSprite.width = v;
     }
 
     get height() {
-        return this.sprite.height;
+        return this.textSprite.height;
     }
     set height(v) {
-        this.sprite.height = v;
-        super.height = v;
+        this.textSprite.height = v;
     }*/
 
     get text() {
-        return this.sprite.text;
+        return this.textSprite.text;
     }
     set text(v) {
-        this.sprite.text = v;
+        this.textSprite.text = v;
     }
 }

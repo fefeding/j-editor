@@ -36,6 +36,7 @@
 			  </div>
 			  <div class="col-2">
 				<img id="previewImg" width="200" />
+				<div style="font-family: Zcool Kuaile Regular;">字体测试</div>
 			  </div>
 			</div>
 		  </div>
@@ -105,18 +106,17 @@
 		});
 		editor.addChild(txt1);
 		txt1.x = 300;
-		txt1.y = 100;
+		txt1.y = 100;*/
 
 		editor.loader.loadFont({
-			ChaChicle: 'https://pixijs.com/assets/webfont-loader/ChaChicle.ttf',
-			Lineal: 'https://pixijs.com/assets/webfont-loader/Lineal.otf',
-			'Dotrice Regular': 'https://pixijs.com/assets/webfont-loader/Dotrice-Regular.woff',
-			Crosterian: 'https://pixijs.com/assets/webfont-loader/Crosterian.woff2',
+			"zcool-kuaile-regular": 'fonts/zcool-kuaile-regular.woff2',
 		}, (e) => {
 			console.log('load fonts', e);
 		}).then(()=>{
-			txt1.text += ', complete'
-		});*/
+			
+			const v = editor.loader.assets.get("zcool-kuaile-regular");
+			console.log('load fonts completed', v);
+		});
 
 		const preview = document.getElementById('previewImg');
 		async function createPreivew(delta) {

@@ -3,6 +3,10 @@ import * as PIXI from 'pixi.js';
 
 export default class loader {
 
+    get assets() {
+        return PIXI.Assets;
+    }
+
     // 加载静态资源
     async load(urls, progress) {
         return PIXI.Assets.load(urls, progress);
@@ -17,9 +21,10 @@ export default class loader {
     async loadBundle(name, objs, progress) {
         this.addBundle(name, objs);
 
-        return PIXI.Assets.loadBundle(name, function (e) {
+        const res = await PIXI.Assets.loadBundle(name, function (e) {
             progress && progress(e);
         });
+        return res;
     }
 
     // 加载字体

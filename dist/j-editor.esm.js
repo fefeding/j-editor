@@ -225,9 +225,9 @@ function getAugmentedNamespace(n) {
 	return a;
 }
 
-var eventemitter3$1 = {exports: {}};
+var eventemitter3 = {exports: {}};
 
-eventemitter3$1.exports;
+eventemitter3.exports;
 
 (function (module) {
 
@@ -565,10 +565,10 @@ eventemitter3$1.exports;
 	{
 	  module.exports = EventEmitter;
 	} 
-} (eventemitter3$1));
+} (eventemitter3));
 
-var eventemitter3Exports$1 = eventemitter3$1.exports;
-var EventEmitter$1 = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports$1);
+var eventemitter3Exports = eventemitter3.exports;
+var EventEmitter = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports);
 
 var earcut$2 = {exports: {}};
 
@@ -6186,7 +6186,7 @@ class BufferResource extends Resource {
 const defaultBufferOptions = {
   scaleMode: SCALE_MODES.NEAREST,
   alphaMode: ALPHA_MODES.NPM
-}, _BaseTexture = class _BaseTexture2 extends EventEmitter$1 {
+}, _BaseTexture = class _BaseTexture2 extends EventEmitter {
   /**
    * @param {PIXI.Resource|HTMLImageElement|HTMLVideoElement|ImageBitmap|ICanvas|string} [resource=null] -
    *        The current resource to use, for things that aren't Resource objects, will be converted
@@ -9626,7 +9626,7 @@ function removeAllHandlers(tex) {
   }, tex.emit = function() {
   };
 }
-class Texture extends EventEmitter$1 {
+class Texture extends EventEmitter {
   /**
    * @param baseTexture - The base texture source to create the texture from
    * @param frame - The rectangle frame of the texture to show
@@ -12102,7 +12102,7 @@ _StateSystem.extension = {
 let StateSystem = _StateSystem;
 extensions$1.add(StateSystem);
 
-class SystemManager extends EventEmitter$1 {
+class SystemManager extends EventEmitter {
   constructor() {
     super(...arguments), this.runners = {}, this._systemsHash = {};
   }
@@ -14602,7 +14602,7 @@ class Bounds {
   }
 }
 
-class DisplayObject extends EventEmitter$1 {
+class DisplayObject extends EventEmitter {
   constructor() {
     super(), this.tempDisplayObjectParent = null, this.transform = new Transform(), this.alpha = 1, this.visible = !0, this.renderable = !0, this.cullable = !1, this.cullArea = null, this.parent = null, this.worldAlpha = 1, this._lastSortedIndex = 0, this._zIndex = 0, this.filterArea = null, this.filters = null, this._enabledFilters = null, this._bounds = new Bounds(), this._localBounds = null, this._boundsID = 0, this._boundsRect = null, this._localBoundsRect = null, this._mask = null, this._maskRefCount = 0, this._destroyed = !1, this.isSprite = !1, this.isMask = !1;
   }
@@ -17330,7 +17330,7 @@ class EventBoundary {
    * @param rootTarget - The holder of the event boundary.
    */
   constructor(rootTarget) {
-    this.dispatch = new EventEmitter$1(), this.moveOnAll = !1, this.enableGlobalMoveEvents = !0, this.mappingState = {
+    this.dispatch = new EventEmitter(), this.moveOnAll = !1, this.enableGlobalMoveEvents = !0, this.mappingState = {
       trackingData: {}
     }, this.eventPool = /* @__PURE__ */ new Map(), this._allInteractiveElements = [], this._hitElements = [], this._isPointerMoveEvent = !1, this.rootTarget = rootTarget, this.hitPruneFn = this.hitPruneFn.bind(this), this.hitTestFn = this.hitTestFn.bind(this), this.mapPointerDown = this.mapPointerDown.bind(this), this.mapPointerMove = this.mapPointerMove.bind(this), this.mapPointerOut = this.mapPointerOut.bind(this), this.mapPointerOver = this.mapPointerOver.bind(this), this.mapPointerUp = this.mapPointerUp.bind(this), this.mapPointerUpOutside = this.mapPointerUpOutside.bind(this), this.mapWheel = this.mapWheel.bind(this), this.mappingTable = {}, this.addEventMapping("pointerdown", this.mapPointerDown), this.addEventMapping("pointermove", this.mapPointerMove), this.addEventMapping("pointerout", this.mapPointerOut), this.addEventMapping("pointerleave", this.mapPointerOut), this.addEventMapping("pointerover", this.mapPointerOver), this.addEventMapping("pointerup", this.mapPointerUp), this.addEventMapping("pointerupoutside", this.mapPointerUpOutside), this.addEventMapping("wheel", this.mapWheel);
   }
@@ -26465,351 +26465,6 @@ _HTMLText.defaultMaxWidth = 2024, /** Default maxHeight, set at construction */
 _HTMLText.defaultMaxHeight = 2024, /** Default autoResolution for all HTMLText objects */
 _HTMLText.defaultAutoResolution = !0;
 
-var eventemitter3 = {exports: {}};
-
-eventemitter3.exports;
-
-(function (module) {
-
-	var has = Object.prototype.hasOwnProperty
-	  , prefix = '~';
-
-	/**
-	 * Constructor to create a storage for our `EE` objects.
-	 * An `Events` instance is a plain object whose properties are event names.
-	 *
-	 * @constructor
-	 * @private
-	 */
-	function Events() {}
-
-	//
-	// We try to not inherit from `Object.prototype`. In some engines creating an
-	// instance in this way is faster than calling `Object.create(null)` directly.
-	// If `Object.create(null)` is not supported we prefix the event names with a
-	// character to make sure that the built-in object properties are not
-	// overridden or used as an attack vector.
-	//
-	if (Object.create) {
-	  Events.prototype = Object.create(null);
-
-	  //
-	  // This hack is needed because the `__proto__` property is still inherited in
-	  // some old browsers like Android 4, iPhone 5.1, Opera 11 and Safari 5.
-	  //
-	  if (!new Events().__proto__) prefix = false;
-	}
-
-	/**
-	 * Representation of a single event listener.
-	 *
-	 * @param {Function} fn The listener function.
-	 * @param {*} context The context to invoke the listener with.
-	 * @param {Boolean} [once=false] Specify if the listener is a one-time listener.
-	 * @constructor
-	 * @private
-	 */
-	function EE(fn, context, once) {
-	  this.fn = fn;
-	  this.context = context;
-	  this.once = once || false;
-	}
-
-	/**
-	 * Add a listener for a given event.
-	 *
-	 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
-	 * @param {(String|Symbol)} event The event name.
-	 * @param {Function} fn The listener function.
-	 * @param {*} context The context to invoke the listener with.
-	 * @param {Boolean} once Specify if the listener is a one-time listener.
-	 * @returns {EventEmitter}
-	 * @private
-	 */
-	function addListener(emitter, event, fn, context, once) {
-	  if (typeof fn !== 'function') {
-	    throw new TypeError('The listener must be a function');
-	  }
-
-	  var listener = new EE(fn, context || emitter, once)
-	    , evt = prefix ? prefix + event : event;
-
-	  if (!emitter._events[evt]) emitter._events[evt] = listener, emitter._eventsCount++;
-	  else if (!emitter._events[evt].fn) emitter._events[evt].push(listener);
-	  else emitter._events[evt] = [emitter._events[evt], listener];
-
-	  return emitter;
-	}
-
-	/**
-	 * Clear event by name.
-	 *
-	 * @param {EventEmitter} emitter Reference to the `EventEmitter` instance.
-	 * @param {(String|Symbol)} evt The Event name.
-	 * @private
-	 */
-	function clearEvent(emitter, evt) {
-	  if (--emitter._eventsCount === 0) emitter._events = new Events();
-	  else delete emitter._events[evt];
-	}
-
-	/**
-	 * Minimal `EventEmitter` interface that is molded against the Node.js
-	 * `EventEmitter` interface.
-	 *
-	 * @constructor
-	 * @public
-	 */
-	function EventEmitter() {
-	  this._events = new Events();
-	  this._eventsCount = 0;
-	}
-
-	/**
-	 * Return an array listing the events for which the emitter has registered
-	 * listeners.
-	 *
-	 * @returns {Array}
-	 * @public
-	 */
-	EventEmitter.prototype.eventNames = function eventNames() {
-	  var names = []
-	    , events
-	    , name;
-
-	  if (this._eventsCount === 0) return names;
-
-	  for (name in (events = this._events)) {
-	    if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
-	  }
-
-	  if (Object.getOwnPropertySymbols) {
-	    return names.concat(Object.getOwnPropertySymbols(events));
-	  }
-
-	  return names;
-	};
-
-	/**
-	 * Return the listeners registered for a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @returns {Array} The registered listeners.
-	 * @public
-	 */
-	EventEmitter.prototype.listeners = function listeners(event) {
-	  var evt = prefix ? prefix + event : event
-	    , handlers = this._events[evt];
-
-	  if (!handlers) return [];
-	  if (handlers.fn) return [handlers.fn];
-
-	  for (var i = 0, l = handlers.length, ee = new Array(l); i < l; i++) {
-	    ee[i] = handlers[i].fn;
-	  }
-
-	  return ee;
-	};
-
-	/**
-	 * Return the number of listeners listening to a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @returns {Number} The number of listeners.
-	 * @public
-	 */
-	EventEmitter.prototype.listenerCount = function listenerCount(event) {
-	  var evt = prefix ? prefix + event : event
-	    , listeners = this._events[evt];
-
-	  if (!listeners) return 0;
-	  if (listeners.fn) return 1;
-	  return listeners.length;
-	};
-
-	/**
-	 * Calls each of the listeners registered for a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @returns {Boolean} `true` if the event had listeners, else `false`.
-	 * @public
-	 */
-	EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
-	  var evt = prefix ? prefix + event : event;
-
-	  if (!this._events[evt]) return false;
-
-	  var listeners = this._events[evt]
-	    , len = arguments.length
-	    , args
-	    , i;
-
-	  if (listeners.fn) {
-	    if (listeners.once) this.removeListener(event, listeners.fn, undefined, true);
-
-	    switch (len) {
-	      case 1: return listeners.fn.call(listeners.context), true;
-	      case 2: return listeners.fn.call(listeners.context, a1), true;
-	      case 3: return listeners.fn.call(listeners.context, a1, a2), true;
-	      case 4: return listeners.fn.call(listeners.context, a1, a2, a3), true;
-	      case 5: return listeners.fn.call(listeners.context, a1, a2, a3, a4), true;
-	      case 6: return listeners.fn.call(listeners.context, a1, a2, a3, a4, a5), true;
-	    }
-
-	    for (i = 1, args = new Array(len -1); i < len; i++) {
-	      args[i - 1] = arguments[i];
-	    }
-
-	    listeners.fn.apply(listeners.context, args);
-	  } else {
-	    var length = listeners.length
-	      , j;
-
-	    for (i = 0; i < length; i++) {
-	      if (listeners[i].once) this.removeListener(event, listeners[i].fn, undefined, true);
-
-	      switch (len) {
-	        case 1: listeners[i].fn.call(listeners[i].context); break;
-	        case 2: listeners[i].fn.call(listeners[i].context, a1); break;
-	        case 3: listeners[i].fn.call(listeners[i].context, a1, a2); break;
-	        case 4: listeners[i].fn.call(listeners[i].context, a1, a2, a3); break;
-	        default:
-	          if (!args) for (j = 1, args = new Array(len -1); j < len; j++) {
-	            args[j - 1] = arguments[j];
-	          }
-
-	          listeners[i].fn.apply(listeners[i].context, args);
-	      }
-	    }
-	  }
-
-	  return true;
-	};
-
-	/**
-	 * Add a listener for a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @param {Function} fn The listener function.
-	 * @param {*} [context=this] The context to invoke the listener with.
-	 * @returns {EventEmitter} `this`.
-	 * @public
-	 */
-	EventEmitter.prototype.on = function on(event, fn, context) {
-	  return addListener(this, event, fn, context, false);
-	};
-
-	/**
-	 * Add a one-time listener for a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @param {Function} fn The listener function.
-	 * @param {*} [context=this] The context to invoke the listener with.
-	 * @returns {EventEmitter} `this`.
-	 * @public
-	 */
-	EventEmitter.prototype.once = function once(event, fn, context) {
-	  return addListener(this, event, fn, context, true);
-	};
-
-	/**
-	 * Remove the listeners of a given event.
-	 *
-	 * @param {(String|Symbol)} event The event name.
-	 * @param {Function} fn Only remove the listeners that match this function.
-	 * @param {*} context Only remove the listeners that have this context.
-	 * @param {Boolean} once Only remove one-time listeners.
-	 * @returns {EventEmitter} `this`.
-	 * @public
-	 */
-	EventEmitter.prototype.removeListener = function removeListener(event, fn, context, once) {
-	  var evt = prefix ? prefix + event : event;
-
-	  if (!this._events[evt]) return this;
-	  if (!fn) {
-	    clearEvent(this, evt);
-	    return this;
-	  }
-
-	  var listeners = this._events[evt];
-
-	  if (listeners.fn) {
-	    if (
-	      listeners.fn === fn &&
-	      (!once || listeners.once) &&
-	      (!context || listeners.context === context)
-	    ) {
-	      clearEvent(this, evt);
-	    }
-	  } else {
-	    for (var i = 0, events = [], length = listeners.length; i < length; i++) {
-	      if (
-	        listeners[i].fn !== fn ||
-	        (once && !listeners[i].once) ||
-	        (context && listeners[i].context !== context)
-	      ) {
-	        events.push(listeners[i]);
-	      }
-	    }
-
-	    //
-	    // Reset the array, or remove it completely if we have no more listeners.
-	    //
-	    if (events.length) this._events[evt] = events.length === 1 ? events[0] : events;
-	    else clearEvent(this, evt);
-	  }
-
-	  return this;
-	};
-
-	/**
-	 * Remove all listeners, or those of the specified event.
-	 *
-	 * @param {(String|Symbol)} [event] The event name.
-	 * @returns {EventEmitter} `this`.
-	 * @public
-	 */
-	EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
-	  var evt;
-
-	  if (event) {
-	    evt = prefix ? prefix + event : event;
-	    if (this._events[evt]) clearEvent(this, evt);
-	  } else {
-	    this._events = new Events();
-	    this._eventsCount = 0;
-	  }
-
-	  return this;
-	};
-
-	//
-	// Alias methods names because people roll like that.
-	//
-	EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
-	EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-
-	//
-	// Expose the prefix.
-	//
-	EventEmitter.prefixed = prefix;
-
-	//
-	// Allow `EventEmitter` to be imported as module namespace.
-	//
-	EventEmitter.EventEmitter = EventEmitter;
-
-	//
-	// Expose the module.
-	//
-	{
-	  module.exports = EventEmitter;
-	} 
-} (eventemitter3));
-
-var eventemitter3Exports = eventemitter3.exports;
-var EventEmitter = /*@__PURE__*/getDefaultExportFromCjs(eventemitter3Exports);
-
 // Unique ID creation requires a high quality random # generator. In the browser we therefore
 // require the crypto API and do not support built-in fallback to lower quality random number
 // generators (like Math.random()).
@@ -27144,9 +26799,9 @@ class image extends element {
 // font元素
 class text extends element {
     constructor(option) {
-        super(option);
-        
-        this.style = {
+        super(option);        
+
+        this.style = new TextStyle({
             fontFamily: 'Arial',
             dropShadow: false,
             dropShadowAlpha: 0,
@@ -27156,49 +26811,53 @@ class text extends element {
             dropShadowDistance: 0,
             align: 'left',
             fill: ['#ffffff'],
-            stroke: '#004620',
+            stroke: 'transparent',
             fontSize: 22,
-            fontWeight: 'lighter',
+            fontWeight: 'normal',
             lineJoin: 'round',
-            lineHeight: 22,
+            lineHeight: 1,
             strokeThickness: 1,
-            miterLimit: 1,
+            miterLimit: 0,
             fontStyle: 'normal',
+            //breakWords
             //wordWrap: true,
             //wordWrapWidth: 440,
             ...this.style
-        };
+        });
 
-        // 图片载体
-        this.sprite = new Text(option.text, new TextStyle(this.style));   
-        this.sprite.anchor.set(0.5);
+        // 文字载体
+        this.textSprite = new Text('', this.style);   
+        this.textSprite.anchor.set(0.5);
 
-        this.addChild(this.sprite);
+        this.text = option.text || '';
+
+        if(this.option.width && this.option.width > 0) this.textSprite.width = this.option.width;
+        if(this.option.height && this.option.height > 0) this.textSprite.height = this.option.height;
+        
+        this.addChild(this.textSprite);
         
         this.init();
     }
 /*
     get width() {
-        return this.sprite.width;
+        return this.textSprite.width;
     }
     set width(v) {
-        this.sprite.width = v;
-        super.width = v;
+        this.textSprite.width = v;
     }
 
     get height() {
-        return this.sprite.height;
+        return this.textSprite.height;
     }
     set height(v) {
-        this.sprite.height = v;
-        super.height = v;
+        this.textSprite.height = v;
     }*/
 
     get text() {
-        return this.sprite.text;
+        return this.textSprite.text;
     }
     set text(v) {
-        this.sprite.text = v;
+        this.textSprite.text = v;
     }
 }
 
@@ -27865,6 +27524,10 @@ class resize extends resizeItem {
 
 class loader {
 
+    get assets() {
+        return Assets;
+    }
+
     // 加载静态资源
     async load(urls, progress) {
         return Assets.load(urls, progress);
@@ -27879,9 +27542,10 @@ class loader {
     async loadBundle(name, objs, progress) {
         this.addBundle(name, objs);
 
-        return Assets.loadBundle(name, function (e) {
+        const res = await Assets.loadBundle(name, function (e) {
             progress && progress(e);
         });
+        return res;
     }
 
     // 加载字体
