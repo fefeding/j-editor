@@ -355,6 +355,10 @@ export default class resize extends resizeItem {
 
         // 其它区域点击则取消选择
         this.editor.app.stage.on('pointerdown', (event) => {
+            if(event.button === 2) {
+                if(this.target) this.target.selected = false;
+                return;
+            }
             if(this.target && this.target.selected && this.editor.background.container === event.target) this.target.selected = false;
         });
     }
@@ -413,6 +417,9 @@ export default class resize extends resizeItem {
 
         const self = this;
         item.on('pointerdown', function(event) {
+            if(event.button === 2) {
+                return;
+            }
             self.onDragStart(event, this);
         });
 

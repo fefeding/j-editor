@@ -16,6 +16,7 @@
 			height: 100%;
 			position: relative;
 			margin: auto;
+			background-color: #eee;
 		}
 	</style>
 	</head>
@@ -49,7 +50,10 @@
 		const editor = new JEditor(container, {
 			width: 800,
 			height: 600,
-			resolution: 1
+			resolution: 1,
+			style: {
+				paddingBackgroundColor: '#eee'
+			}
 		});
 
 		editor.scale(0.8);
@@ -125,7 +129,7 @@
 			setTimeout(createPreivew, 5000);
 
 			const json = editor.toString();
-			console.log(json);
+			//console.log(json);
 		};
 		setTimeout(createPreivew, 1000);
 	</script>

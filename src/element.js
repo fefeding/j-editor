@@ -153,8 +153,12 @@ export default class element extends EventEmiter {
     bindEvent() {
         this.container.eventMode = 'static';
         this.container.cursor = 'pointer';
+        
         this.container.on('pointerdown', function(event) {
             this.emit('pointerdown', event);
+        }, this);
+        this.container.on('pointerup', function(event) {
+            this.emit('pointerup', event);
         }, this);
     }    
 

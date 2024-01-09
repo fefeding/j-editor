@@ -73,7 +73,20 @@ export default class editor extends EventEmiter {
         this.controlElement = new jResize({
             editor: this
         });
-        this.addChild(this.controlElement); }
+        this.addChild(this.controlElement); 
+
+        this.textEditElement = document.createElement('textarea');
+        this.textEditElement.style.position = 'absolute';
+        this.textEditElement.style.display = 'none';
+        this.textEditElement.style.boxSizing = 'border-box';
+        this.textEditElement.style.border = '1px solid #ccc';
+        this.textEditElement.style.padding = '4px';
+        this.textEditElement.style.resize = 'both';
+        this.container.appendChild(this.textEditElement);
+        this.textEditElement.addEventListener('blur', (e) => {
+            this.emit('textEditElementOnBlur', e);
+        });
+    }
 
     get width() {
         return this._width;
