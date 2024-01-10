@@ -1,6 +1,6 @@
 {
   "name": "j-editer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "设计组件",
   "main": "src/index.js",
   "directories": {
