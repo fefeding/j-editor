@@ -73,23 +73,29 @@ const GCursors = {
             }
         }
         else {
-            if(!this.points || !this.points.length) {
-                this.points = [
-                    {x, y}, 
-                    {x: x + w, y},
-                    {x: x + w, y: y + h},
-                    {x, y: y + h}
-                ];
+            const rectPoints = [
+                {x, y}, 
+                {x: x + w, y},
+                {x: x + w, y: y + h},
+                {x, y: y + h}
+            ];
+
+            // 如果是虚线
+            if(this.style.lineType === 'dotted') {
+                this.points = [];
+
+                let start = rectPoints[0];
+                for(let i=1; i<=rectPoints.length;i++) {
+                    const end = rectPoints[i] ||rectPoints[0];// 如果到了最后一个点，再回到起点
+                    const dotPoints = this.createDotLinePoints(start, end);
+                    this.points.push(...dotPoints);
+
+                    start = rectPoints[i];
+                }
+                
             }
             else {
-                this.points[0].x = x;
-                this.points[0].y = y;
-                this.points[1].x = x + w;
-                this.points[1].y = y;
-                this.points[2].x = x + w;
-                this.points[2].y = y + h;
-                this.points[3].x = x;
-                this.points[3].y = y + h;
+                this.points = rectPoints;
             }
         }
 
@@ -287,9 +293,8 @@ export default class resize extends resizeItem {
         // 改变大小的方块
         this.items = [];
 
-        this.graphics = new PIXI.Graphics();
         this.graphics.eventMode = 'none';
-        this.addChild(this.graphics);   
+        
         this.createItem('l');
         this.createItem('lt');
         this.createItem('t');
@@ -309,7 +314,15 @@ export default class resize extends resizeItem {
         this.skewItem = this.createItem('skew', 'circle', {
             ...this.style.itemStyle,
             fillSprite: skewTexture
-        });// 旋转块   
+        });// 旋转块 
+        
+        this.hoverItem = this.createItem('hover', 'rect',  {
+            ...this.style.itemStyle,
+            lineType: 'dotted',// 虚线
+            fill: 'transparent'
+        });
+        this.hoverItem.visible = false;
+        this.editor.addChild(this.hoverItem);
     }
 
     createItem(id, shape='rect', style = this.style.itemStyle) {
@@ -318,6 +331,7 @@ export default class resize extends resizeItem {
             shape,
             editor: this.editor,
             size: this.itemSize,
+            editable: false,
             style
         });
         this.addChild(item);
@@ -423,10 +437,10 @@ export default class resize extends resizeItem {
         
 
         // 操作元素在控制层，需要转换坐标
-        const pos = {
-            x: this.target.x - this.width/2,
-            y: this.target.y - this.height/2
-        };   
+        const pos = this.toElementAnchorPosition({
+            x: this.target.x,
+            y: this.target.y
+        });  
 
         this.x = pos.x;
         this.y = pos.y;
@@ -439,6 +453,8 @@ export default class resize extends resizeItem {
         // 变换坐标
         const matrix = this.getMatrix(this.rotation, this.center);
         this.draw(matrix);
+        // 隐去hover
+        this.hoverItem.visible = false;
     }
 
     unbind(el) {
@@ -456,13 +472,21 @@ export default class resize extends resizeItem {
             this.selected = true;
         });
         el.on('pointerenter', function(event) {
-            console.log('pointerenter', event);
+            if(this.selected) return;// 如果是选中的元素，则不显示
+            const pos = this.toElementAnchorPosition({
+                x: this.x,
+                y: this.y
+            });
+            self.hoverItem.initPoints(pos.x, pos.y, this.width, this.height);
+            const matrix = self.hoverItem.getMatrix(this.rotation||0, self.hoverItem.bounds.center);
+            self.hoverItem.draw(matrix);
+            self.hoverItem.visible = true;
         });
         el.on('pointerleave', function(event) {
-            console.log('pointerleave', event);
+            self.hoverItem.visible = false;
         });
         el.on('pointerout', function(event) {
-            console.log('pointerout', event);
+            self.hoverItem.visible = false;
         });
     }
 
@@ -535,7 +559,8 @@ export default class resize extends resizeItem {
     }
     
     onDragStart(event, target)   {
-        
+        if(target === this.hoverItem) return;
+
         // 选中的是渲染层的坐标，转为控制层的
         this.dragStartPosition = {
             x: event.global.x,

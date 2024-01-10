@@ -7,7 +7,7 @@ export default class image extends element {
         super(option);
 
         this.sprite = new PIXI.Sprite();  
-        this.sprite.anchor.set(0.5);
+        this.anchor.set(0.5);
 
         this.addChild(this.sprite);
 
@@ -20,6 +20,13 @@ export default class image extends element {
         }
 
         this.init(option);
+    }
+
+    get anchor() {
+        return this.sprite.anchor;
+    }
+    set anchor(v) {
+        this.sprite.anchor = v;
     }
 
     get width() {

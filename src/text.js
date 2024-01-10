@@ -32,7 +32,7 @@ export default class text extends element {
 
         // 文字载体
         this.textSprite = new PIXI.Text('', new PIXI.TextStyle(this.style));   
-        this.textSprite.anchor.set(0.5);
+        this.anchor.set(0.5);
 
         this.text = option.text || '';
 
@@ -42,6 +42,13 @@ export default class text extends element {
         this.addChild(this.textSprite);
         
         this.init(option);
+    }
+
+    get anchor() {
+        return this.textSprite.anchor;
+    }
+    set anchor(v) {
+        this.textSprite.anchor = v;
     }
 
     get style() {

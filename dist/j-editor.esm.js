@@ -27113,6 +27113,22 @@ class element extends EventEmitter {
         };
     }
 
+    // 把原点转回0，0坐标
+    toElementAnchorPosition(p) {
+        if(Array.isArray(p)) {
+            const res = [];
+            for(const point of p) {
+                res.push(this.toElementAnchorPosition(point));
+            }
+            return res;
+        }
+        return {
+            ...p,
+            x: p.x - this.width/2,
+            y: p.y - this.height/2
+        };
+    }
+
     toJSON() {
         const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id', 'skew', 'points', 'isClosed'];
         const obj = {};
@@ -27137,7 +27153,7 @@ class image extends element {
         super(option);
 
         this.sprite = new Sprite();  
-        this.sprite.anchor.set(0.5);
+        this.anchor.set(0.5);
 
         this.addChild(this.sprite);
 
@@ -27150,6 +27166,13 @@ class image extends element {
         }
 
         this.init(option);
+    }
+
+    get anchor() {
+        return this.sprite.anchor;
+    }
+    set anchor(v) {
+        this.sprite.anchor = v;
     }
 
     get width() {
@@ -27236,7 +27259,7 @@ class text extends element {
 
         // 文字载体
         this.textSprite = new Text('', new TextStyle(this.style));   
-        this.textSprite.anchor.set(0.5);
+        this.anchor.set(0.5);
 
         this.text = option.text || '';
 
@@ -27246,6 +27269,13 @@ class text extends element {
         this.addChild(this.textSprite);
         
         this.init(option);
+    }
+
+    get anchor() {
+        return this.textSprite.anchor;
+    }
+    set anchor(v) {
+        this.textSprite.anchor = v;
     }
 
     get style() {
@@ -27438,7 +27468,6 @@ class path extends element {
         super.init();
 
         this.graphics = new Graphics();
-
         this.addChild(this.graphics);
     }
 
@@ -27547,11 +27576,13 @@ class path extends element {
             points = this.rotatePoints(matrix, points);
         }
         points = this.toControlPosition(points);// 转为画布的绝对坐标
-        
+
         for(let i=0; i<points.length; i++) {
             const p = points[i];
             if(i === 0 || p.m) this.graphics.moveTo(p.x, p.y);
-            else this.graphics.lineTo(p.x, p.y);
+            else {
+                this.graphics.lineTo(p.x, p.y);
+            }
         }
 
         if(this.isClosed) this.graphics.closePath();
@@ -27560,6 +27591,39 @@ class path extends element {
         else { 
             if(this.style.fill) this.graphics.endFill();
         }
+    }
+
+    // 生成虚线点集合
+    createDotLinePoints(start, end) {
+        const points = [];	
+		points.push(start);
+		
+        let dx = end.x - start.x;
+        let dy = end.y - start.y;
+        const lineLen = Math.sqrt(dx * dx + dy * dy);
+        dx = dx / lineLen;
+        dy = dy / lineLen;
+        let dottedstart = false;
+
+        const dashLen = this.style.dashLength || 5;
+        const dottedsp = dashLen / 2;
+        for(let l=dashLen; l<=lineLen;) {
+            const p = {
+                x: start.x + dx * l, 
+                y: start.y + dy * l
+            };
+            if(dottedstart === false) {					
+                l += dottedsp;
+            }
+            else {				
+                p.m = true;// 移动到当时坐标
+                l += dashLen;
+            }
+            points.push(p);
+            dottedstart = !dottedstart;				
+        }
+		points.push(end);
+        return points;
     }
 }
 
@@ -27633,23 +27697,29 @@ const GCursors = {
             }
         }
         else {
-            if(!this.points || !this.points.length) {
-                this.points = [
-                    {x, y}, 
-                    {x: x + w, y},
-                    {x: x + w, y: y + h},
-                    {x, y: y + h}
-                ];
+            const rectPoints = [
+                {x, y}, 
+                {x: x + w, y},
+                {x: x + w, y: y + h},
+                {x, y: y + h}
+            ];
+
+            // 如果是虚线
+            if(this.style.lineType === 'dotted') {
+                this.points = [];
+
+                let start = rectPoints[0];
+                for(let i=1; i<=rectPoints.length;i++) {
+                    const end = rectPoints[i] ||rectPoints[0];// 如果到了最后一个点，再回到起点
+                    const dotPoints = this.createDotLinePoints(start, end);
+                    this.points.push(...dotPoints);
+
+                    start = rectPoints[i];
+                }
+                
             }
             else {
-                this.points[0].x = x;
-                this.points[0].y = y;
-                this.points[1].x = x + w;
-                this.points[1].y = y;
-                this.points[2].x = x + w;
-                this.points[2].y = y + h;
-                this.points[3].x = x;
-                this.points[3].y = y + h;
+                this.points = rectPoints;
             }
         }
 
@@ -27845,9 +27915,8 @@ class resize extends resizeItem {
         // 改变大小的方块
         this.items = [];
 
-        this.graphics = new Graphics();
         this.graphics.eventMode = 'none';
-        this.addChild(this.graphics);   
+        
         this.createItem('l');
         this.createItem('lt');
         this.createItem('t');
@@ -27867,7 +27936,15 @@ class resize extends resizeItem {
         this.skewItem = this.createItem('skew', 'circle', {
             ...this.style.itemStyle,
             fillSprite: skewTexture
-        });// 旋转块   
+        });// 旋转块 
+        
+        this.hoverItem = this.createItem('hover', 'rect',  {
+            ...this.style.itemStyle,
+            lineType: 'dotted',// 虚线
+            fill: 'transparent'
+        });
+        this.hoverItem.visible = false;
+        this.editor.addChild(this.hoverItem);
     }
 
     createItem(id, shape='rect', style = this.style.itemStyle) {
@@ -27876,6 +27953,7 @@ class resize extends resizeItem {
             shape,
             editor: this.editor,
             size: this.itemSize,
+            editable: false,
             style
         });
         this.addChild(item);
@@ -27981,10 +28059,10 @@ class resize extends resizeItem {
         
 
         // 操作元素在控制层，需要转换坐标
-        const pos = {
-            x: this.target.x - this.width/2,
-            y: this.target.y - this.height/2
-        };   
+        const pos = this.toElementAnchorPosition({
+            x: this.target.x,
+            y: this.target.y
+        });  
 
         this.x = pos.x;
         this.y = pos.y;
@@ -27997,6 +28075,8 @@ class resize extends resizeItem {
         // 变换坐标
         const matrix = this.getMatrix(this.rotation, this.center);
         this.draw(matrix);
+        // 隐去hover
+        this.hoverItem.visible = false;
     }
 
     unbind(el) {
@@ -28014,13 +28094,21 @@ class resize extends resizeItem {
             this.selected = true;
         });
         el.on('pointerenter', function(event) {
-            console.log('pointerenter', event);
+            if(this.selected) return;// 如果是选中的元素，则不显示
+            const pos = this.toElementAnchorPosition({
+                x: this.x,
+                y: this.y
+            });
+            self.hoverItem.initPoints(pos.x, pos.y, this.width, this.height);
+            const matrix = self.hoverItem.getMatrix(this.rotation||0, self.hoverItem.bounds.center);
+            self.hoverItem.draw(matrix);
+            self.hoverItem.visible = true;
         });
         el.on('pointerleave', function(event) {
-            console.log('pointerleave', event);
+            self.hoverItem.visible = false;
         });
         el.on('pointerout', function(event) {
-            console.log('pointerout', event);
+            self.hoverItem.visible = false;
         });
     }
 
@@ -28093,7 +28181,8 @@ class resize extends resizeItem {
     }
     
     onDragStart(event, target)   {
-        
+        if(target === this.hoverItem) return;
+
         // 选中的是渲染层的坐标，转为控制层的
         this.dragStartPosition = {
             x: event.global.x,
@@ -28286,7 +28375,7 @@ class editor extends EventEmitter {
         if(el.container) {
             this.app.stage.addChild(el.container);
             
-            if(el.editable) {
+            if(el.editable && this.controlElement) {
                 this.controlElement.bindEvent(el);
             }
         }

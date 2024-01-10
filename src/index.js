@@ -135,7 +135,7 @@ export default class editor extends EventEmiter {
         if(el.container) {
             this.app.stage.addChild(el.container);
             
-            if(el.editable) {
+            if(el.editable && this.controlElement) {
                 this.controlElement.bindEvent(el);
             }
         }

@@ -240,6 +240,22 @@ export default class element extends EventEmiter {
         };
     }
 
+    // 把原点转回0，0坐标
+    toElementAnchorPosition(p) {
+        if(Array.isArray(p)) {
+            const res = [];
+            for(const point of p) {
+                res.push(this.toElementAnchorPosition(point));
+            }
+            return res;
+        }
+        return {
+            ...p,
+            x: p.x - this.width/2,
+            y: p.y - this.height/2
+        };
+    }
+
     toJSON() {
         const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id', 'skew', 'points', 'isClosed'];
         const obj = {};

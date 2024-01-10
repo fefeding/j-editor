@@ -18,7 +18,6 @@ export default class path extends element {
         super.init();
 
         this.graphics = new PIXI.Graphics();
-
         this.addChild(this.graphics);
     }
 
@@ -127,11 +126,13 @@ export default class path extends element {
             points = this.rotatePoints(matrix, points);
         }
         points = this.toControlPosition(points);// 转为画布的绝对坐标
-        
+
         for(let i=0; i<points.length; i++) {
             const p = points[i];
             if(i === 0 || p.m) this.graphics.moveTo(p.x, p.y);
-            else this.graphics.lineTo(p.x, p.y);
+            else {
+                this.graphics.lineTo(p.x, p.y);
+            }
         }
 
         if(this.isClosed) this.graphics.closePath();
@@ -140,5 +141,38 @@ export default class path extends element {
         else { 
             if(this.style.fill) this.graphics.endFill();
         }
+    }
+
+    // 生成虚线点集合
+    createDotLinePoints(start, end) {
+        const points = [];	
+		points.push(start);
+		
+        let dx = end.x - start.x;
+        let dy = end.y - start.y;
+        const lineLen = Math.sqrt(dx * dx + dy * dy);
+        dx = dx / lineLen;
+        dy = dy / lineLen;
+        let dottedstart = false;
+
+        const dashLen = this.style.dashLength || 5;
+        const dottedsp = dashLen / 2;
+        for(let l=dashLen; l<=lineLen;) {
+            const p = {
+                x: start.x + dx * l, 
+                y: start.y + dy * l
+            };
+            if(dottedstart === false) {					
+                l += dottedsp;
+            }
+            else {				
+                p.m = true;// 移动到当时坐标
+                l += dashLen;
+            }
+            points.push(p);
+            dottedstart = !dottedstart;				
+        }
+		points.push(end);
+        return points;
     }
 }
