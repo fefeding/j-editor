@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 import EventEmiter from 'eventemitter3';
+import jPath from './path.js';
 import jImage from './image.js';
 import jText from './text.js';
 import jBackground from './background.js';
@@ -40,8 +41,9 @@ export default class editor extends EventEmiter {
         this.shapes = {
             'image': jImage,
             'text': jText,
-            'background': jBackground
-        }
+            'background': jBackground,
+            'path': jPath
+        };
         
         this.children = [];
 
@@ -252,4 +254,5 @@ export {
     jBackground,
     jResize,
     jLoader,
+    jPath
 }
