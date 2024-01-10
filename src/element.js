@@ -17,11 +17,13 @@ export default class element extends EventEmiter {
         this.bindEvent();
     }
 
-    init() {
+    init(option) {
         this.zIndex = this.option.zIndex || 1;
         this.x = this.option.x || 0;
         this.y = this.option.y || 0;
         this.rotation = this.option.rotation || 0;
+        this.visible = typeof this.option.visible === 'boolean'? this.option.visible: true;
+
         if(this.option.width && this.option.width > 0) this.width = this.option.width;
         if(this.option.height && this.option.height > 0) this.height = this.option.height;
 
@@ -159,6 +161,15 @@ export default class element extends EventEmiter {
         }, this);
         this.container.on('pointerup', function(event) {
             this.emit('pointerup', event);
+        }, this);
+        this.container.on('pointerenter', function(event) {
+            this.emit('pointerenter', event);
+        }, this);
+        this.container.on('pointerleave', function(event) {
+            this.emit('pointerleave', event);
+        }, this);
+        this.container.on('pointerout', function(event) {
+            this.emit('pointerout', event);
         }, this);
     }    
 

@@ -22,6 +22,8 @@ export default class editor extends EventEmiter {
         this.container.style.overflow = 'hidden';
         this.container.style.margin = '0 auto';
         this.container.style.padding = '0';
+
+        if(typeof container === 'string') container = document.getElementById(container);
         this.rootContainer = container;
         container.appendChild(this.container);
 
@@ -71,7 +73,8 @@ export default class editor extends EventEmiter {
         //this.app.renderer.events.cursorStyles['rotate'] = 'url("https://jtcospublic.ciccten.com/public/image/rotate.png")';
 
         this.controlElement = new jResize({
-            editor: this
+            editor: this,
+            visible: false
         });
         this.addChild(this.controlElement); 
 
@@ -168,7 +171,7 @@ export default class editor extends EventEmiter {
 
     // 创建元素
     createShape(type, option={}) {
-        const shape = this.shapes[type];
+        const shape = typeof type === 'string'? this.shapes[type]: type;
         if(!shape) {
             throw Error(`${type}不存在的元素类型`);
         }
@@ -243,5 +246,10 @@ export default class editor extends EventEmiter {
 }
 
 export {
-    editor
+    editor,
+    jImage,
+    jText,
+    jBackground,
+    jResize,
+    jLoader,
 }

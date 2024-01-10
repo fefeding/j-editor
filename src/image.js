@@ -19,7 +19,7 @@ export default class image extends element {
             this.texture = option.image;
         }
 
-        this.init();
+        this.init(option);
     }
 
     get width() {

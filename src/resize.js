@@ -1,58 +1,46 @@
 
 import * as PIXI from 'pixi.js';
-import element from './element.js';
+import jPath from './path.js';
 
 
-
+// 鼠标指针
+const GCursors = {
+    'l': 'w-resize',
+    'lt': 'nw-resize',
+    't': 'n-resize',
+    'tr': 'ne-resize',
+    'r': 'e-resize',
+    'rb': 'se-resize',
+    'b': 's-resize',
+    'lb': 'sw-resize',
+    'rotate': 'cell',
+    'skew': 'crosshair'
+};
 /**
  * 拖放方块 
  */
- class resizeItem extends element {
+ class resizeItem extends jPath {
     constructor(option) {
+        option.style = option.style || {};
+        option.style.fill = option.style.fill || '#fff';
+        option.style.stroke =  option.style.stroke|| 'rgba(6,155,181,1)';
+
         super(option);
         this.dir = option.dir || '';
         this.shape = option.shape || 'rect';
-        this.style.fill = this.style.fill || '#fff';
-        this.style.lineColor =  this.style.lineColor|| 'rgba(6,155,181,1)';
         this.size = option.size || 8;
-        this.init();
+        this.init(option);
 
-    }
-    // 鼠标指针
-    cursors = {
-        'l': 'w-resize',
-        'lt': 'nw-resize',
-        't': 'n-resize',
-        'tr': 'ne-resize',
-        'r': 'e-resize',
-        'rb': 'se-resize',
-        'b': 's-resize',
-        'lb': 'sw-resize',
-        'rotate': 'cell',
-        'skew': 'crosshair'
-    };
+    }   
 
-    x = 0;
-    y = 0;
-    width = 1;
-    height = 1;
+    init(option) {
+        if(this.items && this.items.length) return;
+        super.init(option);
 
-    points = [];
-
-    get cursor() {
-        return this.graphics.cursor;
-    }
-    set cursor(v) {
-        return this.graphics.cursor = v;
-    }
-
-    init() {
-        super.init();
-
-        this.graphics = new PIXI.Graphics();
+        this.graphics = this.graphics || (new PIXI.Graphics());
         
         this.graphics.eventMode = 'static';
-        this.cursor = this.cursors[this.dir];
+        this.cursor = GCursors[this.dir];
 
         /*this.graphics.on('pointerdown', (event) => {
             this.emit('pointerdown', event, this);
@@ -107,47 +95,6 @@ import element from './element.js';
 
         this.bounds = this.createBounds();
         return this.points;
-    }
-
-    createBounds(points = this.points) {
-        const bounds = {
-            left: undefined,
-            top: undefined,
-            right: 0,
-            bottom: 0,
-            width: 1,
-            height: 1,
-            rotation: this.rotation,
-            center: {
-                x: 0,
-                y: 0
-            }
-        };
-        for(let i=0; i<points.length; i++) {
-            
-            bounds.left = bounds.left === undefined? points[i].x : Math.min(bounds.left, points[i].x);
-            bounds.top = bounds.top === undefined? points[i].y : Math.min(bounds.top, points[i].y);
-            bounds.right = Math.max(bounds.right, points[i].x);
-            bounds.bottom = Math.max(bounds.bottom, points[i].y);
-        }
-
-        if(this.shape === 'circle') {
-            bounds.right += this.size;
-            bounds.bottom += this.size;
-            bounds.left -= this.size;
-            bounds.top -= this.size;
-        }
-        bounds.width = bounds.right - bounds.left;
-        bounds.height = bounds.bottom - bounds.top;
-        bounds.center.x = bounds.left + bounds.width/2;
-        bounds.center.y = bounds.top + bounds.height/2;
-
-        return bounds;
-    }
-
-    move(dx, dy) {
-        this.x += dx;
-        this.y += dy;
     }
 
     // 如果item进行了移动，则反应到控制的目标上
@@ -247,30 +194,24 @@ import element from './element.js';
     };
 
     draw(matrix = null, points = this.points) {
-        this.graphics.clear();
-        this.graphics.lineStyle(1.0, this.style.lineColor, 0.8);
-        if(this.style.fill) this.graphics.beginFill(this.style.fill, this.dir?0.6:0);
+        super.draw(matrix, points, ()=>{
+            this.graphics.lineStyle(1.0, this.style.stroke, 0.8);
+            if(this.style.fill) this.graphics.beginFill(this.style.fill, this.dir?0.6:0);
 
-        if(matrix) {
-            points = this.rotatePoints(matrix, points);
-        }
+        }, (points) => {
+            if(this.style.fillSprite) {
+                this.style.fillSprite.width = this.width;
+                this.style.fillSprite.height = this.height;
+                if(points.length) this.style.fillSprite.position.set(points[0].x, points[0].y);
+            }
+            if(this.shape === 'circle') {
+                this.graphics.drawCircle(points[0].x, points[0].y, this.size/2);
+            }
 
-        if(points.length > 1) this.graphics.drawPolygon(points);
-
-        if(this.style.fillSprite) {
-            this.style.fillSprite.width = this.width;
-            this.style.fillSprite.height = this.height;
-            if(points.length) this.style.fillSprite.position.set(points[0].x, points[0].y);
-        }
-        if(this.shape === 'circle') {
-            this.graphics.drawCircle(points[0].x, points[0].y, this.size/2);
-        }
-
-        this.graphics.endFill();
-
-        if(matrix && this.dir) {
-            this.resetCursor(matrix, points);
-        }
+            if(matrix && this.dir) {
+                this.resetCursor(matrix, points);
+            }
+        });
     }
 
     // 计算指针
@@ -281,45 +222,11 @@ import element from './element.js';
         const angle = Math.atan(cy / cx);*/
         // 先简单处理
         if(!matrix || !matrix.rotation) {
-            this.cursor = this.cursors[this.dir];
+            this.cursor = GCursors[this.dir];
         }
         else {
-            this.cursor = this.cursors['rotate'];
+            this.cursor = GCursors['rotate'];
         }
-    }
-
-    // 获取旋转矩阵
-    // 如果 没有更新rotaion，则还有上次生成的
-    getMatrix(rotation = this.rotation, center = {x: this.x + this.width/2, y: this.y + this.height/2}) {
-        
-        let matrix = null;
-        if(rotation) {
-            matrix = new PIXI.Matrix();
-            matrix.rotate(rotation);
-            matrix.rotation = rotation;
-            matrix.center = center;
-        }
-
-        return matrix;
-    }
-    
-
-    // 旋转
-    rotatePoints(matrix, points = this.points) {
-        const res = [];
-        for(let i=0; i<points.length; i++) {
-            if(matrix) {
-                const p = matrix.apply({
-                    x: points[i].x - matrix.center.x, 
-                    y: points[i].y - matrix.center.y
-                });
-                res.push({
-                    x: p.x + matrix.center.x,
-                    y: p.y + matrix.center.y
-                });
-            }
-        }
-        return res;
     }
 
     // 计算点在线段的投影点
@@ -546,6 +453,15 @@ export default class resize extends resizeItem {
         el.on('pointerdown', function(event) {
             self.onDragStart(event, this);
             this.selected = true;
+        });
+        el.on('pointerenter', function(event) {
+            console.log('pointerenter', event);
+        });
+        el.on('pointerleave', function(event) {
+            console.log('pointerleave', event);
+        });
+        el.on('pointerout', function(event) {
+            console.log('pointerout', event);
         });
     }
 

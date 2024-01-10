@@ -41,7 +41,7 @@ export default class text extends element {
         
         this.addChild(this.textSprite);
         
-        this.init();
+        this.init(option);
     }
 
     get style() {

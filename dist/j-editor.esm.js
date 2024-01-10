@@ -4849,7 +4849,7 @@ function normalizeStringPosix(path2, allowAboveRoot) {
   }
   return res;
 }
-const path = {
+const path$1 = {
   /**
    * Converts a path to posix format.
    * @param path - The path to convert to posix
@@ -4911,7 +4911,7 @@ const path = {
     if (assertPath(url), this.isDataUrl(url) || this.isBlobUrl(url))
       return url;
     const baseUrl = removeUrlParams(this.toPosix(customBaseUrl ?? settings.ADAPTER.getBaseUrl())), rootUrl = removeUrlParams(this.toPosix(customRootUrl ?? this.rootname(baseUrl)));
-    return url = this.toPosix(url), url.startsWith("/") ? path.join(rootUrl, url.slice(1)) : this.isAbsolute(url) ? url : this.join(baseUrl, url);
+    return url = this.toPosix(url), url.startsWith("/") ? path$1.join(rootUrl, url.slice(1)) : this.isAbsolute(url) ? url : this.join(baseUrl, url);
   },
   /**
    * Normalizes the given path, resolving '..' and '.' segments
@@ -19142,7 +19142,7 @@ function checkDataUrl(url, mimes) {
 }
 
 function checkExtension(url, extension) {
-  const tempURL = url.split("?")[0], ext = path.extname(tempURL).toLowerCase();
+  const tempURL = url.split("?")[0], ext = path$1.extname(tempURL).toLowerCase();
   return Array.isArray(extension) ? extension.includes(ext) : ext === extension;
 }
 
@@ -19305,7 +19305,7 @@ class Loader {
       alias: [item],
       src: item
     })), total = assetsToLoad.length, promises = assetsToLoad.map(async (asset) => {
-      const url = path.toAbsolute(asset.src);
+      const url = path$1.toAbsolute(asset.src);
       if (!assets[asset.src])
         try {
           this.promiseCache[url] || (this.promiseCache[url] = this._getLoadPromiseAndParser(url, asset)), assets[asset.src] = await this.promiseCache[url].promise, onProgress && onProgress(++count / total);
@@ -19333,7 +19333,7 @@ ${e}`);
       alias: [item],
       src: item
     })).map(async (asset) => {
-      const url = path.toAbsolute(asset.src), loadPromise = this.promiseCache[url];
+      const url = path$1.toAbsolute(asset.src), loadPromise = this.promiseCache[url];
       if (loadPromise) {
         const loadedAsset = await loadPromise.promise;
         delete this.promiseCache[url], loadPromise.parser?.unload?.(loadedAsset, asset, this);
@@ -19398,7 +19398,7 @@ const validWeights = [
   "font/woff2"
 ], CSS_IDENT_TOKEN_REGEX = /^(--|-?[A-Z_])[0-9A-Z_-]*$/i;
 function getFontFamilyName(url) {
-  const ext = path.extname(url), nameTokens = path.basename(url, ext).replace(/(-|_)/g, " ").toLowerCase().split(" ").map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+  const ext = path$1.extname(url), nameTokens = path$1.basename(url, ext).replace(/(-|_)/g, " ").toLowerCase().split(" ").map((word) => word.charAt(0).toUpperCase() + word.slice(1));
   let valid = nameTokens.length > 0;
   for (const token of nameTokens)
     if (!token.match(CSS_IDENT_TOKEN_REGEX)) {
@@ -20072,7 +20072,7 @@ Please use Assets.add({ alias, src, data, format, loadParser }) instead.`), asse
   }
   buildResolvedAsset(formattedAsset, data) {
     const { aliases, data: assetData, loadParser, format } = data;
-    return (this._basePath || this._rootPath) && (formattedAsset.src = path.toAbsolute(formattedAsset.src, this._basePath, this._rootPath)), formattedAsset.alias = aliases ?? formattedAsset.alias ?? [formattedAsset.src], formattedAsset.src = this._appendDefaultSearchParams(formattedAsset.src), formattedAsset.data = { ...assetData || {}, ...formattedAsset.data }, formattedAsset.loadParser = loadParser ?? formattedAsset.loadParser, formattedAsset.format = format ?? path.extname(formattedAsset.src).slice(1), formattedAsset.srcs = formattedAsset.src, formattedAsset.name = formattedAsset.alias, formattedAsset;
+    return (this._basePath || this._rootPath) && (formattedAsset.src = path$1.toAbsolute(formattedAsset.src, this._basePath, this._rootPath)), formattedAsset.alias = aliases ?? formattedAsset.alias ?? [formattedAsset.src], formattedAsset.src = this._appendDefaultSearchParams(formattedAsset.src), formattedAsset.data = { ...assetData || {}, ...formattedAsset.data }, formattedAsset.loadParser = loadParser ?? formattedAsset.loadParser, formattedAsset.format = format ?? path$1.extname(formattedAsset.src).slice(1), formattedAsset.srcs = formattedAsset.src, formattedAsset.name = formattedAsset.alias, formattedAsset;
   }
 }
 
@@ -20515,7 +20515,7 @@ const resolveTextureUrl = {
   test: loadTextures.test,
   parse: (value) => ({
     resolution: parseFloat(settings.RETINA_PREFIX.exec(value)?.[1] ?? "1"),
-    format: path.extname(value).slice(1),
+    format: path$1.extname(value).slice(1),
     src: value
   })
 };
@@ -21029,11 +21029,11 @@ extensions$1.add(loadKTX);
 const resolveCompressedTextureUrl = {
   extension: ExtensionType.ResolveParser,
   test: (value) => {
-    const extension = path.extname(value).slice(1);
+    const extension = path$1.extname(value).slice(1);
     return ["basis", "ktx", "dds"].includes(extension);
   },
   parse: (value) => {
-    const extension = path.extname(value).slice(1);
+    const extension = path$1.extname(value).slice(1);
     if (extension === "ktx") {
       const extensions2 = [
         ".s3tc.ktx",
@@ -25044,7 +25044,7 @@ function getCacheableAssets(keys, asset, ignoreMultiPack) {
   }), Object.keys(asset.textures).forEach((key) => {
     out[key] = asset.textures[key];
   }), !ignoreMultiPack) {
-    const basePath = path.dirname(keys[0]);
+    const basePath = path$1.dirname(keys[0]);
     asset.linkedSheets.forEach((item, i) => {
       const out2 = getCacheableAssets([`${basePath}/${asset.data.meta.related_multi_packs[i]}`], item, !0);
       Object.assign(out, out2);
@@ -25088,10 +25088,10 @@ const spritesheetAsset = {
       priority: LoaderParserPriority.Normal
     },
     async testParse(asset, options) {
-      return path.extname(options.src).toLowerCase() === ".json" && !!asset.frames;
+      return path$1.extname(options.src).toLowerCase() === ".json" && !!asset.frames;
     },
     async parse(asset, options, loader) {
-      let basePath = path.dirname(options.src);
+      let basePath = path$1.dirname(options.src);
       basePath && basePath.lastIndexOf("/") !== basePath.length - 1 && (basePath += "/");
       let imagePath = basePath + asset.meta.image;
       imagePath = copySearchParams(imagePath, options.src);
@@ -25968,7 +25968,7 @@ const validExtensions = [".xml", ".fnt"], loadBitmapFont = {
   },
   name: "loadBitmapFont",
   test(url) {
-    return validExtensions.includes(path.extname(url).toLowerCase());
+    return validExtensions.includes(path$1.extname(url).toLowerCase());
   },
   async testParse(data) {
     return TextFormat.test(data) || XMLStringFormat.test(data);
@@ -25977,7 +25977,7 @@ const validExtensions = [".xml", ".fnt"], loadBitmapFont = {
     const fontData = TextFormat.test(asset) ? TextFormat.parse(asset) : XMLStringFormat.parse(asset), { src } = data, { page: pages } = fontData, textureUrls = [];
     for (let i = 0; i < pages.length; ++i) {
       const pageFile = pages[i].file;
-      let imagePath = path.join(path.dirname(src), pageFile);
+      let imagePath = path$1.join(path$1.dirname(src), pageFile);
       imagePath = copySearchParams(imagePath, src), textureUrls.push(imagePath);
     }
     const loadedTextures = await loader.load(textureUrls), textures = textureUrls.map((url) => loadedTextures[url]);
@@ -26032,7 +26032,7 @@ const _HTMLTextStyle = class _HTMLTextStyle2 extends TextStyle {
       reader.onload = () => resolve([src, reader.result]), reader.onerror = reject, reader.readAsDataURL(blob);
     })).then(async ([src, dataSrc]) => {
       const font = Object.assign({
-        family: path.basename(url, path.extname(url)),
+        family: path$1.basename(url, path$1.extname(url)),
         weight: "normal",
         style: "normal",
         display: "auto",
@@ -26890,11 +26890,13 @@ class element extends EventEmitter {
         this.bindEvent();
     }
 
-    init() {
+    init(option) {
         this.zIndex = this.option.zIndex || 1;
         this.x = this.option.x || 0;
         this.y = this.option.y || 0;
         this.rotation = this.option.rotation || 0;
+        this.visible = typeof this.option.visible === 'boolean'? this.option.visible: true;
+
         if(this.option.width && this.option.width > 0) this.width = this.option.width;
         if(this.option.height && this.option.height > 0) this.height = this.option.height;
 
@@ -27033,6 +27035,15 @@ class element extends EventEmitter {
         this.container.on('pointerup', function(event) {
             this.emit('pointerup', event);
         }, this);
+        this.container.on('pointerenter', function(event) {
+            this.emit('pointerenter', event);
+        }, this);
+        this.container.on('pointerleave', function(event) {
+            this.emit('pointerleave', event);
+        }, this);
+        this.container.on('pointerout', function(event) {
+            this.emit('pointerout', event);
+        }, this);
     }    
 
     // 重置大小
@@ -27122,7 +27133,7 @@ class image extends element {
             this.texture = option.image;
         }
 
-        this.init();
+        this.init(option);
     }
 
     get width() {
@@ -27218,7 +27229,7 @@ class text extends element {
         
         this.addChild(this.textSprite);
         
-        this.init();
+        this.init(option);
     }
 
     get style() {
@@ -27395,33 +27406,24 @@ class background extends image {
     }
 }
 
-/**
- * 拖放方块 
- */
- class resizeItem extends element {
+class path extends element {
     constructor(option) {
         super(option);
-        this.dir = option.dir || '';
-        this.shape = option.shape || 'rect';
-        this.style.fill = this.style.fill || '#fff';
-        this.style.lineColor =  this.style.lineColor|| 'rgba(6,155,181,1)';
-        this.size = option.size || 8;
-        this.init();
-
+        this.style.fill = this.style.fill || 'transparent';
+        this.style.stroke =  this.style.stroke || '#000';
+        this.points = option.points || [];
+        this.init(option);
     }
-    // 鼠标指针
-    cursors = {
-        'l': 'w-resize',
-        'lt': 'nw-resize',
-        't': 'n-resize',
-        'tr': 'ne-resize',
-        'r': 'e-resize',
-        'rb': 'se-resize',
-        'b': 's-resize',
-        'lb': 'sw-resize',
-        'rotate': 'cell',
-        'skew': 'crosshair'
-    };
+
+    init() {
+        if(this.graphics) return;
+
+        super.init();
+
+        this.graphics = new Graphics();
+
+        this.addChild(this.graphics);
+    }
 
     x = 0;
     y = 0;
@@ -27430,6 +27432,8 @@ class background extends image {
 
     points = [];
 
+    isClosed = false;
+
     get cursor() {
         return this.graphics.cursor;
     }
@@ -27437,13 +27441,148 @@ class background extends image {
         return this.graphics.cursor = v;
     }
 
-    init() {
-        super.init();
+    createBounds(points = this.points) {
+        const bounds = {
+            left: undefined,
+            top: undefined,
+            right: 0,
+            bottom: 0,
+            width: 1,
+            height: 1,
+            rotation: this.rotation,
+            center: {
+                x: 0,
+                y: 0
+            }
+        };
+        for(let i=0; i<points.length; i++) {
+            
+            bounds.left = bounds.left === undefined? points[i].x : Math.min(bounds.left, points[i].x);
+            bounds.top = bounds.top === undefined? points[i].y : Math.min(bounds.top, points[i].y);
+            bounds.right = Math.max(bounds.right, points[i].x);
+            bounds.bottom = Math.max(bounds.bottom, points[i].y);
+        }
 
-        this.graphics = new Graphics();
+        if(this.shape === 'circle') {
+            bounds.right += this.size;
+            bounds.bottom += this.size;
+            bounds.left -= this.size;
+            bounds.top -= this.size;
+        }
+        bounds.width = bounds.right - bounds.left;
+        bounds.height = bounds.bottom - bounds.top;
+        bounds.center.x = bounds.left + bounds.width/2;
+        bounds.center.y = bounds.top + bounds.height/2;
+
+        return bounds;
+    }
+
+    move(dx, dy) {
+        this.x += dx;
+        this.y += dy;
+    }
+
+    // 获取旋转矩阵
+    // 如果 没有更新rotaion，则还有上次生成的
+    getMatrix(rotation = this.rotation, center = {x: this.x + this.width/2, y: this.y + this.height/2}) {
+        
+        let matrix = null;
+        if(rotation) {
+            matrix = new Matrix();
+            matrix.rotate(rotation);
+            matrix.rotation = rotation;
+            matrix.center = center;
+        }
+
+        return matrix;
+    }
+    // 旋转
+    rotatePoints(matrix, points = this.points) {
+        const res = [];
+        for(let i=0; i<points.length; i++) {
+            if(matrix) {
+                const p = matrix.apply({
+                    x: points[i].x - matrix.center.x, 
+                    y: points[i].y - matrix.center.y
+                });
+                res.push({
+                    ...points[i],
+                    x: p.x + matrix.center.x,
+                    y: p.y + matrix.center.y
+                });
+            }
+        }
+        return res;
+    }
+
+    draw(matrix = null, points = this.points, begin=null, end=null) {
+        this.graphics.clear();
+
+        if(!points.length) return;
+
+        if(begin) begin();
+        else {
+            this.graphics.lineStyle(this.style.lineWidth || 1, this.style.stroke);
+            if(this.style.fill) this.graphics.beginFill(this.style.fill);
+        }
+
+        if(matrix) {
+            points = this.rotatePoints(matrix, points);
+        }
+
+        for(let i=0; i<points.length; i++) {
+            const p = points[i];
+            if(i === 0 || p.m) this.graphics.moveTo(p.x, p.y);
+            else this.graphics.lineTo(p.x, p.y);
+        }
+
+        if(this.isClosed) this.graphics.closePath();
+
+        if(end) end(points);
+        else { 
+            if(this.style.fill) this.graphics.endFill();
+        }
+    }
+}
+
+// 鼠标指针
+const GCursors = {
+    'l': 'w-resize',
+    'lt': 'nw-resize',
+    't': 'n-resize',
+    'tr': 'ne-resize',
+    'r': 'e-resize',
+    'rb': 'se-resize',
+    'b': 's-resize',
+    'lb': 'sw-resize',
+    'rotate': 'cell',
+    'skew': 'crosshair'
+};
+/**
+ * 拖放方块 
+ */
+ class resizeItem extends path {
+    constructor(option) {
+        option.style = option.style || {};
+        option.style.fill = option.style.fill || '#fff';
+        option.style.stroke =  option.style.stroke|| 'rgba(6,155,181,1)';
+
+        super(option);
+        this.dir = option.dir || '';
+        this.shape = option.shape || 'rect';
+        this.size = option.size || 8;
+        this.init(option);
+
+    }   
+
+    init(option) {
+        if(this.items && this.items.length) return;
+        super.init(option);
+
+        this.graphics = this.graphics || (new Graphics());
         
         this.graphics.eventMode = 'static';
-        this.cursor = this.cursors[this.dir];
+        this.cursor = GCursors[this.dir];
 
         /*this.graphics.on('pointerdown', (event) => {
             this.emit('pointerdown', event, this);
@@ -27498,47 +27637,6 @@ class background extends image {
 
         this.bounds = this.createBounds();
         return this.points;
-    }
-
-    createBounds(points = this.points) {
-        const bounds = {
-            left: undefined,
-            top: undefined,
-            right: 0,
-            bottom: 0,
-            width: 1,
-            height: 1,
-            rotation: this.rotation,
-            center: {
-                x: 0,
-                y: 0
-            }
-        };
-        for(let i=0; i<points.length; i++) {
-            
-            bounds.left = bounds.left === undefined? points[i].x : Math.min(bounds.left, points[i].x);
-            bounds.top = bounds.top === undefined? points[i].y : Math.min(bounds.top, points[i].y);
-            bounds.right = Math.max(bounds.right, points[i].x);
-            bounds.bottom = Math.max(bounds.bottom, points[i].y);
-        }
-
-        if(this.shape === 'circle') {
-            bounds.right += this.size;
-            bounds.bottom += this.size;
-            bounds.left -= this.size;
-            bounds.top -= this.size;
-        }
-        bounds.width = bounds.right - bounds.left;
-        bounds.height = bounds.bottom - bounds.top;
-        bounds.center.x = bounds.left + bounds.width/2;
-        bounds.center.y = bounds.top + bounds.height/2;
-
-        return bounds;
-    }
-
-    move(dx, dy) {
-        this.x += dx;
-        this.y += dy;
     }
 
     // 如果item进行了移动，则反应到控制的目标上
@@ -27636,30 +27734,31 @@ class background extends image {
     };
 
     draw(matrix = null, points = this.points) {
-        this.graphics.clear();
-        this.graphics.lineStyle(1.0, this.style.lineColor, 0.8);
-        if(this.style.fill) this.graphics.beginFill(this.style.fill, this.dir?0.6:0);
+        super.draw(matrix, points, ()=>{
+            this.graphics.lineStyle(1.0, this.style.stroke, 0.8);
+            if(this.style.fill) this.graphics.beginFill(this.style.fill, this.dir?0.6:0);
 
-        if(matrix) {
-            points = this.rotatePoints(matrix, points);
-        }
+        }, (points) => {
+            if(this.style.fillSprite) {
+                this.style.fillSprite.width = this.width;
+                this.style.fillSprite.height = this.height;
+                if(points.length) this.style.fillSprite.position.set(points[0].x, points[0].y);
+            }
+            if(this.shape === 'circle') {
+                this.graphics.drawCircle(points[0].x, points[0].y, this.size/2);
+            }
+            
+            if(matrix && this.dir) {
+                this.resetCursor(matrix, points);
+            }
+        });
+        //if(points.length > 1) this.graphics.drawPolygon(points);
 
-        if(points.length > 1) this.graphics.drawPolygon(points);
+        
 
-        if(this.style.fillSprite) {
-            this.style.fillSprite.width = this.width;
-            this.style.fillSprite.height = this.height;
-            if(points.length) this.style.fillSprite.position.set(points[0].x, points[0].y);
-        }
-        if(this.shape === 'circle') {
-            this.graphics.drawCircle(points[0].x, points[0].y, this.size/2);
-        }
+        //this.graphics.endFill();
 
-        this.graphics.endFill();
-
-        if(matrix && this.dir) {
-            this.resetCursor(matrix, points);
-        }
+        
     }
 
     // 计算指针
@@ -27670,45 +27769,11 @@ class background extends image {
         const angle = Math.atan(cy / cx);*/
         // 先简单处理
         if(!matrix || !matrix.rotation) {
-            this.cursor = this.cursors[this.dir];
+            this.cursor = GCursors[this.dir];
         }
         else {
-            this.cursor = this.cursors['rotate'];
+            this.cursor = GCursors['rotate'];
         }
-    }
-
-    // 获取旋转矩阵
-    // 如果 没有更新rotaion，则还有上次生成的
-    getMatrix(rotation = this.rotation, center = {x: this.x + this.width/2, y: this.y + this.height/2}) {
-        
-        let matrix = null;
-        if(rotation) {
-            matrix = new Matrix();
-            matrix.rotate(rotation);
-            matrix.rotation = rotation;
-            matrix.center = center;
-        }
-
-        return matrix;
-    }
-    
-
-    // 旋转
-    rotatePoints(matrix, points = this.points) {
-        const res = [];
-        for(let i=0; i<points.length; i++) {
-            if(matrix) {
-                const p = matrix.apply({
-                    x: points[i].x - matrix.center.x, 
-                    y: points[i].y - matrix.center.y
-                });
-                res.push({
-                    x: p.x + matrix.center.x,
-                    y: p.y + matrix.center.y
-                });
-            }
-        }
-        return res;
     }
 
     // 计算点在线段的投影点
@@ -27936,6 +28001,15 @@ class resize extends resizeItem {
             self.onDragStart(event, this);
             this.selected = true;
         });
+        el.on('pointerenter', function(event) {
+            console.log('pointerenter', event);
+        });
+        el.on('pointerleave', function(event) {
+            console.log('pointerleave', event);
+        });
+        el.on('pointerout', function(event) {
+            console.log('pointerout', event);
+        });
     }
 
     // 同步位置和大小到控制的元素上
@@ -28087,6 +28161,8 @@ class editor extends EventEmitter {
         this.container.style.overflow = 'hidden';
         this.container.style.margin = '0 auto';
         this.container.style.padding = '0';
+
+        if(typeof container === 'string') container = document.getElementById(container);
         this.rootContainer = container;
         container.appendChild(this.container);
 
@@ -28136,7 +28212,8 @@ class editor extends EventEmitter {
         //this.app.renderer.events.cursorStyles['rotate'] = 'url("https://jtcospublic.ciccten.com/public/image/rotate.png")';
 
         this.controlElement = new resize({
-            editor: this
+            editor: this,
+            visible: false
         });
         this.addChild(this.controlElement); 
 
@@ -28233,7 +28310,7 @@ class editor extends EventEmitter {
 
     // 创建元素
     createShape(type, option={}) {
-        const shape = this.shapes[type];
+        const shape = typeof type === 'string'? this.shapes[type]: type;
         if(!shape) {
             throw Error(`${type}不存在的元素类型`);
         }
@@ -28307,4 +28384,4 @@ class editor extends EventEmitter {
     }
 }
 
-export { editor as default, editor };
+export { editor as default, editor, background as jBackground, image as jImage, loader as jLoader, resize as jResize, text as jText };
