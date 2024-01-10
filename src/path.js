@@ -8,6 +8,7 @@ export default class path extends element {
         this.style.fill = this.style.fill || 'transparent';
         this.style.stroke =  this.style.stroke || '#000';
         this.points = option.points || [];
+        this.isClosed = option.isClosed || false;
         this.init(option);
     }
 
@@ -80,8 +81,8 @@ export default class path extends element {
 
     // 获取旋转矩阵
     // 如果 没有更新rotaion，则还有上次生成的
-    getMatrix(rotation = this.rotation, center = {x: this.x + this.width/2, y: this.y + this.height/2}) {
-        
+    getMatrix(rotation = this.rotation, center = this.center) {
+        if(!center) center = this.createBounds().center;
         let matrix = null;
         if(rotation) {
             matrix = new PIXI.Matrix();
@@ -125,7 +126,8 @@ export default class path extends element {
         if(matrix) {
             points = this.rotatePoints(matrix, points);
         }
-
+        points = this.toControlPosition(points);// 转为画布的绝对坐标
+        
         for(let i=0; i<points.length; i++) {
             const p = points[i];
             if(i === 0 || p.m) this.graphics.moveTo(p.x, p.y);

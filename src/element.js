@@ -211,21 +211,37 @@ export default class element extends EventEmiter {
 
     // 把渲染层坐标转为控制层
     toControlPosition(p) {
+        if(Array.isArray(p)) {
+            const res = [];
+            for(const point of p) {
+                res.push(this.toControlPosition(point));
+            }
+            return res;
+        }
         return {
+            ...p,
             x: p.x + this.editor.left,
             y: p.y + this.editor.top
         };
     }
     // 把控制层坐标转为渲染层
     toRenderPosition(p) {
+        if(Array.isArray(p)) {
+            const res = [];
+            for(const point of p) {
+                res.push(this.toRenderPosition(point));
+            }
+            return res;
+        }
         return {
+            ...p,
             x: p.x - this.editor.left,
             y: p.y - this.editor.top
         };
     }
 
     toJSON() {
-        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id', 'skew'];
+        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id', 'skew', 'points', 'isClosed'];
         const obj = {};
        
         for(const k of fields) {

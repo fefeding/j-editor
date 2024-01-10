@@ -27084,21 +27084,37 @@ class element extends EventEmitter {
 
     // 把渲染层坐标转为控制层
     toControlPosition(p) {
+        if(Array.isArray(p)) {
+            const res = [];
+            for(const point of p) {
+                res.push(this.toControlPosition(point));
+            }
+            return res;
+        }
         return {
+            ...p,
             x: p.x + this.editor.left,
             y: p.y + this.editor.top
         };
     }
     // 把控制层坐标转为渲染层
     toRenderPosition(p) {
+        if(Array.isArray(p)) {
+            const res = [];
+            for(const point of p) {
+                res.push(this.toRenderPosition(point));
+            }
+            return res;
+        }
         return {
+            ...p,
             x: p.x - this.editor.left,
             y: p.y - this.editor.top
         };
     }
 
     toJSON() {
-        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id', 'skew'];
+        const fields = ['x', 'y', 'width', 'height', 'url', 'text', 'rotation', 'type', 'style', 'id', 'skew', 'points', 'isClosed'];
         const obj = {};
        
         for(const k of fields) {
@@ -27412,6 +27428,7 @@ class path extends element {
         this.style.fill = this.style.fill || 'transparent';
         this.style.stroke =  this.style.stroke || '#000';
         this.points = option.points || [];
+        this.isClosed = option.isClosed || false;
         this.init(option);
     }
 
@@ -27484,8 +27501,8 @@ class path extends element {
 
     // 获取旋转矩阵
     // 如果 没有更新rotaion，则还有上次生成的
-    getMatrix(rotation = this.rotation, center = {x: this.x + this.width/2, y: this.y + this.height/2}) {
-        
+    getMatrix(rotation = this.rotation, center = this.center) {
+        if(!center) center = this.createBounds().center;
         let matrix = null;
         if(rotation) {
             matrix = new Matrix();
@@ -27529,7 +27546,8 @@ class path extends element {
         if(matrix) {
             points = this.rotatePoints(matrix, points);
         }
-
+        points = this.toControlPosition(points);// 转为画布的绝对坐标
+        
         for(let i=0; i<points.length; i++) {
             const p = points[i];
             if(i === 0 || p.m) this.graphics.moveTo(p.x, p.y);
@@ -27566,7 +27584,7 @@ const GCursors = {
         option.style = option.style || {};
         option.style.fill = option.style.fill || '#fff';
         option.style.stroke =  option.style.stroke|| 'rgba(6,155,181,1)';
-
+        option.isClosed = true;
         super(option);
         this.dir = option.dir || '';
         this.shape = option.shape || 'rect';
@@ -27576,7 +27594,7 @@ const GCursors = {
     }   
 
     init(option) {
-        if(this.items && this.items.length) return;
+        if(this.graphics) return;
         super.init(option);
 
         this.graphics = this.graphics || (new Graphics());
@@ -27747,18 +27765,11 @@ const GCursors = {
             if(this.shape === 'circle') {
                 this.graphics.drawCircle(points[0].x, points[0].y, this.size/2);
             }
-            
-            if(matrix && this.dir) {
+
+            if(this.dir) {
                 this.resetCursor(matrix, points);
             }
         });
-        //if(points.length > 1) this.graphics.drawPolygon(points);
-
-        
-
-        //this.graphics.endFill();
-
-        
     }
 
     // 计算指针
@@ -27829,6 +27840,7 @@ class resize extends resizeItem {
     skew = {x: 0, y: 0};
 
     init() {
+        if(this.items && this.items.length) return;
         super.init();
         // 改变大小的方块
         this.items = [];
@@ -27917,15 +27929,15 @@ class resize extends resizeItem {
     initShapes() {
         this.initPoints(this.x, this.y, this.width, this.height);
 
-        const center = {
+        this.center = {
             x: this.x + this.width/2,
             y: this.y + this.height/2
         };
 
         const t = this.y - this.itemSize / 2;
         const l = this.x - this.itemSize/2;
-        const mid = center.y - this.itemSize;
-        const cid = center.x - this.itemSize;
+        const mid = this.center.y - this.itemSize;
+        const cid = this.center.x - this.itemSize;
         const r = this.x + this.width - this.itemSize/2;
         const b = this.y + this.height - this.itemSize/2;
 
@@ -27938,8 +27950,8 @@ class resize extends resizeItem {
         this.items[6].initPoints(cid, b, this.itemSize * 2, this.itemSize);
         this.items[7].initPoints(l, b, this.itemSize, this.itemSize);
 
-        this.rotateItem.initPoints(center.x, this.y- 4*this.itemSize, this.rotateSize, this.rotateSize);
-        this.skewItem.initPoints(center.x, center.y, this.rotateSize, this.rotateSize);
+        this.rotateItem.initPoints(this.center.x, this.y- 4*this.itemSize, this.rotateSize, this.rotateSize);
+        this.skewItem.initPoints(this.center.x, this.center.y, this.rotateSize, this.rotateSize);
     }
 
     // 把点位移
@@ -27952,7 +27964,7 @@ class resize extends resizeItem {
     }
 
     // 绘制
-    draw(matrix = this.getMatrix()) {
+    draw(matrix = this.getMatrix(this.rotation, this.center)) {
         super.draw(matrix);
        for(const item of this.items) {
             item.draw(matrix);
@@ -27969,10 +27981,10 @@ class resize extends resizeItem {
         
 
         // 操作元素在控制层，需要转换坐标
-        const pos = this.toControlPosition({
+        const pos = {
             x: this.target.x - this.width/2,
             y: this.target.y - this.height/2
-        });   
+        };   
 
         this.x = pos.x;
         this.y = pos.y;
@@ -27983,7 +27995,7 @@ class resize extends resizeItem {
         this.initShapes();
 
         // 变换坐标
-        const matrix = this.getMatrix(this.rotation);
+        const matrix = this.getMatrix(this.rotation, this.center);
         this.draw(matrix);
     }
 
@@ -28016,10 +28028,10 @@ class resize extends resizeItem {
     resetTarget() {
         // 控制目标元素位置大大小
         if(this.target) {
-            const pos = this.toRenderPosition({
+            const pos = {
                 x: this.x,
                 y: this.y
-            });
+            };
             this.target.x = pos.x + this.width/2;
             this.target.y = pos.y + this.height/2;
 
@@ -28037,14 +28049,14 @@ class resize extends resizeItem {
         let offY = (event.global.y - this.dragStartPosition.y);
 
         if(this.moveItem) {
-            let srcPos = {
+            let srcPos = this.toRenderPosition({
                 x: this.dragStartPosition.x,
                 y: this.dragStartPosition.y
-            };
-            let dstPos = {
+            });
+            let dstPos = this.toRenderPosition({
                 x: event.global.x,
                 y: event.global.y
-            };
+            });
             if(this.moveItem !== this.rotateItem && this.moveItem !== this.skewItem) {
                 // 把当前操作的点，回正，再计算大小改变
                 if(this.rotation) {
