@@ -26,9 +26,6 @@ const GCursors = {
         option.style.stroke =  option.style.stroke|| 'rgba(6,155,181,1)';
         option.isClosed = true;
         super(option);
-        this.dir = option.dir || '';
-        this.shape = option.shape || 'rect';
-        this.size = option.size || 8;
         this.init(option);
 
     }   
@@ -37,10 +34,15 @@ const GCursors = {
         if(this.graphics) return;
         super.init(option);
 
+        
+        this.dir = option.dir || '';
+        this.shape = option.shape || 'rect';
+        this.size = option.size || 8;
+
         this.graphics = this.graphics || (new PIXI.Graphics());
         
         this.graphics.eventMode = 'static';
-        this.cursor = GCursors[this.dir];
+        this.cursor = GCursors[this.dir || option.dir];
 
         /*this.graphics.on('pointerdown', (event) => {
             this.emit('pointerdown', event, this);
@@ -50,6 +52,7 @@ const GCursors = {
         if(this.style.fillSprite) {
             this.style.fillSprite.anchor.set(0.5);
             this.addChild(this.style.fillSprite);
+            this.style.fillSprite.mask = this.graphics;
         }
     }
 
@@ -208,6 +211,7 @@ const GCursors = {
             if(this.style.fillSprite) {
                 this.style.fillSprite.width = this.width;
                 this.style.fillSprite.height = this.height;
+                this.style.fillSprite.cursor = this.cursor;
                 if(points.length) this.style.fillSprite.position.set(points[0].x, points[0].y);
             }
             if(this.shape === 'circle') {
@@ -257,9 +261,6 @@ export default class resize extends resizeItem {
         this.editable = false;// 这个不可编辑
         this.style.fill = 'transparent';
 
-        this.itemSize = option.itemSize || 8;
-        this.rotateSize = option.rotateSize || 24;
-
         // 绑定拖放操作, 所有操作都放到control层  
         this.editor.app.stage.eventMode = 'static';
         this.editor.app.stage.hitArea = this.editor.app.screen;
@@ -287,9 +288,13 @@ export default class resize extends resizeItem {
     angle = 0;
     skew = {x: 0, y: 0};
 
-    init() {
+    init(option) {
         if(this.items && this.items.length) return;
-        super.init();
+
+        this.itemSize = option.itemSize || 8;
+        this.rotateSize = option.rotateSize || 24;
+
+        super.init(option);
         // 改变大小的方块
         this.items = [];
 

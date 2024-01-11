@@ -13,7 +13,10 @@ export default class editor extends EventEmiter {
         super(option);
         this.option = option || {};
         this.style = this.option.style || {};
-
+        this.scaleSize = {
+            x: 1,
+            y: 1
+        };
         this.loader = new jLoader();// 加载器
 
         this.container = document.createElement(
@@ -58,7 +61,7 @@ export default class editor extends EventEmiter {
     // 初始化整个编辑器
     init(option) {
         if(option.width && option.height) {
-            this.setSize(option.width, option.height);
+            this.resize(option.width, option.height);
         }
 
         // Listen for animate update
@@ -97,17 +100,17 @@ export default class editor extends EventEmiter {
         return this._width;
     }
     set width(v) {
-        this.setSize(v, this.height);
+        this.resize(v, this.height);
     }
 
     get height() {
         return this._height;
     }
     set height(v) {
-        this.setSize(this.width, v);
+        this.resize(this.width, v);
     }
 
-    setSize(width, height) {
+    resize(width=this.width, height=this.height) {
         this._width = width;
         this._height = height;
 
@@ -127,6 +130,10 @@ export default class editor extends EventEmiter {
 
         // 背景大小一直拉满
         this.background.resize(this.width, this.height);
+        const scale  = Math.min(this.rootContainer.clientWidth / (this.width*1.2), this.rootContainer.clientHeight / (this.height*1.2));
+        if(scale < 1 && scale < this.scaleSize.x) {
+            this.scale(scale);
+        }
         // 滚动到居中
         this.rootContainer.scrollTo(controlWidth/2-this.rootContainer.clientWidth/2, controlHeight/2-this.rootContainer.clientHeight/2)
     }
@@ -168,6 +175,10 @@ export default class editor extends EventEmiter {
 
     // 缩放
     scale(x, y=x) {
+        if(x < 0.1 || y < 0.1) return;
+        this.scaleSize = {
+            x, y
+        };
         this.container.style.transform = `scale(${x}, ${y})`;
     }
 
@@ -237,7 +248,7 @@ export default class editor extends EventEmiter {
 
         //if(data.width) this.width = data.width;
         //if(data.height) this.height = data.height;
-        this.setSize(data.width, data.height);
+        this.resize(data.width, data.height);
 
         for(const c of data.children) {
             if(c.type === 'background' || !c.type) continue;

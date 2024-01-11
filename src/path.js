@@ -12,10 +12,10 @@ export default class path extends element {
         this.init(option);
     }
 
-    init() {
+    init(option) {
         if(this.graphics) return;
 
-        super.init();
+        super.init(option);
 
         this.graphics = new PIXI.Graphics();
         this.addChild(this.graphics);
