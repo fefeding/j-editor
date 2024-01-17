@@ -28470,6 +28470,11 @@ class editor extends EventEmitter {
         this.container.style.transform = `scale(${x}, ${y})`;
     }
 
+    regShape(name, shape) {
+        if(this.shapes[name]) throw Error(`元素类型${name}已经存在`);
+        this.shapes[name] = shape;
+    }
+
     // 创建元素
     createShape(type, option={}) {
         const shape = typeof type === 'string'? this.shapes[type]: type;
