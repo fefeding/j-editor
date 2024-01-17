@@ -130,12 +130,13 @@ export default class editor extends EventEmiter {
 
         // 背景大小一直拉满
         this.background.resize(this.width, this.height);
-        const scale  = Math.min(this.rootContainer.clientWidth / (this.width*1.2), this.rootContainer.clientHeight / (this.height*1.2));
-        if(scale < 1 && scale < this.scaleSize.x) {
-            this.scale(scale);
-        }
-        // 滚动到居中
-        this.rootContainer.scrollTo(controlWidth/2-this.rootContainer.clientWidth/2, controlHeight/2-this.rootContainer.clientHeight/2)
+        
+        setTimeout(() => {
+            this.emit('resize', {
+                width,
+                height
+            });
+        }, 10);
     }
 
     // 添加元素到画布
