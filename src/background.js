@@ -8,28 +8,34 @@ export default class background extends image {
         
         super(option);
 
-        this.editable = false;// 不可编辑
+        //this.editable = false;// 不可编辑
         this.style.fill = this.style.fill||0xFFFFFF;
         this.on('load', () => {
             this.resize(this.editor.width, this.editor.height);
         });
     }
 
-    init() {
-        super.init();
+    init(option) {
+        super.init(option);
         if(!this.bgGraphics) {
             this.bgGraphics = new PIXI.Graphics();
             this.bgGraphics.eventMode = 'none';
             this.addChild(this.bgGraphics);
         }
 
-        this.forceGraphics = new PIXI.Graphics();
-        this.forceGraphics.zIndex = 99999;
-        this.forceGraphics.eventMode = 'none';
-        this.editor.app.stage.addChild(this.forceGraphics);
+        if(!this.forceGraphics) {
+            this.forceGraphics = new PIXI.Graphics();
+            this.forceGraphics.zIndex = 99999;
+            this.forceGraphics.eventMode = 'none';
+            this.editor.app.stage.addChild(this.forceGraphics);
+        }
+    } 
+    
+    move(dx, dy) {
+        this.editor.move(dx, dy);
     }
 
-    resize(w, h) {
+    resize(w = this.width, h = this.height) {
 
         super.resize(w, h);
 

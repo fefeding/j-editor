@@ -17,18 +17,21 @@ export default class element extends EventEmiter {
         this.bindEvent();
     }
 
-    init(option) {
-        this.zIndex = this.option.zIndex || 1;
-        this.x = this.option.x || 0;
-        this.y = this.option.y || 0;
-        this.rotation = this.option.rotation || 0;
-        this.visible = typeof this.option.visible === 'boolean'? this.option.visible: true;
+    init(option=this.option) {
+        this.zIndex = option.zIndex || 1;
+        this.x = option.x || 0;
+        this.y = option.y || 0;
+        this.rotation = option.rotation || 0;
+        this.visible = typeof option.visible === 'boolean'? option.visible: true;
 
-        if(this.option.width && this.option.width > 0) this.width = this.option.width;
-        if(this.option.height && this.option.height > 0) this.height = this.option.height;
+        if(option.width && option.width > 0) this.width = option.width;
+        if(option.height && option.height > 0) this.height = option.height;
 
-        if(this.option.skew) {
-            this.skew = this.option.skew;
+        if(option.skew) {
+            this.skew = option.skew;
+        }
+        if(option.style) {
+            this.style = Object.assign(this.style, option.style);
         }
     }
 
@@ -171,7 +174,12 @@ export default class element extends EventEmiter {
         this.container.on('pointerout', function(event) {
             this.emit('pointerout', event);
         }, this);
-    }    
+    }   
+    
+    move(dx, dy) {
+        this.x += dx;
+        this.y += dy;
+    }
 
     // 重置大小
     resize(w, h) {

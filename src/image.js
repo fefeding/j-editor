@@ -11,6 +11,11 @@ export default class image extends element {
 
         this.addChild(this.sprite);
 
+        this.init(option);
+    }
+
+    init(option) {
+        super.init(option);
         if(option.url) {
             this.url = option.url;
         }
@@ -18,8 +23,6 @@ export default class image extends element {
         if(option.image) {
             this.texture = option.image;
         }
-
-        this.init(option);
     }
 
     get anchor() {

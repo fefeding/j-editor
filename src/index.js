@@ -50,20 +50,11 @@ export default class editor extends EventEmiter {
         
         this.children = [];
 
-        this.background = this.createShape('background', {
-            style: this.style
-        });
-        this.addChild(this.background);
-
         this.init(option);        
     }
 
     // 初始化整个编辑器
     init(option) {
-        if(option.width && option.height) {
-            this.resize(option.width, option.height);
-        }
-
         // Listen for animate update
         this.app.ticker.add((delta) =>  {
             this.emit('ticker', delta);            
@@ -83,6 +74,11 @@ export default class editor extends EventEmiter {
         });
         this.addChild(this.controlElement); 
 
+        this.background = this.createShape('background', {
+            style: this.style
+        });
+        this.addChild(this.background);
+
         this.textEditElement = document.createElement('textarea');
         this.textEditElement.style.position = 'absolute';
         this.textEditElement.style.display = 'none';
@@ -94,6 +90,11 @@ export default class editor extends EventEmiter {
         this.textEditElement.addEventListener('blur', (e) => {
             this.emit('textEditElementOnBlur', e);
         });
+
+        if(option.width && option.height) {
+            this.resize(option.width, option.height);
+        }
+
     }
 
     get width() {
@@ -137,6 +138,22 @@ export default class editor extends EventEmiter {
                 height
             });
         }, 10);
+    }
+
+    move(dx, dy) {
+        if(!dx && !dy) return;
+
+        this.left += dx;
+        this.top += dy;
+
+        // 背景大小一直拉满
+        this.background.resize();
+
+        // 重置所有子元素位lfhf
+        for(const c of this.children) {
+            if([this.controlElement, this.background].includes(c)) continue;
+            c.move(dx, dy);
+        }
     }
 
     // 添加元素到画布
@@ -228,6 +245,9 @@ export default class editor extends EventEmiter {
             children: []
         };
         for(const c of this.children) {
+            if(c.type === 'background') {
+                data.background = c.toJSON();
+            }
             if(c.type === 'background' || !c.type) continue;
             if(c.toJSON) {
                 data.children.push(c.toJSON());
@@ -246,6 +266,7 @@ export default class editor extends EventEmiter {
         if(typeof data === 'string') data = JSON.parse(data);
         this.background.url = data.backgroundUrl || '';
         this.background.style.fill = data.backgroundColor || '';
+        if(data.background) this.background.init(data.background);
 
         //if(data.width) this.width = data.width;
         //if(data.height) this.height = data.height;

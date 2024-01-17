@@ -74,8 +74,13 @@ export default class path extends element {
     }
 
     move(dx, dy) {
-        this.x += dx;
-        this.y += dy;
+        if(this.target === this.editor.background) {
+            this.target.move(dx, dy);
+        }
+        else {
+            this.x += dx;
+            this.y += dy;
+        }
     }
 
     // 获取旋转矩阵

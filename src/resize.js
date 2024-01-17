@@ -273,7 +273,7 @@ export default class resize extends resizeItem {
                 if(this.target) this.target.selected = false;
                 return;
             }
-            if(this.target && this.target.selected && (this.editor.background.container === event.target || this.editor.app.stage === event.target)) this.target.selected = false;
+            if(this.target && this.target.selected && ((this.editor.background.container === event.target && this.target !== this.editor.background) || this.editor.app.stage === event.target)) this.target.selected = false;
         });
     }
 
@@ -435,7 +435,11 @@ export default class resize extends resizeItem {
     // 绑到当前选中的元素
     bind(el) {
         this.target = el;
-        this.visible = true;
+
+        // 背景不给改变大小
+        if(el !== this.editor.background) {
+            this.visible = true;
+        }
 
         this.width = this.target.width;
         this.height = this.target.height;
@@ -500,11 +504,11 @@ export default class resize extends resizeItem {
         // 控制目标元素位置大大小
         if(this.target) {
             const pos = {
-                x: this.x,
-                y: this.y
+                x: this.x + this.width/2,
+                y: this.y + this.height/2
             };
-            this.target.x = pos.x + this.width/2;
-            this.target.y = pos.y + this.height/2;
+            this.target.x = pos.x;
+            this.target.y = pos.y;
 
             this.target.width = this.width;
             this.target.height = this.height;

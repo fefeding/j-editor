@@ -26890,18 +26890,21 @@ class element extends EventEmitter {
         this.bindEvent();
     }
 
-    init(option) {
-        this.zIndex = this.option.zIndex || 1;
-        this.x = this.option.x || 0;
-        this.y = this.option.y || 0;
-        this.rotation = this.option.rotation || 0;
-        this.visible = typeof this.option.visible === 'boolean'? this.option.visible: true;
+    init(option=this.option) {
+        this.zIndex = option.zIndex || 1;
+        this.x = option.x || 0;
+        this.y = option.y || 0;
+        this.rotation = option.rotation || 0;
+        this.visible = typeof option.visible === 'boolean'? option.visible: true;
 
-        if(this.option.width && this.option.width > 0) this.width = this.option.width;
-        if(this.option.height && this.option.height > 0) this.height = this.option.height;
+        if(option.width && option.width > 0) this.width = option.width;
+        if(option.height && option.height > 0) this.height = option.height;
 
-        if(this.option.skew) {
-            this.skew = this.option.skew;
+        if(option.skew) {
+            this.skew = option.skew;
+        }
+        if(option.style) {
+            this.style = Object.assign(this.style, option.style);
         }
     }
 
@@ -27044,7 +27047,12 @@ class element extends EventEmitter {
         this.container.on('pointerout', function(event) {
             this.emit('pointerout', event);
         }, this);
-    }    
+    }   
+    
+    move(dx, dy) {
+        this.x += dx;
+        this.y += dy;
+    }
 
     // 重置大小
     resize(w, h) {
@@ -27219,8 +27227,13 @@ class path extends element {
     }
 
     move(dx, dy) {
-        this.x += dx;
-        this.y += dy;
+        if(this.target === this.editor.background) {
+            this.target.move(dx, dy);
+        }
+        else {
+            this.x += dx;
+            this.y += dy;
+        }
     }
 
     // 获取旋转矩阵
@@ -27332,6 +27345,11 @@ class image extends element {
 
         this.addChild(this.sprite);
 
+        this.init(option);
+    }
+
+    init(option) {
+        super.init(option);
         if(option.url) {
             this.url = option.url;
         }
@@ -27339,8 +27357,6 @@ class image extends element {
         if(option.image) {
             this.texture = option.image;
         }
-
-        this.init(option);
     }
 
     get anchor() {
@@ -27561,28 +27577,34 @@ class background extends image {
         
         super(option);
 
-        this.editable = false;// 不可编辑
+        //this.editable = false;// 不可编辑
         this.style.fill = this.style.fill||0xFFFFFF;
         this.on('load', () => {
             this.resize(this.editor.width, this.editor.height);
         });
     }
 
-    init() {
-        super.init();
+    init(option) {
+        super.init(option);
         if(!this.bgGraphics) {
             this.bgGraphics = new Graphics();
             this.bgGraphics.eventMode = 'none';
             this.addChild(this.bgGraphics);
         }
 
-        this.forceGraphics = new Graphics();
-        this.forceGraphics.zIndex = 99999;
-        this.forceGraphics.eventMode = 'none';
-        this.editor.app.stage.addChild(this.forceGraphics);
+        if(!this.forceGraphics) {
+            this.forceGraphics = new Graphics();
+            this.forceGraphics.zIndex = 99999;
+            this.forceGraphics.eventMode = 'none';
+            this.editor.app.stage.addChild(this.forceGraphics);
+        }
+    } 
+    
+    move(dx, dy) {
+        this.editor.move(dx, dy);
     }
 
-    resize(w, h) {
+    resize(w = this.width, h = this.height) {
 
         super.resize(w, h);
 
@@ -27895,7 +27917,7 @@ class resize extends resizeItem {
                 if(this.target) this.target.selected = false;
                 return;
             }
-            if(this.target && this.target.selected && (this.editor.background.container === event.target || this.editor.app.stage === event.target)) this.target.selected = false;
+            if(this.target && this.target.selected && ((this.editor.background.container === event.target && this.target !== this.editor.background) || this.editor.app.stage === event.target)) this.target.selected = false;
         });
     }
 
@@ -28057,7 +28079,11 @@ class resize extends resizeItem {
     // 绑到当前选中的元素
     bind(el) {
         this.target = el;
-        this.visible = true;
+
+        // 背景不给改变大小
+        if(el !== this.editor.background) {
+            this.visible = true;
+        }
 
         this.width = this.target.width;
         this.height = this.target.height;
@@ -28122,11 +28148,11 @@ class resize extends resizeItem {
         // 控制目标元素位置大大小
         if(this.target) {
             const pos = {
-                x: this.x,
-                y: this.y
+                x: this.x + this.width/2,
+                y: this.y + this.height/2
             };
-            this.target.x = pos.x + this.width/2;
-            this.target.y = pos.y + this.height/2;
+            this.target.x = pos.x;
+            this.target.y = pos.y;
 
             this.target.width = this.width;
             this.target.height = this.height;
@@ -28294,20 +28320,11 @@ class editor extends EventEmitter {
         
         this.children = [];
 
-        this.background = this.createShape('background', {
-            style: this.style
-        });
-        this.addChild(this.background);
-
         this.init(option);        
     }
 
     // 初始化整个编辑器
     init(option) {
-        if(option.width && option.height) {
-            this.resize(option.width, option.height);
-        }
-
         // Listen for animate update
         this.app.ticker.add((delta) =>  {
             this.emit('ticker', delta);            
@@ -28327,6 +28344,11 @@ class editor extends EventEmitter {
         });
         this.addChild(this.controlElement); 
 
+        this.background = this.createShape('background', {
+            style: this.style
+        });
+        this.addChild(this.background);
+
         this.textEditElement = document.createElement('textarea');
         this.textEditElement.style.position = 'absolute';
         this.textEditElement.style.display = 'none';
@@ -28338,6 +28360,11 @@ class editor extends EventEmitter {
         this.textEditElement.addEventListener('blur', (e) => {
             this.emit('textEditElementOnBlur', e);
         });
+
+        if(option.width && option.height) {
+            this.resize(option.width, option.height);
+        }
+
     }
 
     get width() {
@@ -28381,6 +28408,22 @@ class editor extends EventEmitter {
                 height
             });
         }, 10);
+    }
+
+    move(dx, dy) {
+        if(!dx && !dy) return;
+
+        this.left += dx;
+        this.top += dy;
+
+        // 背景大小一直拉满
+        this.background.resize();
+
+        // 重置所有子元素位lfhf
+        for(const c of this.children) {
+            if([this.controlElement, this.background].includes(c)) continue;
+            c.move(dx, dy);
+        }
     }
 
     // 添加元素到画布
@@ -28472,6 +28515,9 @@ class editor extends EventEmitter {
             children: []
         };
         for(const c of this.children) {
+            if(c.type === 'background') {
+                data.background = c.toJSON();
+            }
             if(c.type === 'background' || !c.type) continue;
             if(c.toJSON) {
                 data.children.push(c.toJSON());
@@ -28490,6 +28536,7 @@ class editor extends EventEmitter {
         if(typeof data === 'string') data = JSON.parse(data);
         this.background.url = data.backgroundUrl || '';
         this.background.style.fill = data.backgroundColor || '';
+        if(data.background) this.background.init(data.background);
 
         //if(data.width) this.width = data.width;
         //if(data.height) this.height = data.height;
