@@ -26879,18 +26879,22 @@ class element extends EventEmitter {
 
     constructor(option) {
         super();
-        this.container = new Container();
         this.editor = option.editor;
         this.option = option || {};
-        this.style = this.option.style || {};
 
         this.id = option.id || v4().replace(/-/g, '');
 
         this.type = option.type || '';
-        this.bindEvent();
     }
 
     init(option=this.option) {
+
+        if(!this.container) {
+            this.container = new Container();
+            this.bindEvent();
+        }
+        this.style = this.option.style || {};
+
         this.zIndex = option.zIndex || 1;
         this.x = option.x || 0;
         this.y = option.y || 0;
@@ -27158,10 +27162,6 @@ class element extends EventEmitter {
 class path extends element {
     constructor(option) {
         super(option);
-        this.style.fill = this.style.fill || 'transparent';
-        this.style.stroke =  this.style.stroke || '#000';
-        this.points = option.points || [];
-        this.isClosed = option.isClosed || false;
         this.init(option);
     }
 
@@ -27169,6 +27169,11 @@ class path extends element {
         if(this.graphics) return;
 
         super.init(option);
+        
+        this.style.fill = this.style.fill || 'transparent';
+        this.style.stroke =  this.style.stroke || '#000';
+        this.points = option.points || [];
+        this.isClosed = option.isClosed || false;
 
         this.graphics = new Graphics();
         this.addChild(this.graphics);
@@ -27340,16 +27345,20 @@ class image extends element {
     constructor(option) {
         super(option);
 
-        this.sprite = new Sprite();  
-        this.anchor.set(0.5);
-
-        this.addChild(this.sprite);
+        if(!this.sprite ) {
+            this.sprite = new Sprite();  
+            this.anchor.set(0.5);
+        }
 
         this.init(option);
+
+        this.addChild(this.sprite);
     }
 
     init(option) {
+
         super.init(option);
+
         if(option.url) {
             this.url = option.url;
         }
@@ -27457,9 +27466,9 @@ class text extends element {
         if(this.option.width && this.option.width > 0) this.textSprite.width = this.option.width;
         if(this.option.height && this.option.height > 0) this.textSprite.height = this.option.height;
         
-        this.addChild(this.textSprite);
-        
         this.init(option);
+        
+        this.addChild(this.textSprite);
     }
 
     get anchor() {
@@ -28277,7 +28286,7 @@ class loader {
     }
 }
 
-class editor extends EventEmitter {
+class editor extends element {
 
     constructor(container, option={}) {  
         super(option);
@@ -28325,6 +28334,7 @@ class editor extends EventEmitter {
 
     // 初始化整个编辑器
     init(option) {
+        if(!this.app) return;
         // Listen for animate update
         this.app.ticker.add((delta) =>  {
             this.emit('ticker', delta);            

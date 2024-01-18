@@ -1,5 +1,6 @@
 import * as PIXI from 'pixi.js';
 import EventEmiter from 'eventemitter3';
+import jElement from './element.js';
 import jPath from './path.js';
 import jImage from './image.js';
 import jText from './text.js';
@@ -7,7 +8,7 @@ import jBackground from './background.js';
 import jResize from './resize.js';
 import jLoader from './loader.js';
 
-export default class editor extends EventEmiter {
+export default class editor extends jElement {
 
     constructor(container, option={}) {  
         super(option);
@@ -55,6 +56,7 @@ export default class editor extends EventEmiter {
 
     // 初始化整个编辑器
     init(option) {
+        if(!this.app) return;
         // Listen for animate update
         this.app.ticker.add((delta) =>  {
             this.emit('ticker', delta);            

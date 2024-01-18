@@ -6,18 +6,22 @@ export default class element extends EventEmiter {
 
     constructor(option) {
         super();
-        this.container = new PIXI.Container();
         this.editor = option.editor;
         this.option = option || {};
-        this.style = this.option.style || {};
 
         this.id = option.id || uuidv4().replace(/-/g, '');
 
         this.type = option.type || '';
-        this.bindEvent();
     }
 
     init(option=this.option) {
+
+        if(!this.container) {
+            this.container = new PIXI.Container();
+            this.bindEvent();
+        }
+        this.style = this.option.style || {};
+
         this.zIndex = option.zIndex || 1;
         this.x = option.x || 0;
         this.y = option.y || 0;

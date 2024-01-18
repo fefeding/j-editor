@@ -5,10 +5,6 @@ import element from './element.js';
 export default class path extends element {
     constructor(option) {
         super(option);
-        this.style.fill = this.style.fill || 'transparent';
-        this.style.stroke =  this.style.stroke || '#000';
-        this.points = option.points || [];
-        this.isClosed = option.isClosed || false;
         this.init(option);
     }
 
@@ -16,6 +12,11 @@ export default class path extends element {
         if(this.graphics) return;
 
         super.init(option);
+        
+        this.style.fill = this.style.fill || 'transparent';
+        this.style.stroke =  this.style.stroke || '#000';
+        this.points = option.points || [];
+        this.isClosed = option.isClosed || false;
 
         this.graphics = new PIXI.Graphics();
         this.addChild(this.graphics);

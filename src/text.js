@@ -39,9 +39,9 @@ export default class text extends element {
         if(this.option.width && this.option.width > 0) this.textSprite.width = this.option.width;
         if(this.option.height && this.option.height > 0) this.textSprite.height = this.option.height;
         
-        this.addChild(this.textSprite);
-        
         this.init(option);
+        
+        this.addChild(this.textSprite);
     }
 
     get anchor() {

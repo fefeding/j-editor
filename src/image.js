@@ -6,16 +6,20 @@ export default class image extends element {
     constructor(option) {
         super(option);
 
-        this.sprite = new PIXI.Sprite();  
-        this.anchor.set(0.5);
-
-        this.addChild(this.sprite);
+        if(!this.sprite ) {
+            this.sprite = new PIXI.Sprite();  
+            this.anchor.set(0.5);
+        }
 
         this.init(option);
+
+        this.addChild(this.sprite);
     }
 
     init(option) {
+
         super.init(option);
+
         if(option.url) {
             this.url = option.url;
         }
