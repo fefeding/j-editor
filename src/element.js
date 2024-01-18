@@ -6,7 +6,6 @@ export default class element extends EventEmiter {
 
     constructor(option) {
         super();
-        this.editor = option.editor;
         this.option = option || {};
 
         this.id = option.id || uuidv4().replace(/-/g, '');
@@ -41,7 +40,15 @@ export default class element extends EventEmiter {
 
     type = '';
 
-    children = []
+    children = [];
+
+    get editor() {
+        if(this.option && this.option.editor) return this.option.editor;
+        return this;
+    }
+    set editor(v) {
+        if(this.option) this.option.editor = v;
+    }
 
     // 位置
     get x() {

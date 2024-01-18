@@ -160,7 +160,7 @@ export default class editor extends jElement {
 
     // 添加元素到画布
     addChild(el) {
-        el.editor = this;
+        if(!el.editor) el.editor = this;
         if(el.container) {
             this.app.stage.addChild(el.container);
             
