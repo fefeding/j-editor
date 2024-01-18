@@ -1,6 +1,6 @@
 {
   "name": "j-design-editor",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "设计组件",
   "main": "src/index.js",
   "directories": {

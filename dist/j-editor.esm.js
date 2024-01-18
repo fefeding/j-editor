@@ -27698,7 +27698,7 @@ const GCursors = {
         if(this.style.fillSprite) {
             this.style.fillSprite.anchor.set(0.5);
             this.addChild(this.style.fillSprite);
-            this.style.fillSprite.mask = this.graphics;
+            //this.style.fillSprite.mask = this.graphics;
         }
     }
 
