@@ -1,4 +1,4 @@
-import EventEmiter from 'eventemitter3';
+import EventEmiter from '@fefeding/eventemitter';
 import * as PIXI from 'pixi.js';
 import { v4 as uuidv4 } from 'uuid';
 

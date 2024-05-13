@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js';
-import EventEmiter from 'eventemitter3';
+import EventEmiter from '@fefeding/eventemitter';
 import jElement from './element.js';
 import jPath from './path.js';
 import jImage from './image.js';

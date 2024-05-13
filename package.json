@@ -1,10 +1,14 @@
 {
-  "name": "j-design-editor",
+  "name": "@fefeding/canvas-design-editor",
   "version": "1.0.7",
   "description": "设计组件",
   "main": "src/index.js",
   "directories": {
     "example": "example"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
     "dev": "node test/dev",
@@ -14,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jiamao/j-editer.git"
+    "url": "git+https://github.com/fefeding/j-editer.git"
   },
   "keywords": [
     "sig"
@@ -22,9 +26,9 @@
   "author": "fefeding",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jiamao/j-editer/issues"
+    "url": "https://github.com/fefeding/j-editer/issues"
   },
-  "homepage": "https://github.com/jiamao/j-editer#readme",
+  "homepage": "https://github.com/fefeding/j-editer#readme",
   "devDependencies": {
     "@babel/core": "^7.10.2",
     "@babel/plugin-proposal-class-properties": "^7.10.1",
@@ -38,7 +42,7 @@
     "rollup-plugin-sourcemaps": "^0.6.2"
   },
   "dependencies": {
-    "eventemitter3": "^5.0.1",
+    "@fefeding/eventemitter": "^1.0.1",
     "pixi.js": "^7.3.2",
     "uuid": "^9.0.1"
   }
